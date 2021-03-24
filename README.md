@@ -5,7 +5,7 @@ TA: Gökhan Çapan
 Students:
 Berkay Demirtaş
 Gülşah Çilingiroğlu
-Safa Burak Altınel
+Safa Burak Altunel
 Ekrem Gezgen
 Enes Aydoğdu
 Taha Kalkanlı
