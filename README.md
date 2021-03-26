@@ -7,7 +7,7 @@ Berkay Demirtaş
 Gülşah Çilingiroğlu
 Safa Burak Altunel
 Ekrem Gezgen
-Enes Aydoğdu
+Enes Aydoğduoğlu
 Taha Kalkanlı
 Onur Sefa Özçıbık
 Gökberk Yılmaz
