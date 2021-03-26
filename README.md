@@ -1,5 +1,7 @@
 # 2021SpringGroup10
 
+This is group 10 for the CMPE 352&451.
+ 
 TA: Gökhan Çapan
 
 Students:
