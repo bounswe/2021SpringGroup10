@@ -6,7 +6,7 @@ Students:
 Berkay Demirtaş
 Gülşah Çilingiroğlu
 Safa Burak Altunel
-Ekrem Gezgen
+Muhammet Ekrem Gezgen
 Enes Aydoğduoğlu
 Taha Kalkanlı
 Onur Sefa Özçıbık
