@@ -7,7 +7,7 @@ Here's our [Wiki page](https://github.com/bounswe/2021SpringGroup10/wiki).
 Team Members:
 1. [Berkay Demirtaş](https://github.com/bounswe/2021SpringGroup10/wiki/Berkay-Demirtaş).
 2. [Ekin Güngör](https://github.com/bounswe/2021SpringGroup10/wiki/Ekin-Güngör).
-3. [Enes Aydoğdulu](https://github.com/bounswe/2021SpringGroup10/wiki/Enes-Aydoğduoğlu).
+3. [Enes Aydoğduoğlu](https://github.com/bounswe/2021SpringGroup10/wiki/Enes-Aydoğduoğlu).
 4. [Gülşah Çilingiroğlu](https://github.com/bounswe/2021SpringGroup10/wiki/Gülşah-Çilingiroğlu).
 5. [M.Ekrem Gezgen](https://github.com/bounswe/2021SpringGroup10/wiki/M.Ekrem-Gezgen).
 6. [Onur Sefa Özçıbık](https://github.com/bounswe/2021SpringGroup10/wiki/Onur-Sefa-Özçıbık).
