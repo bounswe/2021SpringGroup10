@@ -11,7 +11,7 @@ Team Members:
 4. [Gülşah Çilingiroğlu](https://github.com/bounswe/2021SpringGroup10/wiki/Gülşah-Çilingiroğlu).
 5. [M.Ekrem Gezgen](https://github.com/bounswe/2021SpringGroup10/wiki/M.Ekrem-Gezgen).
 6. [Onur Sefa Özçıbık](https://github.com/bounswe/2021SpringGroup10/wiki/Onur-Sefa-Özçıbık).
-7. [S.Gökberk Yılmaz](https://github.com/bounswe/2021SpringGroup10/wiki/S.-Gökberk-Yılmaz).
+7. [S. Gökberk Yılmaz](https://github.com/bounswe/2021SpringGroup10/wiki/S.-Gökberk-Yılmaz).
 8. [Safa Burak Altunel](https://github.com/bounswe/2021SpringGroup10/wiki/Safa-Burak-Altunel).
 9. [Taha Kalkanlı](https://github.com/bounswe/2021SpringGroup10/wiki/Taha-Kalkanlı).
 
