@@ -1,16 +1,5 @@
 # 2021SpringGroup10
 
-This is group 10 for Cmpe 352&451.
- 
-TA: Gökhan Çapan
+This is the repository of our group for Cmpe352 Fundamentals of Software Engineering course. Throughout this course, we will work on "developing software products" in conjunction with the related issues, methods, and tools. All work can be found in this repository.
 
-Students:
-Berkay Demirtaş
-Gülşah Çilingiroğlu
-Safa Burak Altunel
-Muhammet Ekrem Gezgen
-Enes Aydoğduoğlu
-Taha Kalkanlı
-Onur Sefa Özçıbık
-Gökberk Yılmaz
-Ekin Güngör
+Here's our [Wiki page](https://github.com/bounswe/2021SpringGroup10/wiki).
