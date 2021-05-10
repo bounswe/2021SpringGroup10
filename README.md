@@ -15,4 +15,4 @@ Team Members:
 8. [Safa Burak Altunel](https://github.com/bounswe/2021SpringGroup10/wiki/Safa-Burak-Altunel).
 9. [Taha Kalkanlı](https://github.com/bounswe/2021SpringGroup10/wiki/Taha-Kalkanlı).
 
-TA : [Gökhan Çapan](https://github.com/gcapan)
+TA : [Egemen İşgüder](https://github.com/Egosis)
