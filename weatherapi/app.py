@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, request, render_template, redirect
 import requests
 import pymongo
 import datetime
@@ -11,24 +11,36 @@ client = pymongo.MongoClient("mongodb+srv://baseuser:baseuser@cluster0.cjzn1.mon
 db = client["352api"]
 
 
+@app.route('/weathergetindex', methods=['GET'])
+def weathergetindex():
+    result = requests.get("http://127.0.0.1:5000/weatherget").json()
+    return render_template('weatherGet.html', data=result)
+
+
 @app.route('/weatherget', methods=['GET'])
 def weatherget():
-    #response = db.weather.find().sort("time", -1)
+    response = db.weather.find().sort("time", -1)
 
     for result in response:
         temp = result.pop('_id')
-        return render_template('weatherGet.html', data=result)
+        return result
         break
 
 
-@app.route('/weatherpost', methods=['POST'])
-def weatherpost():
+@app.route('/weatherpostindex/<string:location>', methods=['GET'])
+def weatherpostindex(location):
 
-    location = request.form['location']
-    location = location.upper()
+    response = requests.post("http://127.0.0.1:5000/weatherpost/{}".format(location)).json()
+    db.weather.insert_one(response)
+    return render_template('weather.html', data=response)
+
+
+@app.route("/weatherpost/<string:location>", methods=['POST'])
+def weatherpost(location):
+
     key = '5977480005743963cf86cfae93747357'
     result = requests.get('http://api.openweathermap.org/data/2.5/weather?q=' + location + '&appid=' + key).json()
-    time= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     temp_max = round(result['main']['temp_max'] - 273)
     temp_min = round(result['main']['temp_min'] - 273)
@@ -52,12 +64,21 @@ def weatherpost():
         "wind speed": wind_speed
     }
 
-    #db.weather.insert_one(response)
-    return render_template('weather.html', data=response)
+    return response
 
 
-@app.route("/weather")
+@app.route("/weather", methods=['GET', 'POST'])
 def start():
+
+    if request.method != 'GET':
+        res = request.form["getorpost"]
+        if res == "OK":
+            return redirect('/weathergetindex')
+        else:
+            location = request.form['location']
+            location = location.upper()
+            return redirect('/weatherpostindex/{}'.format(location))
+
     return render_template("indexweather.html")
 
 
