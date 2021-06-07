@@ -28,7 +28,7 @@ joke = [
 first = [True]
 
 
-@app.route('/add_user/<user_name>', methods=["POST"])
+@app.route('/joke/add_user/<user_name>', methods=["POST"])
 def add_user(user_name):
     if request.method == "POST":
         return helper_functions.add_user(user_name, collection)
@@ -36,7 +36,7 @@ def add_user(user_name):
         return None
 
 
-@app.route('/get_user/<user_name>', methods=["GET"])
+@app.route('/joke/get_user/<user_name>', methods=["GET"])
 def get_user(user_name):
     if request.method == "GET":
         return helper_functions.get_user(user_name, collection)
@@ -44,7 +44,7 @@ def get_user(user_name):
         return None
 
 
-@app.route('/add_to_list/<user_name>/<set_up>/<punch_line>', methods=["GET", "PUT"])
+@app.route('/joke/add_to_list/<user_name>/<set_up>/<punch_line>', methods=["GET", "PUT"])
 def add_to_list(user_name, set_up, punch_line):
     if request.method == "PUT":
         return helper_functions.add_to_list(user_name, set_up, punch_line, collection)
@@ -52,11 +52,11 @@ def add_to_list(user_name, set_up, punch_line):
         return None
 
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/joke/', methods=["GET", "POST"])
 def home():
     first[0] = True
     if request.method == "POST":
-        user_response = requests.get('http://127.0.0.1:5000//get_user/{}'.format(request.form['user']))
+        user_response = requests.get('http://127.0.0.1:5000/joke/get_user/{}'.format(request.form['user']))
         if user_response.status_code == 200:
             user_result = user_response.json()
             user[0] = True
@@ -64,14 +64,14 @@ def home():
             user[2] = user_result['jokes']
         else:
             user[1] = request.form['user']
-            add_response = requests.post('http://127.0.0.1:5000//add_user/{}'.format(request.form['user']))
+            add_response = requests.post('http://127.0.0.1:5000/joke/add_user/{}'.format(request.form['user']))
             user[0] = True
-        return redirect('/choice'.format(request.form['user']))
+        return redirect('/joke/choice'.format(request.form['user']))
 
     return render_template('home.html')
 
 
-@app.route('/user/<wish>', methods=["GET", "POST"])
+@app.route('/joke/user/<wish>', methods=["GET", "POST"])
 def user_wish(wish):
     if user[0]:
         if wish == "make":
@@ -84,30 +84,30 @@ def user_wish(wish):
             if request.method == "POST":
                 joke1 = joke[0]['setup'].replace("?", "_")
                 joke2 = joke[0]['punchline'].replace("?", "_")
-                add_to_list_response = requests.put('http://127.0.0.1:5000/add_to_list/{}/{}/{}'.format(user[1], joke1, joke2))
-                return redirect('/user/show')
+                add_to_list_response = requests.put('http://127.0.0.1:5000/joke/add_to_list/{}/{}/{}'.format(user[1], joke1, joke2))
+                return redirect('/joke/user/show')
             if joke[0]['setup'] == "none":
                 first[0] = True
             return render_template("make_joke.html", data=joke[0])
         elif wish == "show":
             first[0] = True
-            user_response = requests.get('http://127.0.0.1:5000//get_user/{}'.format(user[1]))
+            user_response = requests.get('http://127.0.0.1:5000/joke/get_user/{}'.format(user[1]))
             user[2] = user_response.json()['jokes']
             return render_template("show_jokes.html", data=user[2])
         else:
-            return redirect('/')
+            return redirect('/joke/')
     else:
-        return redirect('/')
+        return redirect('/joke/')
 
 
-@app.route('/choice', methods=["GET", "POST"])
+@app.route('/joke/choice', methods=["GET", "POST"])
 def choice():
     first[0] = True
     if request.method == "POST":
         if request.form["joke"] == "Make a Joke" or request.form["joke"] == "Show my Jokes":
-            return redirect('/user/{}'.format(request.form["joke"].split()[0]).lower())
+            return redirect('/joke/user/{}'.format(request.form["joke"].split()[0]).lower())
         else:
-            return redirect('/')
+            return redirect('/joke')
 
     return render_template("choice.html")
 
