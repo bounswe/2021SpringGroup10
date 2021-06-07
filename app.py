@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import requests
+import json
 
 app = Flask(__name__)
 app.config[ 'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
-# db.create_all() fonksiyonu database'i kuruyor
 
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 
@@ -26,22 +26,22 @@ def sport_events():
     if request.method == "POST":
         sport_type = request.form["sport_type"]
         description = request.form["description"]
-        sport_event = SportEvent(sport_type = sport_type, description = description)
-        
-        try:
-            db.session.add(sport_event)
-            db.session.commit()
-            return redirect('/sportevents')
-        except:
-            return "There was an issue adding your sport event"
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/sportevents"
+        headers = {'Content-type': 'application/json'}
+
+        task = {"sport_type": sport_type, "description": description}
+
+        response = requests.post(req, data=json.dumps(task), headers=headers)
+        return redirect('/sportevents')
     else:
-        sport_events = SportEvent.query.order_by(SportEvent.id).all()
-        for event in sport_events:
-            if event.description == "":
-                type = str(event.sport_type).lower()
-                response = requests.get(DECATHLON_URL+type).json()
-                desc = response["data"]["attributes"]["description"]
-                event.description = desc
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/sportevents"
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(req).json()
+        sport_events = response['data']
 
         return render_template('sportevents.html', sport_events = sport_events)
 
@@ -79,7 +79,6 @@ def sport_events_api():
                 desc = response["data"]["attributes"]["description"]
                 event.description = desc
             json_objects.append({'id': event.id, 'sport_type': event.sport_type, 'description': event.description})
-            print(event.__dict__)
         return jsonify({'data': json_objects}), 200
 
 @app.route('/api/v1.0/sportevents/<int:id>', methods = ["GET"])
