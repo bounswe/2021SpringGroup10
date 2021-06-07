@@ -6,7 +6,16 @@
 </head>
 <body>
     <div>
-        <h1>{{ data }}</h1>
+        <table border = 1>
+            {% for datum in data %}
+
+            <tr>
+               <th> {{ datum['set_up'] }} </th>
+               <td> {{ datum['punch_line'] }} </td>
+            </tr>
+
+            {% endfor %}
+                </table>
         <form action="/choice">
             <input type="submit" value="HOME">
         </form>

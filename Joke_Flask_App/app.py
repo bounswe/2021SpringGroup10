@@ -20,8 +20,8 @@ user = [
 
 joke = [
     {
-        "set_up": "none",
-        "punch_line": "none"
+        "setup": "none",
+        "punchline": "none"
     }
 ]
 
@@ -86,7 +86,9 @@ def user_wish(wish):
                 joke2 = joke[0]['punchline'].replace("?", "_")
                 add_to_list_response = requests.put('http://127.0.0.1:5000/add_to_list/{}/{}/{}'.format(user[1], joke1, joke2))
                 return redirect('/user/show')
-            return render_template("make_joke.html", data=joke_json)
+            if joke[0]['setup'] == "none":
+                first[0] = True
+            return render_template("make_joke.html", data=joke[0])
         elif wish == "show":
             first[0] = True
             user_response = requests.get('http://127.0.0.1:5000//get_user/{}'.format(user[1]))
