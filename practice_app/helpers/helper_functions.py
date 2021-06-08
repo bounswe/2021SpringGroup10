@@ -12,7 +12,7 @@ def add_user(user_name, collection):
     value = {
         "id": str(x.inserted_id)
     }
-    return value
+    return value, 201
 
 
 def add_to_list(user_name, set_up, punch_line, collection):

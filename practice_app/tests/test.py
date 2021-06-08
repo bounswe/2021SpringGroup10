@@ -103,7 +103,7 @@ class JokeTest(unittest.TestCase):
         tester = app.test_client(self)
         response = tester.post("/joke/add_user/{}".format(will_deleted_mock_data['name']))
         status = response.status_code
-        self.assertEqual(200, status)
+        self.assertEqual(201, status)
 
     # test for updating a user
     def test_api_update_user(self):
