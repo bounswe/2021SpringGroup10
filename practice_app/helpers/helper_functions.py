@@ -28,7 +28,6 @@ def add_to_list(user_name, set_up, punch_line, collection):
 
     value = {
         "modified_count": x.modified_count,
-        "id": x.upserted_id,
     }
     return value
 
