@@ -2,11 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Example Project</title>
 </head>
 <body>
-    <form method="POST" action="">
-        <input type="submit" value="joke" name="button"/>
+    <form action="/market/getCurrenciesNames" method="GET">
+        <input type="submit" value="See the symbols of currencies" />
+    </form>
+    <form method = "POST">
+        <p>Name of Stock <input type = "text" name = "Name" /></p>
+        <p>Number Of Day <input type = "text" name = "day" /></p>
+        <p><input type = "submit" value = "Get Last Prices" /></p>
+     </form>
+
+     <form action="/market/getSearchHistory" method="GET">
+        <input type="submit" value="See search history" />
     </form>
 </body>
 </html>
