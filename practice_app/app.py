@@ -41,7 +41,7 @@ def cat_facts():
         headers = {'Content-type': 'application/json'}
         response = requests.get(req).json()
         cat_facts=response['data']
-        print(cat_facts)
+        
         
         
         headers = {'Content-type': 'application/json'}
@@ -82,7 +82,7 @@ def cat_facts_api():
         json_objects = []
         for fact in cat_facts:
             json_objects.append({'fact': fact["fact"]})
-        print(json_objects)
+        
         return {'data': json_objects}
       
 
