@@ -15,15 +15,25 @@
         </tr>
         {% for fact in cat_facts  %}
             <tr>
-                <td>{{ fact.text }}</td>
+                <td>{{ fact.fact }}</td>
             </tr>
         {% endfor %}
     </table>
+    <div>
+    <h3>
+    Cat Facts From Third Party Api
+    </h3>
+    {% for fact in cat_facts_api  %}
+         <div>
+            {{ fact }}
+         </div>   
+    {% endfor %}
+    </div>
 
 
     <form action="/catfacts" method="POST">
         <label>Cat Fact</label>
-        <input type="text" name="text" _id="text">
+        <input type="text" name="text" id="text">
         <input type="submit" value="Add Cat Fact">
     </form>
 

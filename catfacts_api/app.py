@@ -1,19 +1,20 @@
 from typing import Text
-from flask import Flask, render_template, request, redirect, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect
+
+import pymongo
 from flask_restful import  abort
-from datetime import datetime
+
 import requests
 import json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-db = SQLAlchemy(app)
+client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
+db = client.first
+cat_collection = db.catfacts
+
 CATFACTS_URL='https://cat-fact.herokuapp.com/facts'
 
-class Catfacts(db.Model):
-    _id = db.Column(db.String(24), primary_key=True)
-    text = db.Column(db.String(500), nullable=False)
+
 
 @app.route('/', methods = ['GET'])
 def index():
@@ -22,16 +23,16 @@ def index():
 @app.route('/catfacts', methods = ['GET', 'POST'])
 def cat_facts():
     if request.method == "POST":
-        _id = request.form["_id"]
+       
         text = request.form["text"]
         endpoint = "http://127.0.0.1:5000"
 
         req = endpoint + "/api/v1.0/catfacts"
         headers = {'Content-type': 'application/json'}
 
-        task = {"_id": _id, "text": text}
+        fact = {"fact": text}
 
-        response = requests.post(req, data=json.dumps(task), headers=headers)
+        response = requests.post(req, data=json.dumps(fact), headers=headers)
         return redirect('/catfacts')
     else:
         endpoint = "http://127.0.0.1:5000"
@@ -39,55 +40,73 @@ def cat_facts():
         req = endpoint + "/api/v1.0/catfacts"
         headers = {'Content-type': 'application/json'}
         response = requests.get(req).json()
-        cat_facts = response['data']
+        cat_facts=response['data']
+        print(cat_facts)
+        
+        
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(CATFACTS_URL).json()
+        
+        api_response=[]
 
-        return render_template('catfacts.html', cat_facts = cat_facts)
+        for i in range(5):
+            api_response.append(response[i]['text'])
+        
+
+     
+
+        return render_template('catfacts.html', cat_facts = cat_facts, cat_facts_api=api_response)
 
 
 
 @app.route('/api/v1.0/catfacts', methods = ["GET", "POST"])
 def cat_facts_api():
+    
     if request.method == "POST":
-        if not request.json or not 'text' in request.json:
+        if not request.json or not 'fact' in request.json:
             abort(400)
-        text = request.json["text"]
+        fact = request.json["fact"]
         
-        cat_facts = Catfacts(text = text)
-        
+      
         try:
-            db.session.add(cat_facts)
-            db.session.commit()
-           
-            return {'data': {'_id': cat_facts._id, 'text': cat_facts.text}}, 201
+            cat_collection.insert_one({'fact': fact})
+          
+            return {'fact':fact}
         except:
-            return "There was an issue adding new catfact"
+          
+             return {'data': "there is an error"}
     else:
-        cat_facts = Catfacts.query.order_by(Catfacts._id).all()
+
+        cat_facts = cat_collection.find({})
+        
         json_objects = []
         for fact in cat_facts:
-            json_objects.append({'_id': fact._id, 'text': fact.text})
-        return jsonify({'data': json_objects}), 200
+            json_objects.append({'fact': fact["fact"]})
+        print(json_objects)
+        return {'data': json_objects}
+      
 
 
-@app.route('/api/v1.0/catfacts/<str:_id>', methods = ["GET"])
+@app.route('/api/v1.0/catfacts/<int:_id>', methods = ["GET"])
 def get_cat_fact(_id):
-    fact = Catfacts.query.get_or_404(_id)
+    
+    fact = cat_collection.get_or_404(_id)
         
     return {'data': {'_id': fact._id, 'text': fact.text}}, 200
 
 
 
 
-@app.route('/delete/<String:_id>')
-def delete(_id):
-    cat_fact_delete = Catfacts.query.get_or_404(id)
+# @app.route('/delete/<int:_id>')
+# def delete(_id):
+#     cat_fact_delete = cat_collection.get_or_404(_id)
 
-    try:
-        db.session.delete(cat_fact_delete)
-        db.session.commit()
-        return redirect('/')
-    except:
-        return 'There was a problem deleting that catfact'
+#     try:
+#         db.session.delete(cat_fact_delete)
+#         db.session.commit()
+#         return redirect('/')
+#     except:
+#         return {'data': "there is an error"}
 
 
 
