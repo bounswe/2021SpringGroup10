@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Sport Events</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Sport Events</h1>
+
+    <table>
+        <tr>
+            <th>Sport Event Name</th>
+            <th>Sport Type</th>
+            <th>Description</th>
+        </tr>
+        {% for event in sport_events  %}
+            <tr>
+                <td>{{ event.event_name }}</td>
+                <td>{{ event.sport_type }}</td>
+                <td>{{ event.description }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <br>
+    <br>
+    <h4>Add New Event</h4>
+    <form action="/sportevents" method="POST">
+        <div>
+            <label>Sport Event Name</label>
+            <input type="text" name="event_name" id="event_name">
+        </div>
+        <div>
+            <label>Sport Type</label>
+            <input type="text" name="sport_type" id="sport_type">
+        </div>
+        <div>
+            <label>Description</label>
+            <input type="text" name="description" id="description">
+        </div>
+        <input type="submit" value="Add Sport Event">
+    </form>
+
+</div>
+{% endblock %}
