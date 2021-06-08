@@ -7,15 +7,10 @@ from helpers import helper_functions
 from bson.objectid import ObjectId
 
 
-app = Flask(__name__)
-
-mongo_client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
-db = mongo_client.first
-joke_collection = db.joke
-messages_collection = db.messages
 
 CHANNEL_ID = "C0242LA1NCS"
 SLACK_TOKEN = "xoxb-1881747695606-2138926157411-FDZY3FJ8wZNTJQDTR8La3Y46"
+DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 
 joke_user = [
     False,
@@ -37,9 +32,9 @@ client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster
 db = client.first
 joke_collection = db.joke
 sportevent_collection = db.safa
+messages_collection = db.messages
 
 
-DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 
 
 
