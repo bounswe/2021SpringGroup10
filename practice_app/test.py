@@ -27,19 +27,14 @@ class FlaskTest(unittest.TestCase):
         stat = response.status_code
         self.assertEqual(stat, 200)
 
-    # check get request of wheathergetindex route
-    def test_weathergetindex(self):
-        tester = app.test_client(self)
-        response = tester.get("/weathergetindex")
-        stat = response.status_code
-        self.assertEqual(stat, 200)
-
     # check get request of wheatherpost route
     def test_weatherpost(self):
         tester = app.test_client(self)
         response = tester.post("/weatherpost/ISTANBUL")
         stat = response.status_code
         self.assertEqual(stat, 200)
+
+
 
 
 if __name__ == "__main__":
