@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example Project</title>
+</head>
+<body>
+    <form action="http://localhost:5000/getCurrenciesNames" method="GET">
+        <input type="submit" value="See the symbols of currencies" />
+    </form>
+    <form method = "POST">
+        <p>Name of Stock <input type = "text" name = "Name" /></p>
+        <p>Number Of Day <input type = "text" name = "day" /></p>
+        <p><input type = "submit" value = "Get Last Prices" /></p>
+     </form>
+
+     <form action="http://localhost:5000/getSearchHistory" method="GET">
+        <input type="submit" value="See search history" />
+    </form>
+</body>
+</html>

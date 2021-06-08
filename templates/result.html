@@ -1,0 +1,20 @@
+<!doctype html>
+  <table border = 1>
+    {% for key, value in result.items() %}
+
+    <tr>
+       <th> {{ key }} </th>
+       <td> {{ value }} </td>
+    </tr>
+
+    {% endfor %}
+ </table>
+ <form action="http://localhost:5000" method="GET">
+   <input type="submit" value="Go back the home page" />
+</form>
+<form action="http://localhost:5000/saveLastPrice" method="POST">
+   <input type="submit" value="Save Last Price" />
+</form>
+<form action="http://localhost:5000/getSavedPrices" method="POST">
+   <input type="submit" value="See Saved Prices" />
+</form>
