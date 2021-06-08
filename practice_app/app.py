@@ -41,6 +41,14 @@ def joke_get_user(user_name):
         return None
 
 
+@app.route('/joke/delete_user/<user_name>', methods=["DELETE"])
+def joke_delete_user(user_name):
+    if request.method == "DELETE":
+        return helper_functions.delete_user(user_name, joke_collection)
+    else:
+        return None
+
+
 @app.route('/joke/add_to_list/<user_name>/<set_up>/<punch_line>', methods=["GET", "PUT"])
 def joke_add_to_list(user_name, set_up, punch_line):
     if request.method == "PUT":
