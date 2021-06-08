@@ -1,4 +1,5 @@
 .idea
 __pycache__
-Joke_Flask_App/.idea
-Joke_Flask_App/__pycache__
+practice_app/.idea
+practice_app/__pycache__
+practice_app/venv
