@@ -19,14 +19,14 @@ collection = db.berkay
 client_id = "82ffff3f23534eedba167129f0ea8e31"
 secret = "c8025a5e15754c199d82c249969f484f"
 
-@app.route("/" ,methods = ["GET","POST"])
-def home():
+@app.route("/market" ,methods = ["GET","POST"])
+def marketHome():
     if request.method == "POST":
-        return redirect("/getLastDaysForStock",code=307)
+        return redirect("/market/getLastDaysForStock",code=307)
     return render_template('home.html')
 
 
-@app.route("/getCurrenciesNames", methods = ["GET"])
+@app.route("/market/getCurrenciesNames", methods = ["GET"])
 def getCurrenciesLastPrice():
     response = requests.get("http://api.marketstack.com/v1/currencies?access_key=10818e5bb1090fefbd86603de2ab9d0c" ).json()
     dict = {}
@@ -35,7 +35,7 @@ def getCurrenciesLastPrice():
     return render_template("result.html",result = dict)
 
 
-@app.route('/getLastDaysForStock', methods=["POST"])
+@app.route('/market/getLastDaysForStock', methods=["POST"])
 def getLastDaysForStock():
     stockName = request.form["Name"]
     Day = request.form["day"]
@@ -51,13 +51,13 @@ def getLastDaysForStock():
             break
     return render_template('result.html', result=dict)
 
-@app.route('/save/<date>/<name>/<price>', methods=["POST"])
+@app.route('/market/save/<date>/<name>/<price>', methods=["POST"])
 def saveLastPrice(date,price,name):
     x = collection.insert_one({"name": name, "date": date , "price": price})
     return x
 
 
-@app.route('/getSearchHistory', methods=["GET"])
+@app.route('/market/getSearchHistory', methods=["GET"])
 def getSearchHistory():
     dict2 = {}
     x = collection.find({})
