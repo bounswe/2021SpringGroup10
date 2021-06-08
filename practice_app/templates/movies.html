@@ -1,0 +1,43 @@
+{% block head %}
+<title>Movies</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Movies</h1>
+
+    <table>
+        <tr>
+            <th>Movies</th>
+            
+        </tr>
+        {% for mmovie in movies  %}
+            <tr>
+                <td>{{ mmovie.mmovie }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div>
+    <h3>
+    Movies From Third Party Api
+    </h3>
+    {% for movie in movie_api  %}
+         <div>
+            {{ mmovie }}
+         </div>   
+    {% endfor %}
+    </div>
+    {{ movies_api }}
+    <br>
+</br>
+
+    <form   method="POST">
+        <label>Movies</label>
+        
+    
+        <input type="text" name="text" id="text">
+        <input type="submit" value="Add Movie">
+    </form>
+
+</div>
+{% endblock %}
