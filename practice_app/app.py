@@ -4,8 +4,11 @@ import requests
 
 client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
 db = client.first
-collectiondictionary = db.gokberk
+collectiondictionary = db.word
 
+collectionkey = db.key
+apikeyx = collectionkey.find_one({"keyword":"thekey"})
+apikey = apikeyx["thekey"]
 
 app = Flask(__name__)
 
@@ -22,7 +25,7 @@ def home_dictionary():
 def synonym_dictionary(word):
     url_synonym = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/synonyms"
     headers_synonym = {
-        'x-rapidapi-key': "4e9bda707amshaa2a2e7a0c08b4dp1f1264jsn3bb1fb127723",
+        'x-rapidapi-key': apikey,
         'x-rapidapi-host': "wordsapiv1.p.rapidapi.com"
     }
     response_synonym = requests.request("GET", url_synonym, headers=headers_synonym)
@@ -38,7 +41,7 @@ def synonym_dictionary(word):
 def definition_dictionary(word):
     url_definition = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/definitions"
     headers_definition = {
-        'x-rapidapi-key': "4e9bda707amshaa2a2e7a0c08b4dp1f1264jsn3bb1fb127723",
+        'x-rapidapi-key': apikey,
         'x-rapidapi-host': "wordsapiv1.p.rapidapi.com"
     }
     response_definition = requests.request("GET", url_definition, headers=headers_definition)
