@@ -9,7 +9,10 @@ def get_user(user_name, collection):
 
 def add_user(user_name, collection):
     x = collection.insert_one({"name": user_name, "jokes": []})
-    return x
+    value = {
+        "id": str(x.inserted_id)
+    }
+    return value
 
 
 def add_to_list(user_name, set_up, punch_line, collection):
@@ -22,4 +25,18 @@ def add_to_list(user_name, set_up, punch_line, collection):
     else:
         user_jokes.append({'set_up': set_up, 'punch_line': punch_line})
         x = collection.update_one({"name": user_name}, {"$set": {'jokes': user_jokes}})
-    return x
+
+    value = {
+        "modified_count": x.modified_count,
+        "id": x.upserted_id,
+    }
+    return value
+
+
+def delete_user(user_name, collection):
+    x = collection.delete_one({"name": user_name})
+    value = {
+        "deleted_count": x.deleted_count
+    }
+    return value
+
