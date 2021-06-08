@@ -1,27 +1,25 @@
 import pymongo
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import requests
 
 client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
 db = client.first
-collection = db.gokberk
-client_id = "82ffff3f23534eedba167129f0ea8e31"
-secret = "c8025a5e15754c199d82c249969f484f"
+collectiondictionary = db.gokberk
 
 
 app = Flask(__name__)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 
-@app.route('/')
-def home():
+@app.route('/dictionary')
+def home_dictionary():
     return render_template('search.html')
 
 
-@app.route("/search-synonym/<word>", methods=["GET"])
-def synonym(word):
+@app.route("/dictionary-search-synonym/<word>", methods=["GET"])
+def synonym_dictionary(word):
     url_synonym = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/synonyms"
     headers_synonym = {
         'x-rapidapi-key': "4e9bda707amshaa2a2e7a0c08b4dp1f1264jsn3bb1fb127723",
@@ -36,8 +34,8 @@ def synonym(word):
     return synsdict
 
 
-@app.route("/search-definition/<word>", methods=["GET"])
-def definition(word):
+@app.route("/dictionary-search-definition/<word>", methods=["GET"])
+def definition_dictionary(word):
     url_definition = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/definitions"
     headers_definition = {
         'x-rapidapi-key': "4e9bda707amshaa2a2e7a0c08b4dp1f1264jsn3bb1fb127723",
@@ -52,36 +50,40 @@ def definition(word):
     return defsdict
 
 
-@app.route("/search", methods=["POST"])
-def search():
+@app.route("/dictionary-search", methods=["POST"])
+def search_dictionary():
     word = request.form["word"]
     typ = request.form["opr"]
     if typ == "search synonyms":
-        elements = synonym(word)
+        x = "http://127.0.0.1:5000/dictionary-search-synonym/" + word
+        elements = requests.get(x).json()
     elif typ == "search definitions":
-        elements = definition(word)
-    add_to_history(word)
+       # elements = definition(word)
+        x = "http://127.0.0.1:5000/dictionary-search-definition/" + word
+        elements = requests.get(x).json()
+    requests.post("http://127.0.0.1:5000/insert-dictionary-history/" + word)
     return render_template("result.html", elements=elements, word=word)
 
 
-@app.route("/displayhistory", methods=["GET"])
-def display_hist():
-    hist = get_history()
+@app.route("/display-dictionary-history", methods=["GET"])
+def display_dictionary_hist():
+    hist = requests.get("http://127.0.0.1:5000/dictionary-history").json()
     hist2 = {}
     for i, val in enumerate(hist):
-        hist2[i+1] = hist[i]
+        hist2[i+1] = hist[val]
     return render_template("history.html", elements=hist2)
 
-@app.route("/history", methods=["GET"])
-def get_history():
-    x = collection.find({})
+
+@app.route("/dictionary-history", methods=["GET"])
+def get_dictionary_history():
+    x = collectiondictionary.find({})
     histdict = {}
     for i, word in enumerate(x):
         histdict[i] = word["word"]
     return histdict
 
 
-@app.route("/inserthistory/<word>", methods=["POST", "GET"])
-def add_to_history(word):
-    x = collection.insert_one({"word": word})
-    return x
+@app.route("/insert-dictionary-history/<word>", methods=["POST", "GET"])
+def add_to_dictionary_history(word):
+    x = collectiondictionary.insert_one({"word": word})
+    return "inserted to history"
