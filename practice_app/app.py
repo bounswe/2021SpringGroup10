@@ -1,8 +1,21 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import pymongo
 import requests
+from slackclient import SlackClient
 import json
 from helpers import helper_functions
+from bson.objectid import ObjectId
+
+
+app = Flask(__name__)
+
+mongo_client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
+db = mongo_client.first
+joke_collection = db.joke
+messages_collection = db.messages
+
+CHANNEL_ID = "C0242LA1NCS"
+SLACK_TOKEN = "xoxb-1881747695606-2138926157411-FDZY3FJ8wZNTJQDTR8La3Y46"
 
 joke_user = [
     False,
@@ -202,6 +215,74 @@ def joke_choice():
 
     return render_template("joke_choice.html")
 
+
+
+
+@app.route("/write2us", methods=['POST', 'GET'])
+def write_to_channel():
+    try:
+        if request.method == "POST":
+            fname = request.form.get("fname")
+            lname = request.form.get("lname")
+            message = request.form.get("message")
+            response = write_to_channel_with_params(fname, lname, message)
+            return "<p>Your message has reached to our slack channel! You can check if someone from our team replied to your message with the id: <b>{}</b></p><br>You have to save this id if you would like to check later that your message had replied by someone from our team".format(response["id"])
+    except:
+        return "<p>Something went wrong</p>", 400
+    return render_template("write2us.html")
+
+
+@app.route("/write2channel/<fname>/<lname>/<message>", methods=['POST'])
+def write_to_channel_with_params(fname, lname, message):
+    try:
+        formatted_message=str(fname) + " " + lname + ": " + str(message)
+        message = slack_client.api_call(
+            "chat.postMessage",
+            channel=CHANNEL_ID,
+            text=formatted_message,
+            username='write2us bot',
+            icon_emoji=':robot_face:'
+        )
+        thread_ts = message["ts"]
+        _id = messages_collection.insert({'thread_ts': thread_ts, 'fname': fname, 'lname': lname})
+        return {"id": str(_id)}
+    except:
+        raise Exception("Something went wrong while sending the message. Please try again.")
+
+
+
+@app.route("/slack-reply", methods=['GET', 'POST'])
+def check_reply():
+    try:
+        if request.method == "POST":
+            mid = request.form.get("mid")
+            all_replies = check_replies(mid)
+            if len(all_replies["replies"]) > 0:
+                return render_template('display-messages.html', data=all_replies["replies"])
+            else:
+                return "<p>No one replied to your message yet.</p>"
+        return render_template('check-my-replies.html')
+    except:
+        return "<p>Invalid ID!</p>"
+
+@app.route("/slack-replies/<conversation_id>", methods=['GET'])
+def check_replies(conversation_id):
+    try:
+        doc = messages_collection.find_one({'_id': ObjectId(conversation_id)})
+        replies = slack_client.api_call("conversations.replies", channel=CHANNEL_ID, ts=doc["thread_ts"])
+        if len(replies['messages']) > 1:
+            all_replies = []
+            for reply in replies['messages']:
+                message = reply['text']
+                replier = slack_client.api_call("users.info", user=replies['messages'][1]['user'])
+                replier_real_name = replier['user']['real_name']
+                all_replies.append({"replier": replier_real_name, "message": message})
+            all_replies.pop(0)
+            return {"replies": all_replies}
+        else:
+            return {"replies": []}
+    except:
+        raise Exception("Invalid message id")
 
 
 
