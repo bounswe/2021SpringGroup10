@@ -31,6 +31,8 @@ joke = [
 
 joke_first = [True]
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
 
 client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
 db = client.first
@@ -41,12 +43,112 @@ collectiondictionary = db.word
 market_collection = db.berkay
 movie_collection = db.movie
 cat_collection = db.catfacts
+news_collection = db.news
 
 
 
 collectionkey = db.key
 apikeyx = collectionkey.find_one({"keyword":"thekey"})
 apikey = apikeyx["thekey"]
+
+
+
+#------News-----#
+
+@app.route('/news/saved', methods=['POST', 'GET'])
+def news_saved():
+    if request.method == "GET":
+        my_news = news_collection.find({})
+        lst = []
+        for e in my_news:
+            tmp = {"source": e["source"],
+            "title": e["title"],
+            "description": e["description"],
+            "date": e["date"],
+            "url": e["url"]}
+            lst.append(tmp)
+            
+        return jsonify({"My Pocket": lst})
+
+    elif request.method == "POST":
+        req = request.values.to_dict()
+        if not req:
+            req = request.json
+
+        my_new_news = {"_id":req["title"],
+        "source":req["source"],
+        "title":req["title"],
+        "description":req["description"],
+        "date":req["date"],
+        "url":req["url"]}
+
+        try:
+            news_collection.insert_one(my_new_news)
+        except Exception as e:
+            return "Failed"
+        return "Success"
+
+
+@app.route('/news/fetch', methods=['GET'])
+def news_fetch():
+    s_keyword = request.form.get("keywords")
+    # IndexedNews.query.delete()
+    API_KEY = "10689593098485c096e61e8dbfc4ac92"
+    url = "http://api.mediastack.com/v1/news?access_key=%s" % API_KEY
+    limit = "&limit=100"
+    sources = "&sources=%s" % "nytimes,bbc,guardian"
+    if s_keyword:
+        keywords = "&keywords=%s" % s_keyword
+    else:
+        keywords = ""
+    languages = "&lanuages=en,-ar,-de,-es,-fr,-he,-it,-nl,-no,-pt,-ru,-se,-zh"
+    url = url + keywords + limit + languages + sources
+    response = requests.get(url)
+    dict = response.json()
+    new_dict = {}
+    news_list = []
+    for news in dict["data"]:
+        news["description"] = "No Description" if not news["description"] else news["description"]
+        tmp_dict = {"title": news["title"],
+                    "description": news["description"],
+                    "date": news["published_at"],
+                    "url": news["url"],
+                    "source": news["source"]}
+        news_list.append(tmp_dict)
+
+    new_dict["News"] = news_list
+    return jsonify(new_dict)
+
+
+@app.route('/news', methods=['GET', 'POST'])
+def news_index():
+    if request.method == 'POST':
+        res = requests.get("http://127.0.0.1:5000/news/fetch", data={'keywords': request.form['keywords']}).json()
+        return render_template('news_index.html', news=res["News"])
+
+    if request.method == 'GET':
+        response = requests.get("http://127.0.0.1:5000/news/fetch")
+        resp = response.json()
+        return render_template('news_index.html', news=resp["News"])
+
+
+@app.route('/news/pocket', methods=['GET', 'POST'])
+def news_pocket():
+    if request.method == 'POST':
+        params = {'source': request.form['source'],
+                  'title': request.form['title'],
+                  'description': request.form['description'],
+                  'date': request.form['date'],
+                  'url': request.form['url']}
+        res = requests.post("http://127.0.0.1:5000/news/saved",data= params)
+        return redirect("/news/pocket")
+
+    elif request.method == 'GET':
+        response = requests.get("http://127.0.0.1:5000/news/saved")
+        resp = response.json()
+        return render_template('news_pocket.html', news=resp["My Pocket"])
+
+
 
 @app.route('/catfacts', methods = ['GET', 'POST'])
 def cat_facts():
@@ -143,10 +245,7 @@ def movies():
         req = endpoint + "/api/v1.0/movie"
         headers = {'Content-type': 'application/json'}
         response = requests.get(req).json()
-        movies=response['data']
-        print(movies)
-        
-        
+        movies=response['data']       
         headers = {'Content-type': 'application/json'}
         response = requests.get(MOVIES_URL).json()
         
@@ -185,7 +284,6 @@ def movies_api():
         json_objects = []
         for mmovie in movies:
             json_objects.append({'mmovie': mmovie["mmovie"]})
-        print(json_objects)
         return {'data': json_objects}
 
 
@@ -637,6 +735,7 @@ def check_replies(conversation_id):
             return {"replies": []}
     except:
         raise Exception("Invalid message id")
+
 
 
 
