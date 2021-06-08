@@ -1,68 +1,3 @@
-from flask import Flask
-import requests
-import pandas as pd
-from requests.sessions import Request
-import numpy as np
-from flask import Flask, url_for
-from flask import Flask, request, render_template, redirect
-import json
-import pymongo
-
-
-
-app = Flask(__name__)
-
-
-client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
-db = client.first
-market_collection = db.berkay
-
-@app.route("/market" ,methods = ["GET","POST"])
-def marketHome():
-    if request.method == "POST":
-        return redirect("/market/getLastDaysForStock",code=307)
-    return render_template('home.html')
-
-
-@app.route("/market/getCurrenciesNames", methods = ["GET"])
-def getCurrenciesLastPrice():
-    response = requests.get("http://api.marketstack.com/v1/currencies?access_key=10818e5bb1090fefbd86603de2ab9d0c" ).json()
-    dict = {}
-    for i in response['data']:
-        dict[i["code"]] = i["name"]
-    return render_template("result.html",result = dict)
-
-
-@app.route('/market/getLastDaysForStock', methods=["POST"])
-def getLastDaysForStock():
-    stockName = request.form["Name"]
-    Day = request.form["day"]
-    url = "http://api.marketstack.com/v1/eod?access_key=10818e5bb1090fefbd86603de2ab9d0c&symbols="+stockName
-    response = requests.get(url).json()
-    dict = {}
-    j=0
-    for i in response['data']:
-        response = requests.post("http://127.0.0.1:5000/save/{}/{}/{}".format(i["date"][:10],stockName,str(i["close"])+" $"))
-        dict[i["date"][:10]] = str(i["close"])+" $"
-        j=j+1
-        if j== int(Day):
-            break
-    return render_template('result.html', result=dict)
-
-@app.route('/market/save/<date>/<name>/<price>', methods=["POST"])
-def saveLastPrice(date,price,name):
-    x = market_collection.insert_one({"name": name, "date": date , "price": price})
-    return x
-
-
-@app.route('/market/getSearchHistory', methods=["GET"])
-def getSearchHistory():
-    dict2 = {}
-    x = market_collection.find({})
-    for i,document in enumerate(x):
-        dict2[i]= {"name":document["name"],"date":document["date"],"price":document["price"]}
-    return dict2
-
 from flask import Flask, render_template, request, redirect, jsonify
 import pymongo
 import requests
@@ -70,13 +5,16 @@ from slackclient import SlackClient
 import json
 from helpers import helper_functions
 from bson.objectid import ObjectId
-
+import datetime
 
 
 CHANNEL_ID = "C0242LA1NCS"
 SLACK_TOKEN = "xoxb-1881747695606-2138926157411-sPUCyP8Fa2K8cjXZJOIzOQ4G"
 slack_client = SlackClient(SLACK_TOKEN)
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
+MOVIES_URL = "https://rickandmortyapi.com/api/character/30"
+CATFACTS_URL='https://dog-facts-api.herokuapp.com/api/v1/resources/dogs/all'
+
 
 joke_user = [
     False,
@@ -99,6 +37,361 @@ db = client.first
 joke_collection = db.joke
 sportevent_collection = db.safa
 messages_collection = db.messages
+collectiondictionary = db.word
+market_collection = db.berkay
+movie_collection = db.movie
+cat_collection = db.catfacts
+
+
+
+collectionkey = db.key
+apikeyx = collectionkey.find_one({"keyword":"thekey"})
+apikey = apikeyx["thekey"]
+
+@app.route('/catfacts', methods = ['GET', 'POST'])
+def cat_facts():
+    if request.method == "POST":
+       
+        text = request.form["text"]
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/catfacts"
+        headers = {'Content-type': 'application/json'}
+
+        fact = {"fact": text}
+
+        response = requests.post(req, data=json.dumps(fact), headers=headers)
+        return redirect('/catfacts')
+    else:
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/catfacts"
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(req).json()
+        cat_facts=response['data']
+        
+        
+        
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(CATFACTS_URL).json()
+        
+        api_response=[]
+
+        for i in range(5):
+            api_response.append(response[i]['fact'])
+        
+
+     
+
+        return render_template('catfacts.html', cat_facts = cat_facts, cat_facts_api=api_response)
+
+
+
+@app.route('/api/v1.0/catfacts', methods = ["GET", "POST"])
+def cat_facts_api():
+    
+    if request.method == "POST":
+        if not request.json or not 'fact' in request.json:
+            abort(400)
+        fact = request.json["fact"]
+        
+      
+        try:
+            cat_collection.insert_one({'fact': fact})
+          
+            return {'fact':fact}
+        except:
+          
+             return {'data': "there is an error"}
+    else:
+
+        cat_facts = cat_collection.find({})
+        
+        json_objects = []
+        for fact in cat_facts:
+            json_objects.append({'fact': fact["fact"]})
+        
+        return {'data': json_objects}
+      
+
+
+@app.route('/api/v1.0/catfacts/<int:_id>', methods = ["GET"])
+def get_cat_fact(_id):
+    
+    fact = cat_collection.get_or_404(_id)
+        
+    return {'data': {'_id': fact._id, 'text': fact.text}}, 200
+
+
+@app.route('/movies', methods = ['GET', 'POST'])
+def movies():
+    if request.method == "POST":
+       
+        text = request.form["text"]
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/movie"
+        headers = {'Content-type': 'application/json'}
+
+        mmovie = {"mmovie": text}
+
+        response = requests.post(req, data=json.dumps(mmovie), headers=headers)
+        return redirect('/movies')
+    else:
+        endpoint = "http://127.0.0.1:5000"
+
+        req = endpoint + "/api/v1.0/movie"
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(req).json()
+        movies=response['data']
+        print(movies)
+        
+        
+        headers = {'Content-type': 'application/json'}
+        response = requests.get(MOVIES_URL).json()
+        
+        api_response=[response['name'],response['species']]
+       
+        
+        
+        
+
+     
+
+        return render_template('movies.html', movies = movies, movies_api=api_response)
+
+
+
+@app.route('/api/v1.0/movie', methods = ["GET", "POST"])
+def movies_api():
+    
+    if request.method == "POST":
+        if not request.json or not 'mmovie' in request.json:
+            abort(400)
+        mmovie = request.json["mmovie"]
+        
+      
+        try:
+            movie_collection.insert_one({'mmovie': mmovie})
+          
+            return {'mmovie':mmovie}
+        except:
+          
+             return {'data': "there is an error"}
+    else:
+
+        movies = movie_collection.find({})
+        
+        json_objects = []
+        for mmovie in movies:
+            json_objects.append({'mmovie': mmovie["mmovie"]})
+        print(json_objects)
+        return {'data': json_objects}
+
+
+
+@app.route('/api/v1.0/movie/<int:_id>', methods = ["GET"])
+def get_movie(_id):
+    
+    mmovie = movie_collection.get_or_404(_id)
+        
+    return {'data': {'_id': mmovie._id, 'text': mmovie.text}}, 200
+
+
+@app.route('/weathergetindex', methods=['GET'])
+def weathergetindex():
+    result = requests.get("http://127.0.0.1:5000/weatherget")
+    return render_template('weatherGet.html', data=result.json())
+
+
+@app.route('/weatherget', methods=['GET'])
+def weatherget():
+    response = db.weather.find().sort("time", -1)
+    result = response[0]
+    result.pop('_id')
+    return result
+
+
+@app.route('/weatherpostindex/<string:location>', methods=['GET'])
+def weatherpostindex(location):
+
+    response = requests.post("http://127.0.0.1:5000/weatherpost/{}".format(location)).json()
+    if response != "Please enter a valid location":
+        db.weather.insert_one(response)
+    return render_template('weather.html', data=response)
+
+
+@app.route("/weatherpost/<string:location>", methods=['POST'])
+def weatherpost(location):
+
+    try:
+        key = '5977480005743963cf86cfae93747357'
+        result = requests.get('http://api.openweathermap.org/data/2.5/weather?q=' + location + '&appid=' + key).json()
+        time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        temp_max = round(result['main']['temp_max'] - 273)
+        temp_min = round(result['main']['temp_min'] - 273)
+        temp = round(result['main']['temp'] - 273)
+        temp_feelslike = round(result['main']['feels_like'] - 273)
+        humidity = result['main']['humidity']
+        main_weather = result["weather"][0]['main']
+        description = result["weather"][0]['description']
+        wind_speed = result["wind"]['speed']
+
+        response = {
+            "location": location,
+            "time": time,
+            "temperature": temp,
+            "sky": main_weather,
+            "sky description": description,
+            "temperature feels like": temp_feelslike,
+            "minimum temperature": temp_min,
+            "maximum temperature": temp_max,
+            "humidity level": humidity,
+            "wind speed": wind_speed
+        }
+
+        return response
+    except Exception as e:
+        return jsonify("Please enter a valid location")
+
+
+@app.route("/weather", methods=['GET', 'POST'])
+def start():
+
+    if request.method != 'GET':
+        res = request.form["getorpost"]
+        if res == "OK":
+            return redirect('/weathergetindex')
+        else:
+            location = request.form['location']
+            location = location.upper()
+            return redirect('/weatherpostindex/{}'.format(location))
+
+    return render_template("indexweather.html")
+
+
+@app.route("/market" ,methods = ["GET","POST"])
+def marketHome():
+    if request.method == "POST":
+        return redirect("/market/getLastDaysForStock",code=307)
+    return render_template('home_market.html')
+
+
+@app.route("/market/getCurrenciesNames", methods = ["GET"])
+def getCurrenciesLastPrice():
+    response = requests.get("http://api.marketstack.com/v1/currencies?access_key=10818e5bb1090fefbd86603de2ab9d0c" ).json()
+    dict = {}
+    for i in response['data']:
+        dict[i["code"]] = i["name"]
+    return render_template("result_market.html",result = dict)
+
+
+@app.route('/market/getLastDaysForStock', methods=["POST"])
+def getLastDaysForStock():
+    stockName = request.form["Name"]
+    Day = request.form["day"]
+    url = "http://api.marketstack.com/v1/eod?access_key=10818e5bb1090fefbd86603de2ab9d0c&symbols="+stockName
+    response = requests.get(url).json()
+    dict = {}
+    j=0
+    for i in response['data']:
+        response = requests.post("http://127.0.0.1:5000/save/{}/{}/{}".format(i["date"][:10],stockName,str(i["close"])+" $"))
+        dict[i["date"][:10]] = str(i["close"])+" $"
+        j=j+1
+        if j== int(Day):
+            break
+    return render_template('result_market.html', result=dict)
+
+@app.route('/market/save/<date>/<name>/<price>', methods=["POST"])
+def saveLastPrice(date,price,name):
+    x = market_collection.insert_one({"name": name, "date": date , "price": price})
+    return x
+
+
+@app.route('/market/getSearchHistory', methods=["GET"])
+def getSearchHistory():
+    dict2 = {}
+    x = market_collection.find({})
+    for i,document in enumerate(x):
+        dict2[i]= {"name":document["name"],"date":document["date"],"price":document["price"]}
+    return dict2
+
+
+@app.route('/dictionary')
+def home_dictionary():
+    return render_template('search.html')
+
+
+@app.route("/dictionary-search-synonym/<word>", methods=["GET"])
+def synonym_dictionary(word):
+    url_synonym = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/synonyms"
+    headers_synonym = {
+        'x-rapidapi-key': apikey,
+        'x-rapidapi-host': "wordsapiv1.p.rapidapi.com"
+    }
+    response_synonym = requests.request("GET", url_synonym, headers=headers_synonym)
+    st = response_synonym.json()
+    syns = st["synonyms"]
+    synsdict = {}
+    for i, val in enumerate(syns):
+        synsdict[i+1] = val
+    return synsdict
+
+
+@app.route("/dictionary-search-definition/<word>", methods=["GET"])
+def definition_dictionary(word):
+    url_definition = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/definitions"
+    headers_definition = {
+        'x-rapidapi-key': apikey,
+        'x-rapidapi-host': "wordsapiv1.p.rapidapi.com"
+    }
+    response_definition = requests.request("GET", url_definition, headers=headers_definition)
+    st = response_definition.json()
+    defs = st["definitions"]
+    defsdict = {}
+    for i, val in enumerate(defs):
+        defsdict[i+1]=val["definition"]
+    return defsdict
+
+
+@app.route("/dictionary-search", methods=["POST"])
+def search_dictionary():
+    word = request.form["word"]
+    typ = request.form["opr"]
+    if typ == "search synonyms":
+        x = "http://127.0.0.1:5000/dictionary-search-synonym/" + word
+        elements = requests.get(x).json()
+    elif typ == "search definitions":
+       # elements = definition(word)
+        x = "http://127.0.0.1:5000/dictionary-search-definition/" + word
+        elements = requests.get(x).json()
+    requests.post("http://127.0.0.1:5000/insert-dictionary-history/" + word)
+    return render_template("result.html", elements=elements, word=word)
+
+
+@app.route("/display-dictionary-history", methods=["GET"])
+def display_dictionary_hist():
+    hist = requests.get("http://127.0.0.1:5000/dictionary-history").json()
+    hist2 = {}
+    for i, val in enumerate(hist):
+        hist2[i+1] = hist[val]
+    return render_template("history.html", elements=hist2)
+
+
+@app.route("/dictionary-history", methods=["GET"])
+def get_dictionary_history():
+    x = collectiondictionary.find({})
+    histdict = {}
+    for i, word in enumerate(x):
+        histdict[i] = word["word"]
+    return histdict
+
+
+@app.route("/insert-dictionary-history/<word>", methods=["POST", "GET"])
+def add_to_dictionary_history(word):
+    x = collectiondictionary.insert_one({"word": word})
+    return "inserted to history"
 
 
 
@@ -349,4 +642,3 @@ def check_replies(conversation_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-

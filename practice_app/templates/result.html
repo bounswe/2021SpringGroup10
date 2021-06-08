@@ -1,6 +1,7 @@
 <!doctype html>
+<p>The Word:{{ word }}</p>
   <table border = 1>
-    {% for key, value in result.items() %}
+    {% for key, value in elements.items() %}
 
     <tr>
        <th> {{ key }} </th>
@@ -9,6 +10,3 @@
 
     {% endfor %}
  </table>
- <form action="/market" method="GET">
-   <input type="submit" value="Go back the home page" />
-</form>
