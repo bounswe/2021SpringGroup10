@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>CAT FACTS</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>CAT FACTS</h1>
+
+    <table>
+        <tr>
+            <th>Cat Fact</th>
+            
+        </tr>
+        {% for fact in cat_facts  %}
+            <tr>
+                <td>{{ fact.text }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+    <form action="/catfacts" method="POST">
+        <label>Cat Fact</label>
+        <input type="text" name="text" _id="text">
+        <input type="submit" value="Add Cat Fact">
+    </form>
+
+</div>
+{% endblock %}
