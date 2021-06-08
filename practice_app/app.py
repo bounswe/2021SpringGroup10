@@ -5,11 +5,9 @@ from helpers import helper_functions
 
 app = Flask(__name__)
 
-joke_client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
-joke_db = joke_client.first
-joke_collection = joke_db.joke
-joke_client_id = "82ffff3f23534eedba167129f0ea8e31"
-joke_secret = "c8025a5e15754c199d82c249969f484f"
+client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
+db = client.first
+joke_collection = db.joke
 
 joke_user = [
     False,
