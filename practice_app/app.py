@@ -9,7 +9,8 @@ from bson.objectid import ObjectId
 
 
 CHANNEL_ID = "C0242LA1NCS"
-SLACK_TOKEN = "xoxb-1881747695606-2138926157411-FDZY3FJ8wZNTJQDTR8La3Y46"
+SLACK_TOKEN = "xoxb-1881747695606-2138926157411-sPUCyP8Fa2K8cjXZJOIzOQ4G"
+slack_client = SlackClient(SLACK_TOKEN)
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 
 joke_user = [
