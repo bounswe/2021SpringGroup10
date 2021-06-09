@@ -395,7 +395,7 @@ def getLastDaysForStock():
     dict = {}
     j=0
     for i in response['data']:
-        response = requests.post("http://127.0.0.1:5000/save/{}/{}/{}".format(i["date"][:10],stockName,str(i["close"])+" $"))
+        response = requests.post("http://127.0.0.1:5000/market/save/{}/{}/{}".format(i["date"][:10],stockName,str(i["close"])+" $"))
         dict[i["date"][:10]] = str(i["close"])+" $"
         j=j+1
         if j== int(Day):
