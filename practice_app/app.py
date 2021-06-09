@@ -202,7 +202,7 @@ def cat_facts_api():
         try:
             cat_collection.insert_one({'fact': fact})
           
-            return {'fact':fact}
+            return {'fact':fact} ,201
         except:
           
              return {'data': "there is an error"}
