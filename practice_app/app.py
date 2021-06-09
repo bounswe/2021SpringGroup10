@@ -9,7 +9,7 @@ import datetime
 
 
 CHANNEL_ID = "C0242LA1NCS"
-SLACK_TOKEN = "LATER NEEDS TO BE GET FROM ENV"
+SLACK_TOKEN = "LATER NEEDS TO BE OBTAINED FROM ENV"
 slack_client = SlackClient(SLACK_TOKEN)
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 MOVIES_URL = "https://rickandmortyapi.com/api/character/30"
