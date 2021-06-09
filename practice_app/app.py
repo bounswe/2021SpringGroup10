@@ -6,10 +6,14 @@ import json
 from helpers import helper_functions
 from bson.objectid import ObjectId
 import datetime
+import os 
 
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+USER_NAME = os.getenv("USER_NAME")
+USER_PASSWORD = os.getenv("USER_PASSWORD")
 
 CHANNEL_ID = "C0242LA1NCS"
-SLACK_TOKEN = "LATER NEEDS TO BE OBTAINED FROM ENV"
+SLACK_TOKEN = "{}".format(BOT_TOKEN)
 slack_client = SlackClient(SLACK_TOKEN)
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 MOVIES_URL = "https://rickandmortyapi.com/api/character/30"
@@ -34,7 +38,7 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 
-client = pymongo.MongoClient("mongodb+srv://base_user:base_user_password@cluster0.dbcb9.mongodb.net/first")
+client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0.dbcb9.mongodb.net/first".format(USER_NAME,USER_PASSWORD))
 db = client.first
 joke_collection = db.joke
 sportevent_collection = db.safa

@@ -1,0 +1,13 @@
+version: "3.3"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      USER_NAME: base_user
+      USER_PASSWORD: base_user_password
+      BOT_TOKEN: xoxb-1881747695606-2138926157411-1OLocyLUBFAmr3tl9SKoduWM
+    volumes:
+      - .:/app_1
