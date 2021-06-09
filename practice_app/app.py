@@ -9,7 +9,7 @@ import datetime
 
 
 CHANNEL_ID = "C0242LA1NCS"
-SLACK_TOKEN = "xoxb-1881747695606-2138926157411-sPUCyP8Fa2K8cjXZJOIzOQ4G"
+SLACK_TOKEN = "LATER NEEDS TO BE OBTAINED FROM ENV"
 slack_client = SlackClient(SLACK_TOKEN)
 DECATHLON_URL = 'https://sports.api.decathlon.com/sports/'
 MOVIES_URL = "https://rickandmortyapi.com/api/character/30"
@@ -733,7 +733,6 @@ def check_replies(conversation_id):
             return {"replies": []}
     except:
         raise Exception("Invalid message id")
-
 
 
 
