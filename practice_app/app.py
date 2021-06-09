@@ -274,7 +274,7 @@ def movies_api():
         try:
             movie_collection.insert_one({'mmovie': mmovie})
           
-            return {'mmovie':mmovie}
+            return {'mmovie':mmovie} ,201
         except:
           
              return {'data': "there is an error"}
