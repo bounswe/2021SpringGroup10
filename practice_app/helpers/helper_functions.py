@@ -1,4 +1,4 @@
-def get_user(user_name, collection):
+def joke_get_user(user_name, collection):
     x = collection.find_one({"name": user_name})
     value = {
         "name": user_name,
@@ -7,7 +7,7 @@ def get_user(user_name, collection):
     return value
 
 
-def add_user(user_name, collection):
+def joke_add_user(user_name, collection):
     x = collection.insert_one({"name": user_name, "jokes": []})
     value = {
         "id": str(x.inserted_id)
@@ -15,7 +15,7 @@ def add_user(user_name, collection):
     return value, 201
 
 
-def add_to_list(user_name, set_up, punch_line, collection):
+def joke_add_to_list(user_name, set_up, punch_line, collection):
     user = collection.find_one({"name": user_name})
     user_jokes = user["jokes"]
     set_up = set_up.replace("_", "?")
@@ -32,7 +32,7 @@ def add_to_list(user_name, set_up, punch_line, collection):
     return value
 
 
-def delete_user(user_name, collection):
+def joke_delete_user(user_name, collection):
     x = collection.delete_one({"name": user_name})
     value = {
         "deleted_count": x.deleted_count

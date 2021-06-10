@@ -581,7 +581,7 @@ def sport_events():
 @app.route('/joke/add_user/<user_name>', methods=["POST"])
 def joke_add_user(user_name):
     if request.method == "POST":
-        return helper_functions.add_user(user_name, joke_collection)
+        return helper_functions.joke_add_user(user_name, joke_collection)
     else:
         return None
 
@@ -589,7 +589,7 @@ def joke_add_user(user_name):
 @app.route('/joke/get_user/<user_name>', methods=["GET"])
 def joke_get_user(user_name):
     if request.method == "GET":
-        return helper_functions.get_user(user_name, joke_collection)
+        return helper_functions.joke_get_user(user_name, joke_collection)
     else:
         return None
 
@@ -597,7 +597,7 @@ def joke_get_user(user_name):
 @app.route('/joke/delete_user/<user_name>', methods=["DELETE"])
 def joke_delete_user(user_name):
     if request.method == "DELETE":
-        return helper_functions.delete_user(user_name, joke_collection)
+        return helper_functions.joke_delete_user(user_name, joke_collection)
     else:
         return None
 
@@ -605,7 +605,7 @@ def joke_delete_user(user_name):
 @app.route('/joke/add_to_list/<user_name>/<set_up>/<punch_line>', methods=["GET", "PUT"])
 def joke_add_to_list(user_name, set_up, punch_line):
     if request.method == "PUT":
-        return helper_functions.add_to_list(user_name, set_up, punch_line, joke_collection)
+        return helper_functions.joke_add_to_list(user_name, set_up, punch_line, joke_collection)
     else:
         return None
 
