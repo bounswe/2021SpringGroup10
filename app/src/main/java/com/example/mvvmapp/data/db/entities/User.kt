@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 const val CURRENT_USER_ID = 0
 
-
+// TODO(this fields will be updated according to the backend!)
 @Entity
 data class User(
     var id : Int? = null,
