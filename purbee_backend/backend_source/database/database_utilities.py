@@ -10,7 +10,7 @@ def save_new_user(user_name, mail_address, password):
     pass
 
 
-def get_password_from_user_name(user_name):
+def check_password_for_user_name(user_name, password):
     pass
 
 
