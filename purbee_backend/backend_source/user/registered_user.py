@@ -41,17 +41,3 @@ class RegisteredUser:
 
         return json.dumps(profile_info)
 
-
-"""
-functional requirements
-    user a user b nin prfiline bakabilicek
-        function(a,b):
-            user_1 = RegisteredUser(a)
-            user_2 = RegisteredUser(b)
-            if user_1.get_profile_info()["public"]
-
-
-            del user_2
-            del user_1
-"""
-

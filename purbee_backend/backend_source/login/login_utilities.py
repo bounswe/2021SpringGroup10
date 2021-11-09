@@ -1,2 +1,2 @@
-def password_secure():
+def password_secure(password):
     pass

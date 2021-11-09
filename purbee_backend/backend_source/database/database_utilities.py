@@ -2,7 +2,7 @@ def get_user_name(user_name):
     pass
 
 
-def get_mail_address(mail_address):
+def get_mail_address(user_name):
     pass
 
 
