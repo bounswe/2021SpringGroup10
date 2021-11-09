@@ -1,6 +1,5 @@
 package com.example.mvvmapp.ui.auth
 
-import androidx.lifecycle.LiveData
 import com.example.mvvmapp.data.db.entities.User
 
 interface AuthListener {

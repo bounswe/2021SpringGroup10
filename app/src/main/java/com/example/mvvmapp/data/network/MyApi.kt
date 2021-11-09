@@ -1,8 +1,6 @@
 package com.example.mvvmapp.data.network
 
 import com.example.mvvmapp.data.network.responses.AuthResponse
-import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,9 +13,9 @@ interface MyApi {
     // TODO(Field annotations are for http request keys. They must match)
 
     @FormUrlEncoded
-    @POST("login")
+    @POST("login") // "login" is endpoint we add to root url
     suspend fun userLogin(
-        @Field("email") email: String,
+        @Field("login") email: String,
         @Field("password") password: String
     ) : Response<AuthResponse>
 
@@ -25,7 +23,7 @@ interface MyApi {
     companion object {
         operator fun invoke() : MyApi {
             return Retrofit.Builder()
-                .baseUrl("https://api.simplifiedcoding.in/course-apis/mvvm/")
+                .baseUrl("https://xxxx.backendless.app/api/users/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(MyApi::class.java)
