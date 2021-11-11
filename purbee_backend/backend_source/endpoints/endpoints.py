@@ -19,10 +19,6 @@ USER_PASSWORD = ""
 
 app = Flask(__name__)
 
-client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0.dbcb9.mongodb.net/first".format(USER_NAME, USER_PASSWORD))
-db = client.first
-db_registered_users = db.registered_users
-
 
 @app.route('/sign_up/', methods=['POST'])
 def sign_up_endpoint():
