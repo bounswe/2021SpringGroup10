@@ -1,21 +1,22 @@
 from purbee_backend.backend_source.database.database_utilities import (
     save_new_user,
-    check_password_for_user_name
+    check_password_for_user_name,
+    get_user_by_name
 )
+import sys
 
-from login_utilities import (
+from ..login.login_utilities import (
     password_secure
 )
 
 
 def sign_up(user_name, mail_address, password):
 
-    try:
-        assert password_secure(password)
-    except AssertionError:
+    print(password, file = sys.stderr)
+    if password_secure(password):
+        return save_new_user(user_name, mail_address, password)
+    else:
         return 3
-
-    return save_new_user(user_name, mail_address, password)
 
 
 def sign_in(user_name, password):

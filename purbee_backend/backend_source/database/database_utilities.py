@@ -1,8 +1,10 @@
-import pymongo
+import sys
 
-client = pymongo.MongoClient("mongodb+srv://purbee2:abcd@purbee.am5x7.mongodb.net/purbee?retryWrites=true&w=majority")
-db = client.purbee
-registered_Users = db["registered_users"]
+import pymongo
+import sys
+client = pymongo.MongoClient("mongodb+srv://purbeeApp:QLi9WWoLf4MztDJv@cluster0.orh8z.mongodb.net/purbeeProduct?retryWrites=true&w=majority")
+db = client.purbeeProduct
+registered_users = db["registered_users"]
 
 
 def get_user_name(user_name):
@@ -12,19 +14,34 @@ def get_user_name(user_name):
 def get_mail_address(user_name):
     pass
 
+def get_user_by_name(user_name):
+    return registered_users.find_one({"user_name": user_name})
 
 def save_new_user(user_name, mail_address, password):
-    user = {"user_name" : user_name , "mail_address" : mail_address, "password" : password}
-    return registered_Users.insert_one(user)
+    if get_user_by_mail_address(mail_address):
+        return 2
+    try:
+        user = {"_id": user_name, "user_name": user_name, "mail_address": mail_address, "password": password}
+        registered_users.insert_one(user)
+    except:
+        return 1
+
+    return 0
 
 
 def check_password_for_user_name(user_name, password):
-    if registered_Users.findOne({"user_name": user_name, "password": password}):
+    if registered_users.find_one({"user_name": user_name, "password": password}):
+        return 0
+    else:
         return 1
+
+
+def get_user_by_mail_address(mail_address):
+    user = registered_users.find_one({"mail_address": mail_address})
+    if user:
+        return user
     else:
         return 0
-
-
 
 def set_profile_picture_by_user_name(user_name, picture):
     pass

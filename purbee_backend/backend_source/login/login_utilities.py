@@ -5,6 +5,6 @@ def password_secure(password):
     pat = re.compile(reg)
     mat = re.search(pat, password)
     if mat:
-        return 1
+        return True
     else:
-        return 0
+        return False
