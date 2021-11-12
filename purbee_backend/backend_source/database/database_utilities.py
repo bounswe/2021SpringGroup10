@@ -21,7 +21,7 @@ def save_new_user(user_name, mail_address, password):
     if get_user_by_mail_address(mail_address):
         return 2
     try:
-        user = {"_id": user_name, "user_name": user_name, "mail_address": mail_address, "password": password}
+        user = {"_id": user_name, "user_name": user_name, "mail_address": mail_address, "password": password, "list_of_followers": [], "list_of_followings": []}
         registered_users.insert_one(user)
     except:
         return 1
@@ -73,3 +73,18 @@ def set_birth_date_by_user_name(user_name, birth_date):
 
 def get_birth_date_by_user_name(user_name):
     pass
+
+
+# 0 for successful update, 1 for error during database operation
+def update_follower_and_following_lists(user_name1,user_name2):
+    try:
+        list_of_followings = get_user_by_name(user_name1)["list_of_followings"]
+        list_of_followings.append(user_name2)
+        registered_users.update({"user_name":user_name1},  {"$set":{"list_of_followings":list_of_followings}})
+        list_of_followers = get_user_by_name(user_name2)["list_of_followers"]
+        list_of_followers.append(user_name1)
+        registered_users.update({"user_name": user_name2}, {"$set": {"list_of_followers": list_of_followers}})
+        return 0
+    except:
+        return 1
+
