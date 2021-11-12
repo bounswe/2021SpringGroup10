@@ -8,11 +8,13 @@ from purbee_backend.backend_source.database.database_utilities import (
     get_profile_picture_by_user_name,
     get_first_name_by_user_name,
     get_last_name_by_user_name,
-    get_birth_date_by_user_name
+    get_birth_date_by_user_name,
+    update_follower_and_following_lists
 )
 
 
 class RegisteredUser:
+
     def __init__(self, user_name):
         self.user_name = user_name
 
@@ -41,17 +43,13 @@ class RegisteredUser:
 
         return json.dumps(profile_info)
 
-
-"""
-functional requirements
-    user a user b nin prfiline bakabilicek
-        function(a,b):
-            user_1 = RegisteredUser(a)
-            user_2 = RegisteredUser(b)
-            if user_1.get_profile_info()["public"]
+    # user1 follows user2
+    # returns 0 for successful update, 1 for error
+    def follow_user(self, user_name_of_other_user):
+        user_name1 = self.user_name
+        user_name2 = user_name_of_other_user
+        return update_follower_and_following_lists(user_name1,user_name2)
 
 
-            del user_2
-            del user_1
-"""
+
 
