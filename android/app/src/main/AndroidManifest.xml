@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MVVMApp">
-        <activity android:name=".ui.auth.SignupActivity"></activity>
+        <activity android:name=".ui.home.HomeActivity" />
+        <activity android:name=".ui.auth.SignupActivity" />
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true">
