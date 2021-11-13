@@ -10,6 +10,7 @@ import com.example.mvvmapp.R
 import com.example.mvvmapp.data.db.AppDatabase
 import com.example.mvvmapp.data.db.entities.User
 import com.example.mvvmapp.data.network.MyApi
+import com.example.mvvmapp.data.network.NetworkConnectionInterceptor
 import com.example.mvvmapp.data.repositories.UserRepository
 import com.example.mvvmapp.databinding.ActivityLoginBinding
 import com.example.mvvmapp.ui.home.HomeActivity
@@ -22,7 +23,8 @@ class LoginActivity : AppCompatActivity(), AuthListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val api = MyApi()
+        val networkConnectionInterceptor = NetworkConnectionInterceptor(this)
+        val api = MyApi(networkConnectionInterceptor)
         val db = AppDatabase(this)
         val repository = UserRepository(api, db)
         val factory = AuthViewModelFactory(repository)

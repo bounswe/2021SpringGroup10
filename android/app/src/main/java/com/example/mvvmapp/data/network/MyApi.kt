@@ -1,6 +1,7 @@
 package com.example.mvvmapp.data.network
 
 import com.example.mvvmapp.data.network.responses.AuthResponse
+import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,8 +22,17 @@ interface MyApi {
 
     // TODO(fix the base url according to backend API)
     companion object {
-        operator fun invoke() : MyApi {
+        operator fun invoke(
+            networkConnectionInterceptor: NetworkConnectionInterceptor
+        ) : MyApi {
+
+            val okHttpClient = OkHttpClient.Builder()
+                .addInterceptor(networkConnectionInterceptor)
+                .build()
+
+
             return Retrofit.Builder()
+                .client(okHttpClient)
                 .baseUrl("https://xxxx.backendless.app/api/users/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

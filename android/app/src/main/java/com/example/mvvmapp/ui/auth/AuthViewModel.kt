@@ -2,9 +2,11 @@ package com.example.mvvmapp.ui.auth
 
 import android.view.View
 import androidx.lifecycle.ViewModel
+import com.example.mvvmapp.data.network.NetworkConnectionInterceptor
 import com.example.mvvmapp.data.repositories.UserRepository
 import com.example.mvvmapp.util.ApiException
 import com.example.mvvmapp.util.Coroutines
+import com.example.mvvmapp.util.NoInternetException
 
 class AuthViewModel(
     private val repository: UserRepository
@@ -35,6 +37,9 @@ class AuthViewModel(
                 authListener?.onFailure(authResponse.message!!)
             }
             catch (e: ApiException) {
+                authListener?.onFailure(e.message!!)
+            }
+            catch (e: NoInternetException) {
                 authListener?.onFailure(e.message!!)
             }
 
