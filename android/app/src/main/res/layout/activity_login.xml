@@ -118,6 +118,7 @@
 
             <TextView
                 android:id="@+id/text_view_sign_up"
+                android:onClick="@{viewmodel::onSignup}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/linearLayout2"

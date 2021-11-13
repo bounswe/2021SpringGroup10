@@ -11,12 +11,21 @@ import retrofit2.http.POST
 
 interface MyApi {
 
-    // TODO(Field annotations are for http request keys. They must match)
+    // TODO("Field annotations are for http request keys. They must match")
 
     @FormUrlEncoded
     @POST("login") // "login" is endpoint we add to root url
     suspend fun userLogin(
         @Field("login") email: String,
+        @Field("password") password: String
+    ) : Response<AuthResponse>
+
+
+    @FormUrlEncoded
+    @POST("signup")
+    suspend fun userSignup(
+        @Field("name") name: String,
+        @Field("email") email: String,
         @Field("password") password: String
     ) : Response<AuthResponse>
 
