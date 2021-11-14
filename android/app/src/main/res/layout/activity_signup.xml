@@ -5,11 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <data>
-        <variable
-            name="viewmodel"
-            type="com.example.mvvmapp.ui.auth.AuthViewModel" />
-    </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -71,7 +66,6 @@
                 <EditText
                     android:id="@+id/edit_text_name"
                     android:hint="Belal Khan"
-                    android:text="@={viewmodel.name}"
                     android:inputType="text"
                     android:drawablePadding="16dp"
                     android:drawableLeft="@drawable/ic_name"
@@ -83,7 +77,6 @@
 
                 <EditText
                     android:id="@+id/edit_text_email"
-                    android:text="@={viewmodel.email}"
                     android:hint="belal@gmail.com"
                     android:inputType="textEmailAddress"
                     android:drawablePadding="16dp"
@@ -97,7 +90,6 @@
                 <EditText
                     android:id="@+id/edit_text_password"
                     android:inputType="textPassword"
-                    android:text="@={viewmodel.password}"
                     android:hint="password"
                     android:drawablePadding="16dp"
                     android:drawableLeft="@drawable/ic_lock"
@@ -111,7 +103,6 @@
                     android:id="@+id/edit_text_password_confirm"
                     android:inputType="textPassword"
                     android:hint="confirm password"
-                    android:text="@={viewmodel.passwordconfirm}"
                     android:drawablePadding="16dp"
                     android:drawableLeft="@drawable/ic_lock"
                     android:background="@drawable/edit_text_round_gray_background"
@@ -131,7 +122,6 @@
 
                 <Button
                     android:id="@+id/button_sign_up"
-                    android:onClick="@{viewmodel::onSignupButtonClick}"
                     android:layout_gravity="center_horizontal"
                     android:textAllCaps="false"
                     android:text="Sign Up"
@@ -148,7 +138,6 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:layout_below="@id/linearLayout2"
                 android:textAlignment="center"
-                android:onClick="@{viewmodel::onLogin}"
                 android:text="Already have an account?\nSign in Here"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
