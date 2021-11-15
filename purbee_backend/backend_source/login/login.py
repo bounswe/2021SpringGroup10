@@ -1,13 +1,13 @@
 import sys
 
-from purbee_backend.backend_source.database.database_utilities import (
+from database.database_utilities import (
     save_new_user,
     check_password_for_user_name,
     update_profile_info_by_user_name,
     check_user_by_user_name,
     get_profile_page_by_user_name
 )
-from ..login.login_utilities import (
+from .login_utilities import (
     password_secure
 )
 

@@ -1,8 +1,7 @@
-import sys
-
 from flask import Flask, request
 
-from purbee_backend.backend_source.login.login import (
+
+from login.login import (
     sign_up,
     sign_in,
     update_profile_page,
@@ -82,6 +81,7 @@ def profile_page():
     except:
         data["response_message"] = "user_name is not specified."
         status_code = SC_BAD_REQUEST
+        return data, status_code
 
     if request.method == "POST":
         return_status = update_profile_page(user_name, req)
@@ -110,6 +110,7 @@ def profile_page():
             data["data"] = db_return
             status_code = SC_SUCCESS
         return data, status_code
+
 
 
 if __name__ == '__main__':
