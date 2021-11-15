@@ -20,7 +20,7 @@ export default function ProfileInfo() {
     }
 
     return (
-        <div>
+        <div className="App">
             <form className="form">
                 <img src={photo} style={{ width: "25%", alignSelf: "center", paddingBottom: "0.8em" }}></img>
 
