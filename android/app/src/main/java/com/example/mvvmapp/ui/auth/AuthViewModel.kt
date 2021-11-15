@@ -24,15 +24,15 @@ class AuthViewModel(
     // IO dispatcher instead of the main dispatcher
 
     suspend fun userLogin(
-        email: String,
+        username: String,
         password: String
-    ) = withContext(Dispatchers.IO) { repository.userLogin(email, password) }
+    ) = withContext(Dispatchers.IO) { repository.userLogin(username, password) }
 
     suspend fun userSignup(
-        name: String,
+        username: String,
         email: String,
         password: String
-    ) = withContext(Dispatchers.IO) { repository.userSignup(name, email, password) }
+    ) = withContext(Dispatchers.IO) { repository.userSignup(username, email, password) }
 
     suspend fun saveLoggedInUser(user: User) = repository.saveUser(user)
 

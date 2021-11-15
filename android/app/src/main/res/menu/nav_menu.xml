@@ -5,9 +5,9 @@
         android:id="@+id/profileFragment"
     />
 
-    <item
-        android:title="Quotes"
-        android:id="@+id/quotesFragment"
-    />
+<!--    <item-->
+<!--        android:title="Quotes"-->
+<!--        android:id="@+id/quotesFragment"-->
+<!--    />-->
 
 </menu>

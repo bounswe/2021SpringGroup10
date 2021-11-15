@@ -24,9 +24,9 @@ class ProfileFragment : Fragment(), KodeinAware {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.profile_fragment, container, false)
-        viewModel = ViewModelProvider(this, factory).get(ProfileViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory)[ProfileViewModel::class.java]
 
         binding.viewmodel = viewModel
 

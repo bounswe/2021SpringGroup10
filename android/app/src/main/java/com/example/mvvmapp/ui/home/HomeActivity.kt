@@ -17,6 +17,8 @@ class HomeActivity : AppCompatActivity() {
 //    private lateinit var navController: NavController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // TODO learn this function call's purpose!
         setContentView(R.layout.activity_home)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)

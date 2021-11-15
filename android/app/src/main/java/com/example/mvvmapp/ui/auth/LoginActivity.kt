@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import com.example.mvvmapp.R
 import com.example.mvvmapp.data.db.entities.User
@@ -58,32 +57,51 @@ class LoginActivity : AppCompatActivity(), KodeinAware {
     }
 
     private fun loginUser() {
-        val email = binding.editTextEmail.text.toString().trim()
+        val username = binding.editTextUsername.text.toString().trim()
         val password = binding.editTextPassword.text.toString().trim()
 
-        // todo : Add validations!
+        when {
+            username.isEmpty() -> {
+                binding.rootLayout.snackbar("Username cannot be empty")
+                return
+            }
+            password.isEmpty() -> {
+                binding.rootLayout.snackbar("Password cannot be empty")
+                return
+            }
+            else -> {
+                // lifecycleScope is defined for activities and fragments
+                // viewModel.userLogin is suspended function therefore we use coroutines
+                binding.progressBar.show()
+                lifecycleScope.launch {
+                    try {
+                        val signInResponse = viewModel.userLogin(username,  password)
 
-        // lifecycleScope is defined for activities and fragments
-        // viewModel.userLogin is suspended function therefore we use coroutines
-        lifecycleScope.launch {
-            try {
-                val authResponse = viewModel.userLogin(email, password)
+                        if(signInResponse.user_name != null) {
+                            binding.progressBar.hide()
+                            val user = User(username)
+                            viewModel.saveLoggedInUser(user)
+                        }
+                        else {
+                            binding.progressBar.hide()
+                            binding.rootLayout.snackbar(signInResponse.response_message!!)
+                        }
+                    }
+                    catch (e: NoInternetException) {
+                        binding.progressBar.hide()
+                        binding.rootLayout.snackbar(e.message.toString())
+                    }
+                    catch (e: ApiException) {
+                        binding.progressBar.hide()
+                        binding.rootLayout.snackbar(e.message.toString())
+                    }
 
-                if(authResponse.user != null) {
-                    viewModel.saveLoggedInUser(authResponse.user)
+
                 }
-                else {
-                    binding.rootLayout.snackbar(authResponse.message!!)
-                }
             }
-            catch (e: ApiException) {
-                e.printStackTrace()
-            }
-            catch (e: NoInternetException) {
-                e.printStackTrace()
-            }
-
         }
+
+
 
     }
 

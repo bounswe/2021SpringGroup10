@@ -7,9 +7,9 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/root_layout"
+        android:background="#5E17EB"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E2E2E2"
         tools:context=".ui.auth.LoginActivity">
 
 
@@ -18,41 +18,25 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/image_view_logo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="75dp"
-                android:background="@drawable/ic_app_logo" />
 
             <LinearLayout
                 android:id="@+id/linearLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/image_view_logo"
+                android:layout_marginTop="100dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="architect your app with"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    android:textColor="#465A61"
-                    app:fontFamily="cursive" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="MVVM"
+                    android:text="@string/app_name"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-                    android:textColor="#969EEE"
-                    android:textStyle="bold"
+                    android:textColor="@color/white"
                     android:typeface="monospace"
-                    app:fontFamily="casual" />
+                    app:fontFamily="times" />
 
             </LinearLayout>
 
@@ -61,21 +45,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/linearLayout1"
-                android:background="#ffffff"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/shape"
                 android:orientation="vertical"
                 android:padding="18dp">
 
                 <EditText
-                    android:id="@+id/edit_text_email"
+                    android:id="@+id/edit_text_username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/edit_text_round_gray_background"
-                    android:drawableLeft="@drawable/ic_email"
+                    android:drawableLeft="@drawable/ic_name"
                     android:drawablePadding="16dp"
-                    android:hint="belal@gmail.com"
-                    android:inputType="textEmailAddress"
+                    android:hint="username"
+                    android:inputType="textPersonName"
                     android:padding="12dp" />
+
 
                 <EditText
                     android:id="@+id/edit_text_password"
@@ -89,14 +75,14 @@
                     android:inputType="textPassword"
                     android:padding="12dp" />
 
-                <TextView
-                    android:id="@+id/text_view_forget_password"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="Forget Password?"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/colorPrimaryDark" />
+<!--                <TextView-->
+<!--                    android:id="@+id/text_view_forget_password"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="12dp"-->
+<!--                    android:text="Forget Password?"-->
+<!--                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+<!--                    android:textColor="@color/colorPrimaryDark" />-->
 
                 <Button
                     android:id="@+id/button_sign_in"
@@ -118,7 +104,8 @@
                 android:text="Don't have an account?\nSign Up Here"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorPrimary" />
+                android:textSize="16sp"
+                android:textColor="@color/white" />
 
         </RelativeLayout>
 
