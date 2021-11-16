@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mvvmapp">
 
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- set android:name to MVVMApplication to use MVVMApplication class as base class -->
     <application
         android:name=".MVVMApplication"
         android:allowBackup="true"
@@ -13,8 +13,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.MVVMApp">
+        android:theme="@style/Theme.MVVMApp"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".ui.home.profile.ProfileCreationActivity"></activity>
         <activity android:name=".ui.home.HomeActivity" />
         <activity android:name=".ui.auth.SignupActivity" />
         <activity

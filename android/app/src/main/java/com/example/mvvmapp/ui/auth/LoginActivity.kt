@@ -2,6 +2,7 @@ package com.example.mvvmapp.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -77,21 +78,25 @@ class LoginActivity : AppCompatActivity(), KodeinAware {
                     try {
                         val signInResponse = viewModel.userLogin(username,  password)
 
-                        if(signInResponse.user_name != null) {
+                        if(signInResponse.data != null) {
                             binding.progressBar.hide()
+                            val username = signInResponse.data["user_name"]
                             val user = User(username)
                             viewModel.saveLoggedInUser(user)
                         }
                         else {
+                            Log.i("SignInResponse", signInResponse.toString())
                             binding.progressBar.hide()
                             binding.rootLayout.snackbar(signInResponse.response_message!!)
                         }
                     }
                     catch (e: NoInternetException) {
+                        e.printStackTrace()
                         binding.progressBar.hide()
                         binding.rootLayout.snackbar(e.message.toString())
                     }
                     catch (e: ApiException) {
+                        e.printStackTrace()
                         binding.progressBar.hide()
                         binding.rootLayout.snackbar(e.message.toString())
                     }

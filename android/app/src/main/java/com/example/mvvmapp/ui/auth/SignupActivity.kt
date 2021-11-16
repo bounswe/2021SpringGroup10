@@ -10,6 +10,7 @@ import com.example.mvvmapp.R
 import com.example.mvvmapp.data.db.entities.User
 import com.example.mvvmapp.databinding.ActivitySignupBinding
 import com.example.mvvmapp.ui.home.HomeActivity
+import com.example.mvvmapp.ui.home.profile.ProfileCreationActivity
 import com.example.mvvmapp.util.*
 import kotlinx.coroutines.launch
 import org.kodein.di.KodeinAware
@@ -36,7 +37,7 @@ class SignupActivity : AppCompatActivity(), KodeinAware {
 
         viewModel.getLoggedInUser().observe(this, Observer { user ->
             if(user != null) {
-                Intent(this, HomeActivity::class.java).also {
+                Intent(this, ProfileCreationActivity::class.java).also {
                     // set flags to create a fresh activity.
                     // for example if we don't do this the user will see
                     // login activity when they click back button even though

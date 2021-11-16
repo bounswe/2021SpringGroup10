@@ -1,35 +1,31 @@
 package com.example.mvvmapp.data.network
 
+import com.example.mvvmapp.data.network.requests.SignInRequest
+import com.example.mvvmapp.data.network.requests.SignUpRequest
 import com.example.mvvmapp.data.network.responses.QuotesResponse
 import com.example.mvvmapp.data.network.responses.SignInResponse
 import com.example.mvvmapp.data.network.responses.SignUpResponse
+import com.google.gson.JsonObject
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 
 interface MyApi {
 
 
-    @FormUrlEncoded
-    @POST("sign_in/") // "login" is endpoint we add to root url
+    @POST("sign_in/")
     suspend fun userLogin(
-        @Field("user_name") username: String,
-        @Field("password") password: String
+        @Body req: SignInRequest
     ) : Response<SignInResponse>
 
 
-    @FormUrlEncoded
     @POST("sign_up/")
     suspend fun userSignup(
-        @Field("user_name") username: String,
-        @Field("mail_address") email: String,
-        @Field("password") password: String
+        @Body req: SignUpRequest
     ) : Response<SignUpResponse>
 
     @GET("quotes")
@@ -50,7 +46,7 @@ interface MyApi {
 
             return Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://3.134.93.99/api/")
+                .baseUrl("http://3.134.93.99:8080/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(MyApi::class.java)

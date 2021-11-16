@@ -2,6 +2,7 @@ package com.example.mvvmapp.ui.home.profile
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,22 @@ class ProfileFragment : Fragment(), KodeinAware {
         // as we are binding a live data (ProfileViewModel.user) to layout
         // we need to define the lifecycle owner
         binding.lifecycleOwner = this
+
+
+
+        try {
+            val args = ProfileFragmentArgs.fromBundle(requireArguments())
+            Log.i("ProfileArguments", args.toString())
+            binding.name.text = args.firstName
+            binding.birthDate.text = args.birthDate
+            binding.biography.text = args.biography
+        }
+        catch (e: Exception) {
+            binding.name.text = "foo bar"
+            binding.birthDate.text = "16/11/2021"
+            binding.biography.text = "biography baz"
+        }
+
 
         return binding.root
     }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/firstNameFragment">
+
+    <fragment
+        android:id="@+id/firstNameFragment"
+        android:name="com.example.mvvmapp.ui.home.profile.creation_steps.FirstNameFragment"
+        android:label="fragment_first_name"
+        tools:layout="@layout/fragment_first_name" >
+        <action
+            android:id="@+id/action_firstNameFragment_to_lastNameFragment"
+            app:destination="@id/lastNameFragment"
+            app:popUpTo="@id/firstNameFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/lastNameFragment"
+        android:name="com.example.mvvmapp.ui.home.profile.creation_steps.LastNameFragment"
+        android:label="fragment_last_name"
+        tools:layout="@layout/fragment_last_name" >
+        <action
+            android:id="@+id/action_lastNameFragment_to_birthDateFragment"
+            app:destination="@id/birthDateFragment"
+            app:popUpTo="@id/lastNameFragment" />
+        <argument
+            android:name="firstName"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/biographyFragment"
+        android:name="com.example.mvvmapp.ui.home.profile.creation_steps.BiographyFragment"
+        android:label="fragment_biography"
+        tools:layout="@layout/fragment_biography" >
+        <argument
+            android:name="firstName"
+            app:argType="string" />
+        <argument
+            android:name="lastName"
+            app:argType="string" />
+        <argument android:name="birthDate" />
+        <action
+            android:id="@+id/action_biographyFragment_to_profileFragment2"
+            app:destination="@id/profileFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/birthDateFragment"
+        android:name="com.example.mvvmapp.ui.home.profile.creation_steps.BirthDateFragment"
+        android:label="fragment_birth_date"
+        tools:layout="@layout/fragment_birth_date" >
+        <action
+            android:id="@+id/action_birthDateFragment_to_biographyFragment"
+            app:destination="@id/biographyFragment"
+            app:popUpTo="@id/birthDateFragment" />
+        <argument
+            android:name="firstName"
+            app:argType="string" />
+        <argument
+            android:name="lastName"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment2"
+        android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
+        android:label="profile_fragment"
+        tools:layout="@layout/profile_fragment">
+        <argument
+            android:name="firstName"
+            app:argType="string" />
+        <argument
+            android:name="lastName"
+            app:argType="string" />
+        <argument android:name="birthDate" />
+        <argument android:name="biography" />
+    </fragment>
+</navigation>

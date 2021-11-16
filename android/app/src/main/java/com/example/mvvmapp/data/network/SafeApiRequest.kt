@@ -40,7 +40,11 @@ abstract class SafeApiRequest {
         catch (e: NoInternetException) {
             throw NoInternetException("Connection error. Check your internet connection.")
         }
+        catch (e: ApiException) {
+            throw ApiException(e.message.toString())
+        }
         catch (e: Exception) {
+            e.printStackTrace()
             throw ApiException("Server is down. Please try again later.")
         }
 
