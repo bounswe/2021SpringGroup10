@@ -46,7 +46,7 @@ def sign_up_endpoint():
     return data, status_code
 
 
-@app.route('/api/sign_in/', methods=['GET'])
+@app.route('/api/sign_in/', methods=['POST'])
 def sign_in_endpoint():
     req = request.get_json()
     data = {"response_message": None}
@@ -114,4 +114,4 @@ def profile_page():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
