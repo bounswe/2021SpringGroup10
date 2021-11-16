@@ -7,6 +7,7 @@ ENV FLASK_ENV=development
 ENV FLASK_APP=./backend_source/app.py
 #CMD ["flask", "run", "--host=0.0.0.0"]
 #CMD ["python", "./backend_source/app.py"]
-ENTRYPOINT ["flask"]
+#ENTRYPOINT ["flask"]
 
-CMD ["run", "--host=0.0.0.0"]
+#CMD ["run", "--host=0.0.0.0"]
+CMD ["python", "./backend_source/app.py"]
