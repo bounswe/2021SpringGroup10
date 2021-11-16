@@ -6,7 +6,7 @@ import DatePicker from '@mui/lab/DatePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import FileBase64 from 'react-file-base64';
-
+import {Link as RouterLink}from "react-router-dom";
 
 export default function ProfileInfo() {
     const [first_name, set_first_name] = React.useState("");
@@ -16,6 +16,9 @@ export default function ProfileInfo() {
     const [photo, set_photo] = React.useState("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
 
     const handle_save = () => {
+        //TODO
+    }
+    const handle_skip = () => {
         //TODO
     }
 
@@ -80,7 +83,14 @@ export default function ProfileInfo() {
                     color="primary"
                     className="form__custom-button"
                     onClick={handle_save}>
-                    Save
+                    <RouterLink to="/home"> Save </RouterLink>
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className="form__custom-button"
+                    onClick={handle_skip}>
+                    <RouterLink to="/home"> Skip </RouterLink>
                 </Button>
             </form>
 

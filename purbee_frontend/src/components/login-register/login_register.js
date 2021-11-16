@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import './styles.css'
 import { Card } from '@mui/material';
 import Link from '@mui/material/Link';
+import {Link as RouterLink}from "react-router-dom";
 
 export default function LoginPage() {
     const [user_name, set_username] = React.useState("");
@@ -39,7 +40,7 @@ export default function LoginPage() {
                 <form className="form">
                     <img src="https://i.ibb.co/SXprk2W/2.png" style={{ width: "25%", alignSelf: "center", paddingBottom: "0.8em" }}></img>
 
-                    <h4 style={{ alignSelf: "baseline" }}>email</h4>
+                    <h4 style={{ alignSelf: "baseline" }}>Email</h4>
                     <div style={{ height: "0.8em" }}></div>
                     <TextField
                         id="email"
@@ -66,7 +67,7 @@ export default function LoginPage() {
                         color="primary" 
                         className="form__custom-button"
                         onClick={signin}>
-                        Log in
+                        <RouterLink to="/profile-info"> Log in </RouterLink>
                     </Button>
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center" }}>
@@ -87,7 +88,7 @@ export default function LoginPage() {
                 <form className="form">
                     <img src="https://i.ibb.co/SXprk2W/2.png" style={{ width: "25%", alignSelf: "center", paddingBottom: "0.8em" }}></img>
 
-                    <h4 style={{ alignSelf: "baseline" }}>email</h4>
+                    <h4 style={{ alignSelf: "baseline" }}>Email</h4>
                     <div style={{ height: "0.8em" }}></div>
                     <TextField
                         id="email"
@@ -133,7 +134,7 @@ export default function LoginPage() {
                     />
 
                     <Button variant="contained" color="primary" className="form__custom-button">
-                        Sign up
+                        <RouterLink to="/profile-info"> Sign up </RouterLink>
                     </Button>
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center", display: "flex", justifyContent: "space-between" }}>
