@@ -1,3 +1,6 @@
 flask~=2.0.2
 pymongo~=3.12.1
 dnspython~=2.1.0
+requests~=2.25.1
+dnspython
+Flask-Cors

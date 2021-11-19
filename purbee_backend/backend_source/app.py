@@ -1,5 +1,5 @@
 from flask import Flask, request
-
+from flask_cors import CORS, cross_origin
 
 from login.login import (
     sign_up,
@@ -17,10 +17,20 @@ USER_NAME = ""
 USER_PASSWORD = ""
 
 app = Flask(__name__)
+CORS(app, support_credentials=True)
 
 
-@app.route('/api/sign_up/', methods=['POST'])
+@app.route('/api/sign_up/', methods=['POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
 def sign_up_endpoint():
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*'
+        }
+        result = {
+            "status": 0
+        }
+        return result, 200, headers
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -46,8 +56,17 @@ def sign_up_endpoint():
     return data, status_code
 
 
-@app.route('/api/sign_in/', methods=['POST'])
+@app.route('/api/sign_in/', methods=['POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
 def sign_in_endpoint():
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*'
+        }
+        result = {
+            "status": 0
+        }
+        return result, 200, headers
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -71,8 +90,17 @@ def sign_in_endpoint():
     return data, status_code
 
 
-@app.route('/api/profile_page/', methods=['POST', 'GET'])
+@app.route('/api/profile_page/', methods=['POST', 'GET', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
 def profile_page():
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*'
+        }
+        result = {
+            "status": 0
+        }
+        return result, 200, headers
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -110,8 +138,6 @@ def profile_page():
             data["data"] = db_return
             status_code = SC_SUCCESS
         return data, status_code
-
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
