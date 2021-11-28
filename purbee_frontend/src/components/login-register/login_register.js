@@ -4,9 +4,9 @@ import TextField from '@mui/material/TextField';
 import './styles.css'
 import Link from '@mui/material/Link';
 import { Link as RouterLink } from "react-router-dom";
-import axios from 'axios'
+import { apiCall } from "../../helper"
 
-var Axios = require('axios');
+const Axios = require('axios');
 
 export default function LoginPage() {
     const [user_name, set_username] = React.useState("");
@@ -23,25 +23,21 @@ export default function LoginPage() {
     const handle_login_or_register_change = (value) => set_login_or_register(value);
 
     const signin = () => {
-        
+        let request_json= {
+            "user_name": user_name,
+            "password": password
+        };
+        apiCall("sign in", request_json);
     }
 
     const signup = () => {
         let request_json= {
-            "user_name": "kiroglu2",
-            "mail_address": "kiroglu2@gmail.com",
-            "password": "kiroglunabakK!!1"
+            "user_name": user_name,
+            "mail_address": mail_address,
+            "password": password
         };
-        let endpoint = "https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/sign_up"
-        Axios({
-            method: 'post',
-            url: endpoint,
-            data: request_json,
-        }).then(response => {
-            console.log("çabuk api calluma bakıbn");
-            console.log(response)
-        })
-            .catch(error=> console.log(error))
+        apiCall("sign up", request_json);
+
     }
 
     React.useEffect(() => {
@@ -109,7 +105,7 @@ export default function LoginPage() {
                             fullWidth: true
                         }}
                         type="text"
-                        onChange={handle_username_change}
+                        onChange={handle_mail_address_change}
                     />
                     <div style={{ height: "0.8em" }}></div>
                     <h4 style={{ alignSelf: "baseline" }}>Username</h4>
