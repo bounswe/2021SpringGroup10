@@ -6,6 +6,8 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from "react-router-dom";
 import axios from 'axios'
 
+var Axios = require('axios');
+
 export default function LoginPage() {
     const [user_name, set_username] = React.useState("");
     const [password, set_password] = React.useState("");
@@ -25,7 +27,21 @@ export default function LoginPage() {
     }
 
     const signup = () => {
-        
+        let request_json= {
+            "user_name": "kiroglu2",
+            "mail_address": "kiroglu2@gmail.com",
+            "password": "kiroglunabakK!!1"
+        };
+        let endpoint = "https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/sign_up"
+        Axios({
+            method: 'post',
+            url: endpoint,
+            data: request_json,
+        }).then(response => {
+            console.log("çabuk api calluma bakıbn");
+            console.log(response)
+        })
+            .catch(error=> console.log(error))
     }
 
     React.useEffect(() => {
