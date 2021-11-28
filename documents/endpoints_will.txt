@@ -1,0 +1,56 @@
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/create method="POST"
+		http://3.134.93.99:8080/api/community_page_create/ method="POST"
+	input:
+		{
+			'community_name': <community_name>		//String
+			'community_is_private': <private> 		//Boolean
+			'user_name': <user_name>				//String
+		}
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="GET"
+		/api/community_page/ method="GET"
+	input:
+		{
+			'community_name': <community_name>		//String
+		}
+	output:
+		{
+			profile_photo
+			manifest
+			follower_list
+			post_list
+		}
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/info method="GET"
+		http://3.134.93.99:8080/api/community_page_info/ method='GET'
+	input:
+		{
+			'community_name'
+		}
+	output:
+		{
+			post_type_list
+			class diagramdaki community info daki tum bilgiler
+		}
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/post method="POST"
+		http://3.134.93.99:8080/api/post/ method='POST'
+	input:
+		{
+			post_information
+		}
+	output:
+		{
+			post_id
+		}
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/post method="GET"
+		http://3.134.93.99:8080/api/post/ method='GET'
+	input:
+		{
+			post_id
+		}
+	output:
+		{
+			post_information
+		}
