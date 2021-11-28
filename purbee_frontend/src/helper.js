@@ -1,4 +1,4 @@
-async function apiCall(url, call_method){
+export async function apiCall(url, call_method){
     const response = await fetch(url, {
         method: call_method,
         mode: "cors",
