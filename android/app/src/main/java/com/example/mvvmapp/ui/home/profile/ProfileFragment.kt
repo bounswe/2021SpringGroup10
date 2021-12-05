@@ -38,11 +38,11 @@ class ProfileFragment : Fragment(), KodeinAware {
 
 
         try {
-            val args = ProfileFragmentArgs.fromBundle(requireArguments())
-            Log.i("ProfileArguments", args.toString())
-            binding.name.text = args.firstName
-            binding.birthDate.text = args.birthDate
-            binding.biography.text = args.biography
+//            val args = ProfileFragmentArgs.fromBundle(requireArguments())
+//            Log.i("ProfileArguments", args.toString())
+//            binding.name.text = args.firstName
+//            binding.birthDate.text = args.birthDate
+//            binding.biography.text = args.biography
         }
         catch (e: Exception) {
             binding.name.text = "foo bar"
