@@ -6,7 +6,6 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from "react-router-dom";
 import { apiCall } from "../../helper"
 
-const Axios = require('axios');
 
 export default function LoginPage() {
     const [user_name, set_username] = React.useState("");
