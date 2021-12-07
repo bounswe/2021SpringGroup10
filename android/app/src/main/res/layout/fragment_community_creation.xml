@@ -13,15 +13,14 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
 
             <LinearLayout
                 android:id="@+id/linearLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="50dp"
                 android:orientation="vertical">
 
 
@@ -80,7 +79,7 @@
                     android:padding="12dp" />
 
                 <Button
-                    android:id="@+id/button_sign_in"
+                    android:id="@+id/button_create_community"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"

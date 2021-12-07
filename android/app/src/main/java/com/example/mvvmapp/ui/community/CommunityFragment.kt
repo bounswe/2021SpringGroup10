@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.findNavController
 import com.example.mvvmapp.R
 import com.example.mvvmapp.databinding.FragmentCommunityBinding
 import com.example.mvvmapp.databinding.FragmentHomeBinding
@@ -19,6 +20,11 @@ class CommunityFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate<FragmentCommunityBinding>(
             inflater, R.layout.fragment_community, container, false)
+
+        binding.button.setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_communityFragment_to_communityCreationFragment)
+
+        }
 
         return binding.root
     }

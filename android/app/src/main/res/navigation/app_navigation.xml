@@ -24,10 +24,14 @@
     <fragment
         android:id="@+id/communityCreationFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
-        android:label="fragment_community_creation"
-        tools:layout="@layout/fragment_community_creation" >
+        android:label="Community Creation"
+        tools:layout="@layout/fragment_community_creation">
         <action
-            android:id="@+id/action_communityCreationFragment_to_communityFragment"
-            app:destination="@id/communityFragment" />
+            android:id="@+id/action_communityCreationFragment_to_communityPageFragment"
+            app:destination="@id/communityPageFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/communityPageFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
+        android:label="CommunityPageFragment" />
 </navigation>
