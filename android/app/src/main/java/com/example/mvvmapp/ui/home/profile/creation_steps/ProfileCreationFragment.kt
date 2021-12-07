@@ -1,16 +1,15 @@
 package com.example.mvvmapp.ui.home.profile.creation_steps
 
+import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.findNavController
 import com.example.mvvmapp.R
 import com.example.mvvmapp.databinding.FragmentProfileCreationBinding
+import com.example.mvvmapp.ui.home.NavigationActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,11 +41,9 @@ class ProfileCreationFragment : Fragment() {
             when(index) {
                 0 -> {
                     firstName = binding.editTextProfileInfo.text.toString().trim()
-                    Log.i("ProfileCreationFragment", "firstname: $firstName")
                 }
                 1 -> {
                     lastName = binding.editTextProfileInfo.text.toString().trim()
-                    Log.i("ProfileCreationFragment", "lastName: $lastName")
                 }
                 2 -> {
                     val day = binding.datePicker.dayOfMonth
@@ -56,12 +53,17 @@ class ProfileCreationFragment : Fragment() {
                     calendar.set(year, month, day)
                     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.US)
                     birthDate = sdf.format(calendar.time)
-                    Log.i("ProfileCreationFragment", "birthDate: $birthDate")
                 }
                 3 -> {
                     biography = binding.editTextProfileInfo.text.toString().trim()
-                    view.findNavController().navigate(ProfileCreationFragmentDirections.actionProfileCreationFragmentToHomeFragment())
-                    Log.i("ProfileCreationFragment", "biography: $biography")
+                    Intent(activity, NavigationActivity::class.java).also {
+                        // set flags to create a fresh activity.
+                        // for example if we don't do this the user will see
+                        // login activity when they click back button even though
+                        // they are logged in
+                        it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(it)
+                    }
                 }
             }
             index += 1
@@ -76,26 +78,22 @@ class ProfileCreationFragment : Fragment() {
 
     private fun setContent() {
         binding.editTextProfileInfo.text = null
-        Log.i("ProfileCreationFragment", "index: $index")
         when(index) {
             0 -> {
                 prompt = "Type in your first name"
                 hint = "First name"
                 buttonText = "Next"
-                Log.i("ProfileCreationFragment", "index 0 aq")
             }
             1 -> {
                 prompt = "Type in your last name"
                 hint = "Last name"
                 buttonText = "Next"
-                Log.i("ProfileCreationFragment", "index 1 aq")
             }
             2 -> {
                 prompt = "Select your birth date"
                 buttonText = "Next"
                 binding.datePicker.visibility = View.VISIBLE
                 binding.editTextProfileInfo.visibility = View.GONE
-                Log.i("ProfileCreationFragment", "index 2 aq")
             }
             3 -> {
                 prompt = "Tell us about your biography"
@@ -103,7 +101,6 @@ class ProfileCreationFragment : Fragment() {
                 buttonText = "Finish"
                 binding.datePicker.visibility = View.GONE
                 binding.editTextProfileInfo.visibility = View.VISIBLE
-                binding.editTextProfileInfo.setRawInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE)
             }
         }
     }

@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mvvmapp">
 
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -15,8 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MVVMApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.home.profile.ProfileCreationActivity"></activity>
-        <activity android:name=".ui.home.HomeActivity" />
+        <activity android:name=".ui.home.NavigationActivity"></activity>
+        <activity android:name=".ui.home.profile.ProfileCreationActivity" />
         <activity android:name=".ui.auth.SignupActivity" />
         <activity
             android:name=".ui.auth.LoginActivity"
