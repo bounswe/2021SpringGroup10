@@ -1,4 +1,4 @@
-package com.example.mvvmapp.ui.home.profile.creation_steps
+package com.example.mvvmapp.ui.home.profile
 
 import android.content.Intent
 import android.os.Bundle

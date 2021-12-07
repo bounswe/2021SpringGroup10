@@ -6,7 +6,7 @@
     app:startDestination="@id/profileCreationFragment">
     <fragment
         android:id="@+id/profileCreationFragment"
-        android:name="com.example.mvvmapp.ui.home.profile.creation_steps.ProfileCreationFragment"
+        android:name="com.example.mvvmapp.ui.home.profile.ProfileCreationFragment"
         android:label="fragment_profile_creation"
         tools:layout="@layout/fragment_profile_creation" />
 </navigation>
