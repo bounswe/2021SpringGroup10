@@ -8,10 +8,12 @@
     <fragment
         android:id="@+id/homeFragment2"
         android:name="com.example.mvvmapp.ui.home.HomeFragment"
+        tools:layout="@layout/fragment_home"
         android:label="Home" />
     <fragment
         android:id="@+id/communityFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityFragment"
+        tools:layout="@layout/fragment_community"
         android:label="Community" >
         <action
             android:id="@+id/action_communityFragment_to_communityCreationFragment"
@@ -20,18 +22,20 @@
     <fragment
         android:id="@+id/profileFragment2"
         android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
+        tools:layout="@layout/profile_fragment"
         android:label="Profile" />
     <fragment
         android:id="@+id/communityCreationFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
-        android:label="Community Creation"
-        tools:layout="@layout/fragment_community_creation">
+        tools:layout="@layout/fragment_community_creation"
+        android:label="Community Creation">
         <action
             android:id="@+id/action_communityCreationFragment_to_communityPageFragment"
             app:destination="@id/communityPageFragment" />
     </fragment>
     <fragment
         android:id="@+id/communityPageFragment"
+        tools:layout="@layout/fragment_community_page"
         android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
         android:label="CommunityPageFragment" />
 </navigation>
