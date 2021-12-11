@@ -2,10 +2,11 @@ class Community:
     def __init__(self, community_dict):
         self.id = None
         self.next_post_type_id = None
-        self.update(community_dict)
         self.admin_list = None
         self.subscriber_list = None
         self.post_type_id_list = None
+        
+        self.update(community_dict)
 
     def update(self, community_dict):
         for community_field_name, community_field_value in community_dict.items():
