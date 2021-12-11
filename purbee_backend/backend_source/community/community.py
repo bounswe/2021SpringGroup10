@@ -47,6 +47,11 @@ class Community:
         result = save_new_community(community_dictionary)
         return result
 
+    @staticmethod
+    def update_on_database(community_dictionary):
+        result = update_community(community_dictionary)
+        return result
+
     def remove_member(self, user_id):
         neu_subscriber_list = self.subscriber_list
         neu_subscriber_list.remove(user_id)

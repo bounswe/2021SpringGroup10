@@ -25,6 +25,79 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_page', methods=['POST', 'GET', 'PUT'])
+def community_page():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "POST":
+        needed_keys = ['id', 'is_private', 'community_creator_id']
+        if len(needed_keys) != len(req):
+            # TODO return invalid input error
+            pass
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # TODO return invalid input error
+                pass
+        community_instance = Community(req)
+        post_result = community_instance.save2database()
+        if post_result == 0:
+            # TODO return success
+            pass
+        elif post_result == 1:
+            # TODO return error: already have this community with community id
+            pass
+        elif post_result == 2:
+            # TODO return internal error
+            pass
+    elif request.method == "GET":
+        needed_keys = ['id']
+        if len(needed_keys) != len(req):
+            # TODO return invalid input error
+            pass
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # TODO return invalid input error
+                pass
+        community_instance = Community.get_community_from_id(req['id'])
+        if community_instance:
+            # TODO return success
+            pass
+        else:
+            # TODO return not found error
+            pass
+    elif request.method == "PUT":
+        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list', 'description',
+                       'photo', 'community_creator_id', 'created_at', 'banned_user_list', 'is_private']
+        if len(needed_keys) != len(req):
+            # TODO return invalid input error
+            pass
+        for r_key in req:
+            if r_key in needed_keys:
+                pass
+            else:
+                # TODO return invalid input error
+                pass
+        community_instance = Community.get_community_from_id(req['id'])
+        if community_instance:
+            community_instance.update(req)
+            community_dictionary = community_instance.to_dict()
+            update_result = Community.update_on_database(community_dictionary)
+            if update_result == 0:
+                # TODO success
+                pass
+            elif update_result == 1:
+                # TODO return internal error
+                pass
+        else:
+            # TODO not found user error
+            pass
+
+
 @app.route('/api/sign_up/', methods=['POST'])
 def sign_up_endpoint():
     req = request.get_json()
