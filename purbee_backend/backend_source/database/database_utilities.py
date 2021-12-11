@@ -14,6 +14,15 @@ def get_mail_address(user_name):
     pass
 
 
+def get_next_post_id():
+    pass
+
+def get_next_post_type_id():
+    pass
+
+def get_next_community_id():
+    pass
+
 def get_user_by_name(user_name):
     """
     :param

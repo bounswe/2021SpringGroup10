@@ -1,12 +1,18 @@
 from flask import Flask, request
-from post.post_type import PostType
+
 from community.community import Community
+from database.database_utilities import (
+    get_next_post_id,
+    get_next_post_type_id
+)
 from login.login import (
     sign_up,
     sign_in,
     update_profile_page,
     get_profile_page
 )
+from post.post import Post
+from post.post_type import PostType
 
 SC_FORBIDDEN = 403
 SC_SUCCESS = 200
@@ -111,10 +117,98 @@ def profile_page():
             status_code = SC_SUCCESS
         return data, status_code
 
-@app.route('/api/post/', methods=['GET','POST'])
-def sign_in_endpoint():
 
-@app.route('/api/post_type/', methods=['GET','POST'])
+@app.route('/api/post/', methods=['GET', 'POST', 'PUT'])
+def post():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "POST":  # Only for creating a new post.
+        post_type_id = req["post_type_id"]
+        fields_dictionary = req["fields_dictionary"]
+        post_id = get_next_post_id()
+        user_name = req["user_name"]  # TODO: use for authorization
+
+        base_post_type = PostType.get_post_type_from_id(post_type_id)
+        try:
+            post = Post(base_post_type, fields_dictionary, post_id, user_name)
+        except Exception as e:
+            if str(e) == "All fields should be specified":
+                data["response_message"] = str(e)
+                status_code = SC_BAD_REQUEST
+            # TODO: Add other cases for other possible exceptions
+            return data, status_code
+
+        post.save2database()  # TODO: check for database errors
+        post.has_created()
+
+        post_id = post.id
+        del post
+
+        # TODO: check_if_eligible(user_name,parent_community_id)
+
+        return_status = 0
+        if return_status == 0:
+            data["response_message"] = "Post is successfully created. "
+            data["data"] = {"post_id": post_id}
+            status_code = SC_SUCCESS
+        elif return_status == 1:
+            data["response_message"] = "Some error occurred"
+            status_code = SC_BAD_REQUEST
+
+    elif request.method == "PUT":  # Only for creating a new post.
+        post_id = req["post_id"]
+        fields_dictionary = req["fields_dictionary"]
+        user_name = req["user_name"]  # TODO: use for authorization
+
+        post = Post.get_post_from_id(post_id)
+        try:
+            updated_post = post.update(post.base_post_type, fields_dictionary, post.id, post.owner_user_name )
+        except Exception as e:
+            if str(e) == "All fields should be specified":
+                data["response_message"] = str(e)
+                status_code = SC_BAD_REQUEST
+            # TODO: Add other cases for other possible exceptions
+            return data, status_code
+
+        updated_post.save2database()  # TODO: check for database errors
+
+        post_id = updated_post.id
+        del updated_post
+
+        # TODO: check_if_eligible(user_name,parent_community_id)
+
+        return_status = 0
+        if return_status == 0:
+            data["response_message"] = "Post is successfully created. "
+            data["data"] = {"post_id": post_id}
+            status_code = SC_SUCCESS
+        elif return_status == 1:
+            data["response_message"] = "Some error occurred"
+            status_code = SC_BAD_REQUEST
+
+    elif request.method == "GET":
+        post_id = req["post_id"]
+        user_name = req["user_name"]  # TODO: use for authorization
+
+        post = Post.get_post_from_id(post_id)
+
+        # TODO: check_if_eligible(user_name,parent_community_id)
+
+        return_status = 0
+        if return_status == 0:
+            data["response_message"] = "Post is successfully created. "
+            data["data"] = post.to_dict()
+            status_code = SC_SUCCESS
+        elif return_status == 1:
+            data["response_message"] = "Some error occurred"
+            status_code = SC_BAD_REQUEST
+
+    return data, status_code
+
+
+@app.route('/api/post_type/', methods=['GET', 'POST'])
 def post_type():
     req = request.get_json()
     data = {"response_message": None}
@@ -122,43 +216,46 @@ def post_type():
 
     if request.method == "POST":  # Cannot edit post type, so this is creating a post type
         fields_dictionary = req["fields_dictionary"]
-        user_name = req["user_name"]  # use for authorization
+        user_name = req["user_name"]  # TODO: use for authorization
         post_type_name = req["post_type_name"]
         parent_community_id = req["parent_community_id"]
 
-        community_dict = Community.get_community_dict(parent_community_id)
-        community = Community(community_dict)
+        community = Community.get_community_from_id(parent_community_id)  # TODO: use for authorization
 
-        post_type_id = community.next_post_type_id
+        post_type_id = get_next_post_type_id()
+        post_type = PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
 
-        PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
-        #check_if_eligible(user_name,parent_community_id)
+        post_type.save2database()
+        post_type_id = post_type.id
+        del post_type
 
+        # TODO: check_if_eligible(user_name,parent_community_id)
 
         return_status = 0
         if return_status == 0:
-            req[fields_dictionary]
-            data["response_message"] = "User page updated successfully."
+            data["response_message"] = "PostType is successfully created."
+            data["data"] = {"post_type_id": post_type_id}
             status_code = SC_SUCCESS
         elif return_status == 1:
-            data["response_message"] = "No such user."
+            data["response_message"] = "Some error occurred"
             status_code = SC_BAD_REQUEST
 
     elif request.method == "GET":
         post_type_id = req["post_type_id"]
-        req = Community.get_community_dict(post_type_id)
 
-        fields_dictionary = req["fields_dictionary"]
-        user_name = req["user_name"]
-        post_type_name = req["post_type_name"]
-        parent_community_id = req["parent_community_id"]
+        post_type = PostType.get_post_type_from_id(post_type_id)
+        del post_type
 
-        community = Community(parent_community_id)
+        post_type_dict = post_type.to_dict()
 
-        community.next_post_type_id
-        PostType()
-
-
+        return_status = 0
+        if return_status == 0:
+            data["response_message"] = "PostType is successfully returned."
+            data["data"] = post_type_dict
+            status_code = SC_SUCCESS
+        elif return_status == 1:
+            data["response_message"] = "Some error occurred"
+            status_code = SC_BAD_REQUEST
 
     return data, status_code
 
