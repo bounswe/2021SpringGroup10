@@ -23,7 +23,8 @@ class Community:
 
     @staticmethod
     def get_community_from_id(community_id):
-        # do database stuff
+        # TODO: implement this method
+        # do database stuff and get the community_dict
         community_dict = {}
         return Community(community_dict)
 
