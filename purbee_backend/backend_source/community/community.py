@@ -1,7 +1,7 @@
-import pymongo
 from database.database_utilities import (
     save_new_community,
-    get_community_by_community_id
+    get_community_by_community_id,
+    update_community
 )
 
 
@@ -47,10 +47,35 @@ class Community:
         result = save_new_community(community_dictionary)
         return result
 
+    def remove_member(self, user_id):
+        neu_subscriber_list = self.subscriber_list
+        neu_subscriber_list.remove(user_id)
+        community_dictionary = self.to_dict()
+        community_dictionary['subscriber_list'] = neu_subscriber_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.subscriber_list = neu_subscriber_list
+        return result
+
+    def ban_member(self, user_id):
+        neu_subscriber_list = self.subscriber_list
+        neu_banned_user_list = self.banned_user_list
+        neu_subscriber_list.remove(user_id)
+        neu_banned_user_list.append(user_id)
+        community_dictionary = self.to_dict()
+        community_dictionary['subscriber_list'] = neu_subscriber_list
+        community_dictionary['banned_user_list'] = neu_banned_user_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.subscriber_list = neu_subscriber_list
+            self.banned_user_list = neu_banned_user_list
+        return result
+
+    def get_post_types(self):
+        return self.post_type_id_list
+
     @staticmethod
     def get_community_from_id(community_id):
-        # TODO: implement this method
-        # do database stuff and get the community_dict
         result, community_dict = get_community_by_community_id(community_id)
         if result == 0:
             return result, Community(community_dict)
