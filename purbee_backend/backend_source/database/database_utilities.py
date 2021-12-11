@@ -8,11 +8,11 @@ communities = db['communities']
 
 
 def get_community_by_community_id(community_id):
-    return registered_users.find_one({"_id": community_id})
+    return communities.find_one({"_id": community_id})
 
 
 def update_community(community_dictionary):
-    db_return = registered_users.update({"_id": community_dictionary['id']}, {
+    db_return = communities.update({"_id": community_dictionary['id']}, {
         "$set": community_dictionary})
 
     if db_return["ok"] != 1.0:
@@ -36,7 +36,7 @@ def save_new_community(community_dictionary):
             else:
                 community[key] = community_dictionary[key]
 
-        registered_users.insert_one(community)
+        communities.insert_one(community)
         return 0
     except:
         return 2
