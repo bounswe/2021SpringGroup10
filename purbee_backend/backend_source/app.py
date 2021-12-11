@@ -1,6 +1,6 @@
 from flask import Flask, request
-
-
+from post.post_type import PostType
+from community.community import Community
 from login.login import (
     sign_up,
     sign_in,
@@ -111,6 +111,56 @@ def profile_page():
             status_code = SC_SUCCESS
         return data, status_code
 
+@app.route('/api/post/', methods=['GET','POST'])
+def sign_in_endpoint():
+
+@app.route('/api/post_type/', methods=['GET','POST'])
+def post_type():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "POST":  # Cannot edit post type, so this is creating a post type
+        fields_dictionary = req["fields_dictionary"]
+        user_name = req["user_name"]  # use for authorization
+        post_type_name = req["post_type_name"]
+        parent_community_id = req["parent_community_id"]
+
+        community_dict = Community.get_community_dict(parent_community_id)
+        community = Community(community_dict)
+
+        post_type_id = community.next_post_type_id
+
+        PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
+        #check_if_eligible(user_name,parent_community_id)
+
+
+        return_status = 0
+        if return_status == 0:
+            req[fields_dictionary]
+            data["response_message"] = "User page updated successfully."
+            status_code = SC_SUCCESS
+        elif return_status == 1:
+            data["response_message"] = "No such user."
+            status_code = SC_BAD_REQUEST
+
+    elif request.method == "GET":
+        post_type_id = req["post_type_id"]
+        req = Community.get_community_dict(post_type_id)
+
+        fields_dictionary = req["fields_dictionary"]
+        user_name = req["user_name"]
+        post_type_name = req["post_type_name"]
+        parent_community_id = req["parent_community_id"]
+
+        community = Community(parent_community_id)
+
+        community.next_post_type_id
+        PostType()
+
+
+
+    return data, status_code
 
 
 if __name__ == '__main__':
