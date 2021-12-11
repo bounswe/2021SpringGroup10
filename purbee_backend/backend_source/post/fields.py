@@ -1,8 +1,13 @@
-
 # send false for the parameters that you don't want to send
-class date_time:
+class DateTime:
 
-    def __init__(self, header, date, time):
+    def __init__(self, header, date="", time=""):
+        self.header = header
+        self.date = date
+        self.time = time
+        return 0
+
+    def update(self, header, date="", time=""):
         if header:
             self.header = header
         if date:
@@ -11,162 +16,115 @@ class date_time:
             self.time = time
         return 0
 
-    def update_field(self, header, date, time):
-        if header:
-            self.header = header
-        if date:
-            self.date = date
-        if time:
-            self.time = time
-        return 0
 
 class Location:
-    def __init__(self, header, location, description):
-        if header:
-            self.header = header
-        if location:
-            self.location = location
-        if description:
-            self.description = description
+    def __init__(self, header, location="", text=""):
+        self.header = header
+        self.location = location
+        self.text = text
         return 0
 
-    def update_field(self, header, location, description):
+    def set(self, header, location="", text=""):
         if header:
             self.header = header
         if location:
             self.location = location
-        if description:
-            self.description = description
+        if text:
+            self.text = text
         return 0
+
 
 class PlainText:
-    def __init__(self, header, text):
+    def __init__(self, header="", text=""):
+        self.header = header
+        self.text = text
+        return 0
+
+    def set(self, header, text):
         if header:
             self.header = header
         if text:
             self.text = text
         return 0
 
-    def update_field(self, header, text):
-        if header:
-            self.header = header
-        if text:
-            self.text = text
-        return 0
 
 class Price:
-    def __init__(self, header, description):
-        if header:
-            self.header = header
-        if description:
-            self.description = description
+    # TODO: Update the fields of this class in the class diagram
+    def __init__(self, header, amount="", currency=""):
+        self.header = header
+        self.amount = amount
+        self.currency = currency
         return 0
 
-    def update_field(self, header, description):
+    def set(self, header, amount="", currency=""):
         if header:
             self.header = header
-        if description:
-            self.description = description
+        if amount:
+            self.amount = amount
+        if currency:
+            self.currency = currency
         return 0
+
 
 class Participation:
-    def __init__(self, header, listOfParticipants , numOfParticipants):
-        if header:
-            self.header = header
-            self.listOfParticipants = []
-        if numOfParticipants:
-            self.numOfParticipants = numOfParticipants
-
+    def __init__(self, header):
+        self.header = header
+        self.listOfParticipants = []
+        self.numOfParticipants = 0
         return 0
 
-
-    def set_header(self,header):
+    def set(self, header):
         self.header = header
         return 0
 
-    def participate(self, user):
-        self.listOfParticipants = self.listOfParticipants.append(user)
+    def participate(self, user_name):
+        self.listOfParticipants = self.listOfParticipants.append(user_name)
         self.numOfParticipants += 1
-
         return 0
 
-    def cancel_participation(self, user):
-        self.listOfParticipants = self.listOfParticipants.remove(user)
+    def cancel_participation(self, user_name):
+        self.listOfParticipants = self.listOfParticipants.remove(user_name)
         self.numOfParticipants -= 1
-
         return 0
+
 
 class Document:
-    def __init__(self, header, url, name):
-        if header:
-            self.header = header
-        if url:
-            self.text = url
-        if name:
-            self.name = name
+    def __init__(self, header, url=""):
+        self.header = header
+        self.url = url
         return 0
 
-    def update_field(self, header, url, name):
+    def set(self, header, url=""):
         if header:
             self.header = header
         if url:
-            self.text = url
-        if name:
-            self.name = name
+            self.url = url
         return 0
+
 
 class Photo:
-    def __init__(self, header, image, description):
+    def __init__(self, header, image=""):
+        self.header = header
+        self.image = image
+        return 0
+
+    def set(self, header, image=""):
         if header:
             self.header = header
         if image:
             self.image = image
-        if description:
-            self.description = description
+
         return 0
 
-    def update_field(self, header, image, description):
-        if header:
-            self.header = header
-        if image:
-            self.image = image
-        if description:
-            self.description = description
-        return 0
 
-## Poll class will be implemented
+class Poll:
+    # TODO: update the class diagram fields accordingly
+    def __init__(self, header, options=""):
+        self.header = header
+        self.options = {option: [] for option in options}
 
+    def vote_for(self, option, user_name):
+        self.options[option].append(user_name)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def cancel_vote_for(self, option, user_name):
+        self.options[option].remove(user_name)
