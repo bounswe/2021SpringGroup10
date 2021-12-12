@@ -35,7 +35,7 @@ def community_page():
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -51,7 +51,7 @@ def community_page():
         if post_result == 0:
             # return success
             data['response_message'] = "Community Page successfully created."
-            status_code = SC_SUCCESS
+            status_code = SC_CREATED
             return data, status_code
         elif post_result == 1:
             # return error: already have this community with community id
@@ -113,9 +113,9 @@ def community_page():
             update_result = Community.update_on_database(community_dictionary)
             if update_result == 0:
                 # return success
-                data['response_message'] = "Community successfully found"
+                data['response_message'] = "Community successfully updated"
                 data['community_instance'] = community_dictionary
-                status_code = SC_SUCCESS
+                status_code = SC_CREATED
                 return data, status_code
             elif update_result == 1:
                 # return internal error
