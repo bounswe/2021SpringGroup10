@@ -82,7 +82,7 @@ def community_page():
         if community_instance:
             # return success
             data['response_message'] = "Community successfully found"
-            data['community_instance'] = community_instance
+            data['community_instance'] = community_instance.to_dict()
             status_code = SC_SUCCESS
             return data, status_code
         else:
