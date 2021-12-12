@@ -1,37 +1,32 @@
-https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/create method="POST"
-		http://3.134.93.99:8080/api/community_page_create/ method="POST"
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/remove_member method="PUT"
+		http://3.134.93.99:8080/api/community_page/remove_member method='PUT'
 	input:
 		{
-			'community_name': <community_name>		//String
-			'community_is_private': <private> 		//Boolean
-			'user_name': <user_name>				//String
-		}
-
-https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="GET"
-		/api/community_page/ method="GET"
-	input:
-		{
-			'community_name': <community_name>		//String
+			'community_name',
+			'user_id'
 		}
 	output:
 		{
-			profile_photo
-			manifest
-			follower_list
-			post_list
+			response message,
+			updated community
 		}
+		status code
 
-https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/info method="GET"
-		http://3.134.93.99:8080/api/community_page_info/ method='GET'
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/ban_member method="PUT"
+		http://3.134.93.99:8080/api/community_page/ban_member method='PUT'
 	input:
 		{
-			'community_name'
+			'community_name',
+			'user_id'
 		}
 	output:
 		{
-			post_type_list
-			class diagramdaki community info daki tum bilgiler
+			response message,
+			updated community
 		}
+		status code
+
+
 
 https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/post method="POST"
 		http://3.134.93.99:8080/api/post/ method='POST'

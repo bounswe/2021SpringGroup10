@@ -4,6 +4,42 @@ client = pymongo.MongoClient(
     "mongodb+srv://purbeeApp:QLi9WWoLf4MztDJv@cluster0.orh8z.mongodb.net/purbeeProduct?retryWrites=true&w=majority")
 db = client.purbeeProduct
 registered_users = db["registered_users"]
+communities = db['communities']
+
+
+def get_community_by_community_id(community_id):
+    return communities.find_one({"_id": community_id})
+
+
+def update_community(community_dictionary):
+    db_return = communities.update({"_id": community_dictionary['id']}, {
+        "$set": community_dictionary})
+
+    if db_return["ok"] != 1.0:
+        return 1
+    else:
+        return 0
+
+
+def save_new_community(community_dictionary):
+    # RETURN
+    # 0 -> Success
+    # 1 -> already have this community with community id
+    # 2 -> some another error probably related with community_dictionary
+    if get_community_by_community_id(community_dictionary['id']):
+        return 1
+    try:
+        community = {}
+        for key in community_dictionary:
+            if key == 'id':
+                community['_id'] = community_dictionary[key]
+            else:
+                community[key] = community_dictionary[key]
+
+        communities.insert_one(community)
+        return 0
+    except:
+        return 2
 
 
 def get_user_name(user_name):
@@ -17,11 +53,16 @@ def get_mail_address(user_name):
 def get_next_post_id():
     pass
 
+
 def get_next_post_type_id():
     pass
 
-def get_next_community_id():
-    pass
+
+# community id decided by the user and does not related with any
+# database operations. So that, I, @OnurSefa, believe that this
+# functionality is unnecessary and irrelevant
+# def get_next_community_id():
+    # pass
 
 def get_user_by_name(user_name):
     """
