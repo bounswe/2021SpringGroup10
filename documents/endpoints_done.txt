@@ -98,7 +98,7 @@ https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/profile_page meth
 		# Unsuccessful cases will be implemented
 
 
-http://3.134.93.99:8080/api/community_page method="POST"
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="POST"
     input:
         {
             'id': <community_page_id>,                  //String
@@ -128,7 +128,7 @@ http://3.134.93.99:8080/api/community_page method="POST"
 	        status code = 500
 
 
-http://3.134.93.99:8080/api/community_page method="GET"
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="GET"
     input:
         {
             'id': <community_page_id>           //String
@@ -165,7 +165,7 @@ http://3.134.93.99:8080/api/community_page method="GET"
 	        status code = 403
 
 
-http://3.134.93.99:8080/api/community_page method="PUT"
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="PUT"
     input:
         {
             'id': id,                                       //String
