@@ -1,4 +1,4 @@
-import fields
+import .fields
 
 POST_FIELD_NAMES = ["PlainText", "Photo", "DateTime", "Document", "Price", "Location", "Poll", "Participation"]
 
