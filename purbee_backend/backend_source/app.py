@@ -1,6 +1,7 @@
 from flask import Flask, request
 
 from community.community import Community
+import post
 from database.database_utilities import (
     get_next_post_id,
     get_next_post_type_id
@@ -11,8 +12,8 @@ from login.login import (
     update_profile_page,
     get_profile_page
 )
-from post.post import Post
-from post.post_type import PostType
+from purbee_backend.backend_source.post.post import Post
+from purbee_backend.backend_source.post.post_type import PostType
 
 SC_FORBIDDEN = 403
 SC_SUCCESS = 200

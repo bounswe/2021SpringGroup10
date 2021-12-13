@@ -58,6 +58,6 @@ class Post:
                                   post_type_dictionary["id"])
 
         return Post(base_post_type,
-                    post_dictionary["fields_dictionary"],
+                    post_type_dictionary["post_fields"],
                     post_dictionary["post_id"],
                     post_dictionary["post_owner_user_name"])

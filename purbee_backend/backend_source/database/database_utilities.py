@@ -49,6 +49,7 @@ def get_post_from_post_id(post_id):
     return posts.find_one({"post_id": post_id})
 
 def save_post_type(post_type_dict):
+    print(post_type_dict)
     post_types.insert_one(post_type_dict)
     return 0
 
