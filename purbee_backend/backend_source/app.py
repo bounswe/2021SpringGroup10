@@ -1,5 +1,5 @@
 from flask import Flask, request
-
+import re
 from community.community import Community
 
 from database.database_utilities import (
@@ -27,7 +27,7 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
-@app.route('/api/community_page', methods=['POST', 'GET', 'PUT'])
+@app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
 def community_page():
     req = request.get_json()
     data = {"response_message": None}
@@ -236,19 +236,27 @@ def post():
         user_name = req["user_name"]  # TODO: use for authorization
 
         base_post_type = PostType.get_post_type_from_id(post_type_id)
+        for key in fields_dictionary.keys():
+            field_dics = fields_dictionary[key]
+            actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', key)]) + "_fields"
+            w_header_field_dics = getattr(base_post_type.post_fields, actual_name)
+            for field_dic, w_header in zip(field_dics,w_header_field_dics):
+                field_dic["header"] = w_header.header
         try:
             post = Post(base_post_type, fields_dictionary, post_id, user_name)
         except Exception as e:
             if str(e) == "All fields should be specified":
                 data["response_message"] = str(e)
                 status_code = SC_BAD_REQUEST
+            print(str(e))
             # TODO: Add other cases for other possible exceptions
             return data, status_code
 
+        print("the post:", post.to_dict())
         post.save2database()  # TODO: check for database errors
         post.has_created()
 
-        post_id = post.id
+        post_id = post.post_id
         del post
 
         # TODO: check_if_eligible(user_name,parent_community_id)
@@ -331,7 +339,9 @@ def post_type():
         post_type = PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
 
         post_type.save2database()
-        post_type_id = post_type.id
+        post_type.has_created()
+
+        post_type_id = post_type.post_type_id
         del post_type
 
         # TODO: check_if_eligible(user_name,parent_community_id)
@@ -349,7 +359,6 @@ def post_type():
         post_type_id = req["post_type_id"]
 
         post_type = PostType.get_post_type_from_id(post_type_id)
-        del post_type
 
         post_type_dict = post_type.to_dict()
 
@@ -361,6 +370,8 @@ def post_type():
         elif return_status == 1:
             data["response_message"] = "Some error occurred"
             status_code = SC_BAD_REQUEST
+
+        del post_type
 
     return data, status_code
 

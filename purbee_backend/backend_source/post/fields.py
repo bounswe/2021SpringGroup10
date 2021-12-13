@@ -1,10 +1,9 @@
 # send false for the parameters that you don't want to send
 
 def to_dict(self):
-    the_dict = {field_name: getattr(self, field_name) for field_name in dir(self)
+    return {field_name: getattr(self, field_name) for field_name in dir(self)
                 if not field_name.startswith('_') if not callable(getattr(self, field_name))}
-    print(the_dict)
-    return the_dict
+
 
 
 class DateTime:
@@ -13,7 +12,7 @@ class DateTime:
         self.date = date
         self.time = time
 
-    def update(self, header, date="", time=""):
+    def update(self, header="", date="", time=""):
         if header:
             self.header = header
         if date:
@@ -28,7 +27,7 @@ class Location:
         self.location = location
         self.text = text
 
-    def set(self, header, location="", text=""):
+    def update(self, header="", location="", text=""):
         if header:
             self.header = header
         if location:
@@ -42,7 +41,7 @@ class PlainText:
         self.header = header
         self.text = text
 
-    def set(self, header, text):
+    def update(self, header="", text=""):
         if header:
             self.header = header
         if text:
@@ -56,7 +55,7 @@ class Price:
         self.amount = amount
         self.currency = currency
 
-    def set(self, header, amount="", currency=""):
+    def update(self, header="", amount="", currency=""):
         if header:
             self.header = header
         if amount:
@@ -71,8 +70,9 @@ class Participation:
         self.listOfParticipants = []
         self.numOfParticipants = 0
 
-    def set(self, header):
-        self.header = header
+    def update(self, header=""):
+        if header:
+            self.header = header
 
     def participate(self, user_name):
         self.listOfParticipants = self.listOfParticipants.append(user_name)
@@ -88,7 +88,7 @@ class Document:
         self.header = header
         self.url = url
 
-    def set(self, header, url=""):
+    def update(self, header="", url=""):
         if header:
             self.header = header
         if url:
@@ -100,7 +100,7 @@ class Photo:
         self.header = header
         self.image = image
 
-    def set(self, header, image=""):
+    def update(self, header="", image=""):
         if header:
             self.header = header
         if image:
