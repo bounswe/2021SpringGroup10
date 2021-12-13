@@ -19,25 +19,26 @@ class PostFields:
         self.set_post_fields(post_fields_dictionary, enforce_all_fields_full)
 
     def set_post_fields(self, post_fields_dictionary, enforce_all_fields_full):
-        print(post_fields_dictionary)
+        print("post_fields_dictionary", post_fields_dictionary)
         for field_name in post_fields_dictionary.keys():
             if field_name not in POST_FIELD_NAMES:
                 return 1  # Invalid field name, no such field exists.
-            for field in post_fields_dictionary[field_name]:
+            for field_dict in post_fields_dictionary[field_name]:
                 try:
                     print(field_name)
-                    field_instance = getattr(fields, field_name)(**field)
+                    field_instance = getattr(fields, field_name)(**field_dict)
                 except Exception as E:
                     print(E)
                     return 2  # Invalid argument name for the field.
-            if enforce_all_fields_full:
-                if [val for val in [getattr(field_instance, field_name) for
-                                    field_name in dir(field_instance)
-                                    if not field_name.startswith('_')] if not val]:
-                    raise Exception("All fields should be specified")
-            actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', field_name)]) + "_fields"
-            getattr(self, actual_name).append(field_instance)
-            print(getattr(self, actual_name))
+                if enforce_all_fields_full:
+                    if [val for val in [getattr(field_instance, field_name) for
+                                        field_name in dir(field_instance)
+                                        if not field_name.startswith('_')] if not val]:
+                        raise Exception("All fields should be specified")
+
+                actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', field_name)]) + "_fields"
+                getattr(self, actual_name).append(field_instance)
+                print(getattr(self, actual_name))
 
         return 0
 
