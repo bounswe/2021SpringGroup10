@@ -1,6 +1,10 @@
 from .post_fields import PostFields
-from ..database.database_utilities import save_post_type,get_post_type_from_post_type_id, update_community
-from ..community.community import Community
+from database.database_utilities import (
+    save_post_type,
+    get_post_type_from_post_type_id,
+    update_community
+)
+from community.community import Community
 
 
 class PostType:

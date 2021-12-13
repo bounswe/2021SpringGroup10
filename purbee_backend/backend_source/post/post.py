@@ -1,7 +1,10 @@
 from .post_type import PostType
-from ..community.community import Community
-from ..database.database_utilities import (update_community, add_post_to_user_postlist, save_a_new_post,
-                                           get_post_from_post_id)
+from community.community import Community
+from database.database_utilities import (
+    update_community,
+    add_post_to_user_postlist,
+    save_a_new_post,
+    get_post_from_post_id)
 
 
 class Post:
@@ -25,7 +28,7 @@ class Post:
 
         updated_post_type = base_post_type.update(fields_dictionary, enforce_all_fields_full=True)
 
-        self.PostType = updated_post_type
+        self.base_post_type = updated_post_type
 
     def has_created(self):
         community = Community.get_community_from_id(self.parent_community_id)

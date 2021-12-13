@@ -1,19 +1,17 @@
 # send false for the parameters that you don't want to send
 
-
-
-@staticmethod
 def to_dict(self):
-    {field_name: getattr(self, field_name) for field_name in dir(self)
-     if not field_name.startswith('_')}
+    the_dict = {field_name: getattr(self, field_name) for field_name in dir(self)
+                if not field_name.startswith('_') if not callable(getattr(self, field_name))}
+    print(the_dict)
+    return the_dict
+
 
 class DateTime:
-
     def __init__(self, header, date="", time=""):
         self.header = header
         self.date = date
         self.time = time
-        return 0
 
     def update(self, header, date="", time=""):
         if header:
@@ -22,7 +20,6 @@ class DateTime:
             self.date = date
         if time:
             self.time = time
-        return 0
 
 
 class Location:
@@ -30,7 +27,6 @@ class Location:
         self.header = header
         self.location = location
         self.text = text
-        return 0
 
     def set(self, header, location="", text=""):
         if header:
@@ -39,21 +35,18 @@ class Location:
             self.location = location
         if text:
             self.text = text
-        return 0
 
 
 class PlainText:
     def __init__(self, header="", text=""):
         self.header = header
         self.text = text
-        return 0
 
     def set(self, header, text):
         if header:
             self.header = header
         if text:
             self.text = text
-        return 0
 
 
 class Price:
@@ -62,7 +55,6 @@ class Price:
         self.header = header
         self.amount = amount
         self.currency = currency
-        return 0
 
     def set(self, header, amount="", currency=""):
         if header:
@@ -71,7 +63,6 @@ class Price:
             self.amount = amount
         if currency:
             self.currency = currency
-        return 0
 
 
 class Participation:
@@ -79,50 +70,41 @@ class Participation:
         self.header = header
         self.listOfParticipants = []
         self.numOfParticipants = 0
-        return 0
 
     def set(self, header):
         self.header = header
-        return 0
 
     def participate(self, user_name):
         self.listOfParticipants = self.listOfParticipants.append(user_name)
         self.numOfParticipants += 1
-        return 0
 
     def cancel_participation(self, user_name):
         self.listOfParticipants = self.listOfParticipants.remove(user_name)
         self.numOfParticipants -= 1
-        return 0
 
 
 class Document:
     def __init__(self, header, url=""):
         self.header = header
         self.url = url
-        return 0
 
     def set(self, header, url=""):
         if header:
             self.header = header
         if url:
             self.url = url
-        return 0
 
 
 class Photo:
     def __init__(self, header, image=""):
         self.header = header
         self.image = image
-        return 0
 
     def set(self, header, image=""):
         if header:
             self.header = header
         if image:
             self.image = image
-
-        return 0
 
 
 class Poll:
