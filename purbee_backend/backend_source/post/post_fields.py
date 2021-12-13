@@ -1,10 +1,11 @@
 import fields
+import re
 
 POST_FIELD_NAMES = ["PlainText", "Photo", "DateTime", "Document", "Price", "Location", "Poll", "Participation"]
 
 
 class PostFields:
-    def __init__(self, fields_dictionary, enforce_all_fields_full):
+    def __init__(self, post_fields_dictionary, enforce_all_fields_full):
         self.plain_text_fields = []
         self.photo_fields = []
         self.poll_fields = []
@@ -14,13 +15,13 @@ class PostFields:
         self.date_time_fields = []
         self.price_fields = []
 
-        self.setPostFields(fields_dictionary, enforce_all_fields_full)
+        self.set_post_fields(post_fields_dictionary, enforce_all_fields_full)
 
-    def setPostFields(self, fields_dictionary, enforce_all_fields_full):
-        for field_name in fields_dictionary.keys():
+    def set_post_fields(self, post_fields_dictionary, enforce_all_fields_full):
+        for field_name in post_fields_dictionary.keys():
             if field_name not in POST_FIELD_NAMES:
                 return 1  # Invalid field name, no such field exists.
-            for field in fields_dictionary[field_name]:
+            for field in post_fields_dictionary[field_name]:
                 try:
                     field_instance = getattr(fields, field_name)(**field)
                 except Exception as E:
@@ -30,7 +31,22 @@ class PostFields:
                                     field_name in dir(field_instance)
                                     if not field_name.startswith('_')] if not val]:
                     raise Exception("All fields should be specified")
-
-            getattr(self, (field_name.lower() + "_fields")).append(field_instance)
+            actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', field_name)]) + "_fields"
+            getattr(self, actual_name).append(field_instance)
 
         return 0
+
+    def to_dict(self):
+        result_dict = {}
+        for field_name in dir(self):
+            if not field_name.startswith('_'):
+                field_list = getattr(self, field_name)
+                actual_field_name = "".join([i.capitalize() for i in field_name.replace("_fields","").split("_")])
+                field_type_list = []
+                for field_instance in field_list:
+                    field_type_list.append(fields.to_dict(field_instance))
+                result_dict[actual_field_name]= field_type_list
+        return result_dict
+
+        
+        

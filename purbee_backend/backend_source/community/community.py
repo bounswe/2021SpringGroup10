@@ -5,6 +5,7 @@ class Community:
         self.admin_list = None
         self.subscriber_list = None
         self.post_type_id_list = None
+        self.post_id_list = None
         
         self.update(community_dict)
 

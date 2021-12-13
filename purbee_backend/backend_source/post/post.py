@@ -1,4 +1,7 @@
 from .post_type import PostType
+from ..community.community import Community
+from ..database.database_utilities import (update_community, add_post_to_user_postlist, save_a_new_post,
+                                           get_post_from_post_id)
 
 
 class Post:
@@ -25,26 +28,36 @@ class Post:
         self.PostType = updated_post_type
 
     def has_created(self):
-        # TODO: Get community and user objects and update the corresponding lists of them and then save to database.
-        # community = Community.get_community_from_id(parent_community_id)
-        # self.owner_user_name
-        pass
+        community = Community.get_community_from_id(self.parent_community_id)
+        community.post_id_list.append(self.id)
+        update_community(community.to_dict())
+        add_post_to_user_postlist(self.owner_user_name, self.post_id)
 
     def to_dict(self):
-        pass
+        return {'id': self.id, 'base_post_type': self.base_post_type.to_dict(),
+                'owner_user_name': self.owner_user_name}
 
     def save2database(self):
         post_dictionary = self.to_dict()
-        # TODO: save the community_dictionary
-        pass
+        save_a_new_post(post_dictionary)
 
     @staticmethod
     def get_post_from_id(post_id):
-        #TODO: implement this method
+        """ post_dictionary = {"base_post_type": PostType,
+                         "fields_dictionary": dict,
+                         "post_id": int,
+                         "post_owner_user_name": str}
+                         """
 
-        # do database stuff
-        post_dictionary = {"fields_dictionary": "",
-                                "post_type_name": "",
-                                "parent_community_id": "",
-                                "post_type_id": ""}
-        return Post(**post_dictionary)
+        # this is a db method
+        post_dictionary = get_post_from_post_id(post_id)
+        post_type_dictionary = post_dictionary["base_post_type"]
+        base_post_type = PostType(post_type_dictionary["post_fields"],
+                                  post_type_dictionary["name"],
+                                  post_type_dictionary["parent_community_id"],
+                                  post_type_dictionary["id"])
+
+        return Post(base_post_type,
+                    post_dictionary["fields_dictionary"],
+                    post_dictionary["post_id"],
+                    post_dictionary["post_owner_user_name"])

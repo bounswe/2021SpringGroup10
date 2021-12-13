@@ -1,5 +1,6 @@
 from .post_fields import PostFields
-
+from ..database.database_utilities import save_post_type,get_post_type_from_post_type_id, update_community
+from ..community.community import Community
 
 class PostType:
     def __init__(self, fields_dictionary: dict,
@@ -30,26 +31,31 @@ class PostType:
         return self
 
     def to_dict(self):
-        # TODO: given the PostType object return the corresponding dictionary representation.
-        return dict()
+        return {'id': self.id, "post_fields": self.post_fields.to_dict(),
+                'name': self.name, 'parent_community_id': self.parent_community_id}
 
     def save2database(self):
         post_type_dictionary = self.to_dict()
-        # TODO: save the post_type_dictionary
-        pass
+        save_post_type(post_type_dictionary)
+
+    def has_created(self):
+        community = Community.get_community_from_id(self.parent_community_id)
+        community.post_type_id_list.append(self.id)
+        update_community(community.to_dict())
 
     @staticmethod
     def get_post_type_from_id(post_type_id):
-        #TODO: implement this method
-
+        #this is a db method in database_utilities.py
+        post_type_dictionary = get_post_type_from_post_type_id(post_type_id)
         # do database stuff
+        """
         post_type_dictionary = {"fields_dictionary": "",
                                 "post_type_name": "",
                                 "parent_community_id": "",
                                 "post_type_id": ""}
+        """
         return PostType(**post_type_dictionary)
 
-
-"""
-        dic = {"Poll": [{"header": "header"},], "PlainText": [{"header": "header"}]}
-"""
+    @staticmethod
+    def get_post_type_from_dict(post_type_dictionary):
+        return PostType(**post_type_dictionary)

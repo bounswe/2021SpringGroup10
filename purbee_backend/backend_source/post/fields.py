@@ -1,4 +1,12 @@
 # send false for the parameters that you don't want to send
+
+
+
+@staticmethod
+def to_dict(self):
+    {field_name: getattr(self, field_name) for field_name in dir(self)
+     if not field_name.startswith('_')}
+
 class DateTime:
 
     def __init__(self, header, date="", time=""):
