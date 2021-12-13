@@ -6,8 +6,43 @@ db = client.purbeeProduct
 registered_users = db["registered_users"]
 post_types = db["post_types"]
 posts = db["posts"]
-communities = db["communities"]
 nextIds = db["nextIds"]
+communities = db['communities']
+
+
+def get_community_by_community_id(community_id):
+    return communities.find_one({"_id": community_id})
+
+
+def update_community(community_dictionary):
+    db_return = communities.update({"_id": community_dictionary['id']}, {
+        "$set": community_dictionary})
+
+    if db_return["ok"] != 1.0:
+        return 1
+    else:
+        return 0
+
+
+def save_new_community(community_dictionary):
+    # RETURN
+    # 0 -> Success
+    # 1 -> already have this community with community id
+    # 2 -> some another error probably related with community_dictionary
+    if get_community_by_community_id(community_dictionary['id']):
+        return 1
+    try:
+        community = {}
+        for key in community_dictionary:
+            if key == 'id':
+                community['_id'] = community_dictionary[key]
+            else:
+                community[key] = community_dictionary[key]
+
+        communities.insert_one(community)
+        return 0
+    except:
+        return 2
 
 def get_user_name(user_name):
     pass
@@ -25,6 +60,7 @@ def get_next_post_id():
     counter = nextIds.find_one({"id": "post"})["counter"]
     nextIds.update({"id": "post"}, {"$set": {"counter": counter + 1}})
     return counter
+
 
 def get_next_post_type_id():
     counter = nextIds.find_one({"id": "post_type"})["counter"]
@@ -59,6 +95,12 @@ def save_post_type(post_type_dict):
 
 def get_post_type_from_post_type_id(post_type_id):
     return post_types.find_one({"post_type_id": post_type_id})
+
+# community id decided by the user and does not related with any
+# database operations. So that, I, @OnurSefa, believe that this
+# functionality is unnecessary and irrelevant
+# def get_next_community_id():
+    # pass
 
 def get_user_by_name(user_name):
     """
