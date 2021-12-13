@@ -8,23 +8,28 @@ from database.database_utilities import (
 class Community:
     def __init__(self, community_dict):
         self.id = None
-        # MongoDB automotically creates a unique id and returns it when POST functionality used
+        # MongoDB automatically creates a unique id and returns it when POST functionality used
         # self.next_post_type_id = None
-        self.admin_list = None
-        self.subscriber_list = None
-        self.post_type_id_list = None
-        self.post_history_id_list = None
-        self.description = None
+        self.admin_list = []
+        self.subscriber_list = []
+        self.post_type_id_list = []
+        self.post_history_id_list = []
+        self.description = ""
         self.photo = None
         self.community_creator_id = None
         self.created_at = None
-        self.banned_user_list = None
+        self.banned_user_list = []
         self.is_private = None
         self.update(community_dict)
 
     def update(self, community_dict):
         for community_field_name, community_field_value in community_dict.items():
             setattr(self, community_field_name, community_field_value)
+
+        """"for field_name in dir(self):
+            if not field_name.startswith('_') and not callable(getattr(self, field_name)):
+                if getattr(self, field_name) is None:
+                    setattr(self, field_name, [])"""
 
     def to_dict(self):
         dict_object = {
@@ -82,6 +87,7 @@ class Community:
     @staticmethod
     def get_community_from_id(community_id):
         community_dict = get_community_by_community_id(community_id)
+        print("community_dict", community_dict)
         if community_dict:
             return Community(community_dict)
         return None
