@@ -3,13 +3,11 @@ package com.example.mvvmapp.ui.auth
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
 import com.example.mvvmapp.R
 import com.example.mvvmapp.data.db.entities.User
 import com.example.mvvmapp.databinding.ActivitySignupBinding
-import com.example.mvvmapp.ui.home.HomeActivity
 import com.example.mvvmapp.ui.home.profile.ProfileCreationActivity
 import com.example.mvvmapp.util.*
 import kotlinx.coroutines.launch

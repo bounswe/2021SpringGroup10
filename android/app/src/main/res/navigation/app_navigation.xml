@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/homeFragment2">
+
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="com.example.mvvmapp.ui.home.HomeFragment"
+        android:label="Home" />
+    <fragment
+        android:id="@+id/communityFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityFragment"
+        android:label="Community" >
+        <action
+            android:id="@+id/action_communityFragment_to_communityCreationFragment"
+            app:destination="@id/communityCreationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment2"
+        android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
+        android:label="Profile" />
+    <fragment
+        android:id="@+id/communityCreationFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
+        android:label="Community Creation"
+        tools:layout="@layout/fragment_community_creation">
+        <action
+            android:id="@+id/action_communityCreationFragment_to_communityPageFragment"
+            app:destination="@id/communityPageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPageFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
+        android:label="CommunityPageFragment" />
+</navigation>

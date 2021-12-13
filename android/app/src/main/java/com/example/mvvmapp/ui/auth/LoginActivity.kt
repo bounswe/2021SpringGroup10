@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.mvvmapp.R
 import com.example.mvvmapp.data.db.entities.User
 import com.example.mvvmapp.databinding.ActivityLoginBinding
-import com.example.mvvmapp.ui.home.HomeActivity
+import com.example.mvvmapp.ui.home.NavigationActivity
 import com.example.mvvmapp.util.*
 import kotlinx.coroutines.launch
 import org.kodein.di.KodeinAware
@@ -37,7 +37,7 @@ class LoginActivity : AppCompatActivity(), KodeinAware {
 
         viewModel.getLoggedInUser().observe(this, Observer { user ->
             if(user != null) {
-                Intent(this, HomeActivity::class.java).also {
+                Intent(this, NavigationActivity::class.java).also {
                     // set flags to create a fresh activity.
                     // for example if we don't do this the user will see
                     // login activity when they click back button even though
