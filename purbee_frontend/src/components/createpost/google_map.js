@@ -4,10 +4,12 @@ import Map from './map';
 
 export const GoogleMap = () => {
   const MapLoader = withScriptjs(Map);
+  const key = process.env.GOOGLE_MAP_KEY;
+  const googleMapUrl = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
 
   return (
     <MapLoader
-      googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyDqatrPkZebWGnKiLybd4nNFzERwmQCSCI&libraries=places"
+      googleMapURL={googleMapUrl}
       loadingElement={<div style={{ height: `100%` }} />}
     />
   );

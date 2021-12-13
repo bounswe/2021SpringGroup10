@@ -21,6 +21,7 @@ export const PostFields = (props) => {
     const [currentOption, setCurrentOption] = useState("");
     const [plainTexts, setPlainTexts] = useState([]);
     const [dates, setDates] = useState([]);
+    const [locations, setLocation] = useState([]);
     const [pollOptions, setPollOptions] = useState([]);
     const [prices, setPrices] = useState([]);
     const [docUrls, setDocUrls] = useState([]);
@@ -39,6 +40,10 @@ export const PostFields = (props) => {
         let arr = dates;
         arr[index] = newDate;
         setDates(arr);
+    }
+
+    const handleLocationChange = (newLocation, index) => {
+        console.log(newLocation);
     }
 
     const handleAddPollOptions = (e, index) => {
@@ -139,7 +144,7 @@ export const PostFields = (props) => {
                     </Grid>
                 ))}
 
-                {postType.fields.locationList.map((dateListField, index) => (
+                {postType.fields.locationList.map((mapListField, index) => (
                     <Grid
                         item
                         xs={12}
@@ -151,9 +156,11 @@ export const PostFields = (props) => {
                             variant="subtitle1"
                             align="left"
                         >
-                            {dateListField.header}
+                            {mapListField.header}
                         </Typography>
-                        <GoogleMapField />
+                        <GoogleMapField>
+
+                        </GoogleMapField>
                     </Grid>
                 ))}
 
