@@ -2,7 +2,9 @@ import logo from './logo.svg';
 import LoginRegister from './components/login-register/login_register';
 import ProfileInfo from './components/login-register/profile_info';
 import Homepage from './components/homepage/homepage';
+import Post from './components/post/post';
 import CreatePostType from './components/createposttype/create_post_type'
+
 import {
     BrowserRouter,
     Routes,
@@ -25,6 +27,7 @@ function App() {
               <Route path="/profile-info" element={<ProfileInfo />} />
               <Route path="/create-post-type" element={<CreatePostType />} />
               <Route path="/create-post" element={<CreatePost />} />
+                <Route path="/post" element={<Post />} />
           </Routes>
         </BrowserRouter>
       </div>
