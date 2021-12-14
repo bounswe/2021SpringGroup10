@@ -91,7 +91,7 @@ export const FakeCommunities = [
                     pricesList: [],
                     pollsList: [
                         {
-                            header: "Which Team Will Win?",
+                            header: "Which team are you rooting for?",
                             multiplte: false,
                             options: ["Team 1", "Team 2"],
                             values: [],
