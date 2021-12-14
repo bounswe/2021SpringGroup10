@@ -82,4 +82,6 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:2.4.0-beta02"
 
     implementation "androidx.preference:preference-ktx:1.1.1"
+
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
 }
