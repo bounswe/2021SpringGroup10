@@ -7,6 +7,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import FileBase64 from 'react-file-base64';
 import {Link as RouterLink}from "react-router-dom";
+import {apiCall} from "../../helper";
 
 export default function ProfileInfo() {
     const [first_name, set_first_name] = React.useState("");
@@ -16,7 +17,15 @@ export default function ProfileInfo() {
     const [photo, set_photo] = React.useState("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
 
     const handle_save = () => {
-        //TODO
+        const request_json = {
+            'user_name': "a",
+            'profile_photo': photo,
+            'bio': bio,
+            'first_name': first_name,
+            'last_name': last_name,
+            'birth_date': birth_date
+        };
+        apiCall("profile page", request_json);
     }
     const handle_skip = () => {
         //TODO
