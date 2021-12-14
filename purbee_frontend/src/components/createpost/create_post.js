@@ -13,17 +13,20 @@ import { FakeCommunities } from '../../fakeAPI';
 import PostFields from './post_fields';
 
 const CreatePost = () => {
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit = () => {
+        console.log(fields);
+        alert(`Created!`)
     };
 
 
     const data = FakeCommunities;
 
-    console.log(data);
 
     const [selectedCommunity, setSelectedCommunity] = useState();
     const [selectedPostType, setSelectedPostType] = useState();
+    const [fields, setFields] = useState();
+
+
 
     return (
         <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "60px", paddingBottom: "100px" }}>
@@ -89,7 +92,7 @@ const CreatePost = () => {
                         sm={12}
                     >
                         <Divider />
-                        <PostFields community={selectedCommunity} post_type={selectedPostType} />
+                        <PostFields community={selectedCommunity} post_type={selectedPostType} setFields={setFields} />
                     </Grid>
                 </Grid>
                 <Box
@@ -104,6 +107,7 @@ const CreatePost = () => {
                         fullWidth
                         size="large"
                         variant="contained"
+                        onClick={handleSubmit}
                     >
                         Let&apos;s Share!
                     </Button>

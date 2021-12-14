@@ -12,90 +12,127 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import { useEffect, useState } from 'react';
 import GoogleMapField from './google_map';
 import InputAdornment from '@mui/material/InputAdornment';
+import PollsList from './polls_list';
 
 
 export const PostFields = (props) => {
 
     const community = props.community;
     const postType = props.post_type;
-    const [currentOption, setCurrentOption] = useState("");
     const [plainTexts, setPlainTexts] = useState([]);
     const [dates, setDates] = useState([]);
-    const [locations, setLocation] = useState([]);
+    const [location, setLocation] = useState();
     const [pollOptions, setPollOptions] = useState([]);
     const [prices, setPrices] = useState([]);
     const [docUrls, setDocUrls] = useState([]);
     const [docNames, setDocNames] = useState([]);
     const [photoUrls, setPhotoUrls] = useState([]);
     const [photoDescs, setPhotoDescs] = useState([]);
-
+    const [allFields, setAllFields] = useState({});
+    const [currentDate, setCurrentDate] = useState()
+    const [dateIndex, setDateIndex] = useState()
 
     const handleChangePlainTexts = (newValue, index) => {
         let arr = plainTexts;
         arr[index] = newValue;
         setPlainTexts(arr);
+
+        let all = allFields;
+        all.plainTexts = arr;
+        setAllFields(all);
     }
 
     const handleChangeDates = (newDate, index) => {
+        setCurrentDate(newDate)       
+        setDateIndex(index)
+    }
+
+
+    useEffect(() => {
         let arr = dates;
-        arr[index] = newDate;
+        arr[dateIndex] = currentDate;
         setDates(arr);
-    }
 
-    const handleLocationChange = (newLocation, index) => {
-        console.log(newLocation);
-    }
+        let all = allFields;
+        all.dates = arr;
+        setAllFields(all);
+    }, [currentDate])
 
-    const handleAddPollOptions = (e, index) => {
-        if (e.keyCode == 13) {
-            let arr = pollOptions;
-            if (arr[index]) {
-                arr[index].push(currentOption);
-            } else {
-                arr[index] = [];
-                arr[index].push(currentOption);
-            }
-            setPollOptions(arr);
-            setCurrentOption("");
-        }
-    }
 
     const handleAddPrices = (price, index) => {
         let arr = prices;
         arr[index] = price;
         setPrices(arr);
+
+        let all = allFields;
+        all.prices = arr;
+        setAllFields(all);
     }
 
     const handleChangeDocUrls = (url, index) => {
         let arr = docUrls;
         arr[index] = url;
         setDocUrls(arr);
+
+        let all = allFields;
+        all.docUrls = arr;
+        setAllFields(all);
     }
 
     const handleChangeDocNames = (name, index) => {
         let arr = docNames;
         arr[index] = name;
         setDocNames(arr);
+
+        let all = allFields;
+        all.docNames = arr;
+        setAllFields(all);
     }
 
     const handleChangePhotoUrls = (url, index) => {
-        let arr = docUrls;
+        let arr = photoUrls;
         arr[index] = url;
         setPhotoUrls(arr);
+
+        let all = allFields;
+        all.photoUrls = arr;
+        setAllFields(all);
     }
 
     const handleChangePhotoDescs = (name, index) => {
-        let arr = docNames;
+        let arr = photoDescs;
         arr[index] = name;
         setPhotoDescs(arr);
+
+        let all = allFields;
+        all.photoDescs = arr;
+        setAllFields(all);
     }
 
+    useEffect(() => {
+        if(location){
+            let all = allFields;
+            all.location = location;
+            setAllFields(all);
+        }
+    }, [location])
 
-    console.log(prices)
+    useEffect(() => {
+        if(pollOptions.length){
+            let all = allFields;
+            all.pollOptions = pollOptions;
+            setAllFields(all);
+        }
+    }, [pollOptions])
+
+
+    useEffect(() => {
+        props.setFields(allFields)
+    }, [allFields])
+
     if (!community || !postType) return <></>;
 
     else {
-        console.log(postType);
         return (
             <Grid
                 container
@@ -137,7 +174,7 @@ export const PostFields = (props) => {
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DateTimePicker
-                                value={dates[index]}
+                                value={currentDate}
                                 onChange={(e) => { handleChangeDates(e, index) }}
                                 renderInput={(params) => <TextField variant="outlined" fullWidth {...params} />} />
                         </LocalizationProvider>
@@ -158,9 +195,7 @@ export const PostFields = (props) => {
                         >
                             {mapListField.header}
                         </Typography>
-                        <GoogleMapField>
-
-                        </GoogleMapField>
+                        <GoogleMapField setLocation={setLocation} location={location} />
                     </Grid>
                 ))}
 
@@ -178,10 +213,8 @@ export const PostFields = (props) => {
                         >
                             {pollsField.header}
                         </Typography>
-                        <TextField value={currentOption} helperText={"Press Enter To Add Options"} onChange={(e) => { setCurrentOption(e.target.value) }} onKeyDown={(e) => { handleAddPollOptions(e, index) }} variant="outlined" fullWidth />
-                        {pollOptions[index]?.map(option => (
-                            <Chip label={option}></Chip>
-                        ))}
+                        <PollsList setPollOptions={setPollOptions} />
+                        
                     </Grid>
                 ))}
 

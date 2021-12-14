@@ -34,9 +34,9 @@ class Map extends Component {
 
         this.state = {
             isOpen: false,
-            coords: { lat: 41.0860808, lng: 29.045524 },
+            coords: (props.location) ? props.location : { lat: 41.0860808, lng: 29.045524 },
             address: '',
-            selectedName: ''
+            selectedName: (props.location) ? 'N: ' + props.location.lat + " , S: " + props.location.lng  : ''
         };
     }
     handleChange = address => {
@@ -46,16 +46,17 @@ class Map extends Component {
     handleSelect = (address) => {
         geocodeByAddress(address)
             .then(results => getLatLng(results[0]))
-            .then(latLng =>
+            .then(latLng => {
                 this.setState({
                     coords: latLng,
                 })
+                this.props.setLocation(latLng);
+            }
             )
             .catch(error => console.error('Error', error));
     };
 
     handleChangeName = (suggestion) => {
-        console.log(suggestion.formattedSuggestion.mainText)
         this.setState({
             selectedName: suggestion.formattedSuggestion.mainText
         })
