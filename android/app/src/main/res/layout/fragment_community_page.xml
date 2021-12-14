@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="287dp"
-            android:text="Create Community Post Type"
+            android:text="Community Post Types"
             app:layout_constraintBottom_toTopOf="@+id/text_community"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"

@@ -35,7 +35,16 @@
     </fragment>
     <fragment
         android:id="@+id/communityPageFragment"
-        tools:layout="@layout/fragment_community_page"
         android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
-        android:label="CommunityPageFragment" />
+        android:label="Community Page"
+        tools:layout="@layout/fragment_community_page">
+        <action
+            android:id="@+id/action_communityPageFragment_to_communityPostTypesFragment"
+            app:destination="@id/communityPostTypesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPostTypesFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPostTypesFragment"
+        android:label="Community Post Types"
+        tools:layout="@layout/fragment_community_post_types" />
 </navigation>

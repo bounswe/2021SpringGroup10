@@ -22,7 +22,7 @@ class CommunityPageFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_community_page, container, false)
 
         binding.button.setOnClickListener { view ->
-            view.findNavController().navigate(R.id.action_communityCreationFragment_to_communityPageFragment)
+            view.findNavController().navigate(R.id.action_communityPageFragment_to_communityPostTypesFragment)
 
         }
 
