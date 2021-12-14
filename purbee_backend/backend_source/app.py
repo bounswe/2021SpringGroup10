@@ -1,6 +1,7 @@
 from flask import Flask, request
-
+import re
 from community.community import Community
+
 from database.database_utilities import (
     get_next_post_id,
     get_next_post_type_id
@@ -19,10 +20,114 @@ SC_SUCCESS = 200
 SC_CREATED = 201
 SC_UNAUTHORIZED = 401
 SC_BAD_REQUEST = 400
+SC_INTERNAL_ERROR = 500
 USER_NAME = ""
 USER_PASSWORD = ""
 
 app = Flask(__name__)
+
+
+@app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
+def community_page():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "POST":
+        needed_keys = ['id', 'is_private', 'community_creator_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+        community_instance = Community(req)
+        post_result = community_instance.save2database()
+        if post_result == 0:
+            # return success
+            data['response_message'] = "Community Page successfully created."
+            status_code = SC_CREATED
+            return data, status_code
+        elif post_result == 1:
+            # return error: already have this community with community id
+            data['response_message'] = "Community ID is already in use"
+            status_code = SC_FORBIDDEN
+            return data, status_code
+        elif post_result == 2:
+            # return internal error
+            data['response_message'] = 'Internal Error'
+            status_code = SC_INTERNAL_ERROR
+            return data, status_code
+    elif request.method == "GET":
+        needed_keys = ['id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect json content. (necessary field is id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect json content. (necessary field is id)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+        community_instance = Community.get_community_from_id(req['id'])
+        if community_instance:
+            # return success
+            data['response_message'] = "Community successfully found"
+            data['community_instance'] = community_instance.to_dict()
+            status_code = SC_SUCCESS
+            return data, status_code
+        else:
+            # return not found error
+            data['response_message'] = "Specified community with the id not found"
+            status_code = SC_FORBIDDEN
+            return data, status_code
+    elif request.method == "PUT":
+        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list', 'description',
+                       'photo', 'community_creator_id', 'created_at', 'banned_user_list', 'is_private']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect json content. (necessary field are the community class fields)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_key in req:
+            if r_key in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect json content. (necessary field are the community class fields)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+        community_instance = Community.get_community_from_id(req['id'])
+        if community_instance:
+            community_instance.update(req)
+            community_dictionary = community_instance.to_dict()
+            update_result = Community.update_on_database(community_dictionary)
+            if update_result == 0:
+                # return success
+                data['response_message'] = "Community successfully updated"
+                data['community_instance'] = community_dictionary
+                status_code = SC_CREATED
+                return data, status_code
+            elif update_result == 1:
+                # return internal error
+                data['response_message'] = 'Internal Error'
+                status_code = SC_INTERNAL_ERROR
+                return data, status_code
+        else:
+            # not found user error
+            data['response_message'] = "Specified community with the id not found"
+            status_code = SC_FORBIDDEN
+            return data, status_code
 
 
 @app.route('/api/sign_up/', methods=['POST'])
@@ -131,19 +236,27 @@ def post():
         user_name = req["user_name"]  # TODO: use for authorization
 
         base_post_type = PostType.get_post_type_from_id(post_type_id)
+        for key in fields_dictionary.keys():
+            field_dics = fields_dictionary[key]
+            actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', key)]) + "_fields"
+            w_header_field_dics = getattr(base_post_type.post_fields, actual_name)
+            for field_dic, w_header in zip(field_dics,w_header_field_dics):
+                field_dic["header"] = w_header.header
         try:
             post = Post(base_post_type, fields_dictionary, post_id, user_name)
         except Exception as e:
             if str(e) == "All fields should be specified":
                 data["response_message"] = str(e)
                 status_code = SC_BAD_REQUEST
+            print(str(e))
             # TODO: Add other cases for other possible exceptions
             return data, status_code
 
+        print("the post:", post.to_dict())
         post.save2database()  # TODO: check for database errors
         post.has_created()
 
-        post_id = post.id
+        post_id = post.post_id
         del post
 
         # TODO: check_if_eligible(user_name,parent_community_id)
@@ -226,7 +339,9 @@ def post_type():
         post_type = PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
 
         post_type.save2database()
-        post_type_id = post_type.id
+        post_type.has_created()
+
+        post_type_id = post_type.post_type_id
         del post_type
 
         # TODO: check_if_eligible(user_name,parent_community_id)
@@ -244,7 +359,6 @@ def post_type():
         post_type_id = req["post_type_id"]
 
         post_type = PostType.get_post_type_from_id(post_type_id)
-        del post_type
 
         post_type_dict = post_type.to_dict()
 
@@ -256,6 +370,8 @@ def post_type():
         elif return_status == 1:
             data["response_message"] = "Some error occurred"
             status_code = SC_BAD_REQUEST
+
+        del post_type
 
     return data, status_code
 

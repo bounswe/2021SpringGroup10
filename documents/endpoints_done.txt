@@ -96,3 +96,122 @@ https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/profile_page meth
 			}
 			status code = 200
 		# Unsuccessful cases will be implemented
+
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="POST"
+    input:
+        {
+            'id': <community_page_id>,                  //String
+            'is_private': <community_privacy_info>,     //Boolean
+            'community_creator_id': <user_name>,        //String
+        }
+    output:
+        if successful:
+            {
+                'response_message': "Community Page successfully created."
+            }
+            status code = 201
+        if input json is not provided in the defined way:
+			{
+				'response_message': "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+			},
+			status code = 400
+	    if already a community exists with given <community_page_id>:
+	        {
+	            'response_message': "Community ID is already in use"
+	        }
+	        status code = 403
+	    if some unexpected error occurs in the database:
+	        {
+	            'response_message': 'Internal Error'
+	        }
+	        status code = 500
+
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="GET"
+    input:
+        {
+            'id': <community_page_id>           //String
+        }
+    output:
+        if successful:
+            {
+                'response_message': "Community successfully found",
+                'community_instance':
+                    {
+                        'id': id,                                       //String
+                        'admin_list': admin_list,                       //List of Strings
+                        'subscriber_list': subscriber_list,             //List of Strings
+                        'post_type_id_list': post_type_id_list,         //List of Strings
+                        'post_history_id_list': post_history_id_list,   //List of Strings
+                        'description': description,                     //String
+                        'photo': photo,                                 //String (base64)
+                        'community_creator_id': community_creator_id,   //String
+                        'created_at': created_at,                       //String: '13.07.1997'
+                        'banned_user_list': banned_user_list,           //List of Strings
+                        'is_private': is_private                        //Boolean
+                    }
+            }
+            status code = 200
+        if input json is not provided in the defined way:
+			{
+				'response_message': "Incorrect json content. (necessary field is id)"
+			},
+			status code = 400
+	    if there is no community with the specified <community_page_id>:
+	        {
+	            'response_message': "Specified community with the id not found"
+	        },
+	        status code = 403
+
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page method="PUT"
+    input:
+        {
+            'id': id,                                       //String
+            'admin_list': admin_list,                       //List of Strings
+            'subscriber_list': subscriber_list,             //List of Strings
+            'post_type_id_list': post_type_id_list,         //List of Strings
+            'post_history_id_list': post_history_id_list,   //List of Strings
+            'description': description,                     //String
+            'photo': photo,                                 //String (base64)
+            'community_creator_id': community_creator_id,   //String
+            'created_at': created_at,                       //String: '13.07.1997'
+            'banned_user_list': banned_user_list,           //List of Strings
+            'is_private': is_private                        //Boolean
+        }
+    output:
+        if successful:
+            {
+                'response_message': "Community successfully updated",
+                'community_instance':
+                    {
+                        'id': id,                                       //String
+                        'admin_list': admin_list,                       //List of Strings
+                        'subscriber_list': subscriber_list,             //List of Strings
+                        'post_type_id_list': post_type_id_list,         //List of Strings
+                        'post_history_id_list': post_history_id_list,   //List of Strings
+                        'description': description,                     //String
+                        'photo': photo,                                 //String (base64)
+                        'community_creator_id': community_creator_id,   //String
+                        'created_at': created_at,                       //String: '13.07.1997'
+                        'banned_user_list': banned_user_list,           //List of Strings
+                        'is_private': is_private                        //Boolean
+                    }
+            }
+            status code = 201
+        if invalid input error:
+            {
+                'response_message': "Incorrect json content. (necessary field are the community class fields)"
+            }
+            status code = 400
+	    if there is no community with the specified <community_page_id>:
+	        {
+	            'response_message': "Specified community with the id not found"
+	        },
+	        status code = 403
+	    if some unexpected error occurs in the database:
+	        {
+	            'response_message': 'Internal Error'
+	        }
+	        status code = 500
