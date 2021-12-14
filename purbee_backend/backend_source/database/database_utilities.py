@@ -4,6 +4,9 @@ client = pymongo.MongoClient(
     "mongodb+srv://purbeeApp:QLi9WWoLf4MztDJv@cluster0.orh8z.mongodb.net/purbeeProduct?retryWrites=true&w=majority")
 db = client.purbeeProduct
 registered_users = db["registered_users"]
+post_types = db["post_types"]
+posts = db["posts"]
+nextIds = db["nextIds"]
 communities = db['communities']
 
 
@@ -50,19 +53,67 @@ def get_mail_address(user_name):
     pass
 
 
-def get_next_post_id():
+def save_post_template():
     pass
+
+
+def get_post_type_from_post_type_id():
+    pass
+
+
+def get_next_post_id():
+    counter = nextIds.find_one({"id": "post"})["counter"]
+    nextIds.update({"id": "post"}, {"$set": {"counter": counter + 1}})
+    return counter
 
 
 def get_next_post_type_id():
-    pass
+    counter = nextIds.find_one({"id": "post_type"})["counter"]
+    nextIds.update({"id": "post_type"}, {"$set": {"counter": counter + 1}})
+    return counter
+
+
+def get_next_community_id():
+    counter = nextIds.find_one({"id": "community"})["counter"]
+    nextIds.update({"id": "community"}, {"$set": {"counter": counter + 1}})
+    return counter
+
+
+def update_community(community):
+    communities.update({"id": community["id"]}, {"$set": community})
+    return 0
+
+
+def add_post_to_user_postlist(user_name, post_id):
+    post_list = get_user_by_name(user_name)["post_list"]
+    post_list.append(post_id)
+    registered_users.update({"user_name": user_name}, {"$set": {"post_list": post_list}})
+
+
+def save_a_new_post(post_dict):
+    posts.insert_one(post_dict)
+    return 0
+
+
+def get_post_from_post_id(post_id):
+    return posts.find_one({"post_id": post_id})
+
+
+def save_post_type(post_type_dict):
+    print(post_type_dict)
+    post_types.insert_one(post_type_dict)
+    return 0
+
+
+def get_post_type_from_post_type_id(post_type_id):
+    return post_types.find_one({"post_type_id": post_type_id})
 
 
 # community id decided by the user and does not related with any
 # database operations. So that, I, @OnurSefa, believe that this
 # functionality is unnecessary and irrelevant
 # def get_next_community_id():
-    # pass
+# pass
 
 def get_user_by_name(user_name):
     """
