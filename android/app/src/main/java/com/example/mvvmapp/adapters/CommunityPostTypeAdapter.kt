@@ -1,11 +1,8 @@
 package com.example.mvvmapp.adapters
 
-import android.content.ClipData
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mvvmapp.R
 import com.example.mvvmapp.data.CommunityPostType
 import com.example.mvvmapp.databinding.ItemPostTypeBinding
 

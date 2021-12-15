@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mvvmapp.R
 import com.example.mvvmapp.adapters.CommunityPostTypeAdapter
 import com.example.mvvmapp.data.CommunityPostType
-import com.example.mvvmapp.databinding.FragmentCommunityBinding
 import com.example.mvvmapp.databinding.FragmentCommunityPostTypesBinding
 
 class CommunityPostTypesFragment : Fragment() {
@@ -31,6 +31,10 @@ class CommunityPostTypesFragment : Fragment() {
 
         binding.rvPostTypes.adapter = adapter
         binding.rvPostTypes.layoutManager = LinearLayoutManager(context)
+
+        binding.btnAddPostType.setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_communityPostTypesFragment_to_communityPostTypeCreationFragment)
+        }
 
         // Inflate the layout for this fragment
         return binding.root
