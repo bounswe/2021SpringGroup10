@@ -13,17 +13,17 @@
         android:layout_height="match_parent"
         tools:context=".ui.community.CommunityPostTypesFragment">
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Community Post Types"
-            android:textColor="#2196F3"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <TextView-->
+<!--            android:id="@+id/textView3"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="Community Post Types"-->
+<!--            android:textColor="#2196F3"-->
+<!--            android:textSize="16sp"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPostTypes"
@@ -32,7 +32,7 @@
             app:layout_constraintBottom_toTopOf="@+id/btnAddPostType"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/btnAddPostType"
@@ -40,7 +40,8 @@
             android:layout_height="wrap_content"
             android:text="Add Post Type"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
