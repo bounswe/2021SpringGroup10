@@ -18,34 +18,34 @@
             tools:context=".ui.home.NavigationActivity">
 
             <fragment
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/hostFragment"
                 android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 app:defaultNavHost="true"
-                app:navGraph="@navigation/app_navigation"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:navGraph="@navigation/app_navigation" />
 
             <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottom_navigation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/bottom_navigation"
+                android:background="#C1D1E1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:background="#C1D1E1"
                 app:menu="@menu/nav_menu" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/navigation_view"
             android:layout_gravity="start"
             app:menu="@menu/nav_menu" />
 

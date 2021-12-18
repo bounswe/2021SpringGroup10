@@ -8,10 +8,12 @@
     <fragment
         android:id="@+id/homeFragment2"
         android:name="com.example.mvvmapp.ui.home.HomeFragment"
+        tools:layout="@layout/fragment_home"
         android:label="Home" />
     <fragment
         android:id="@+id/communityFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityFragment"
+        tools:layout="@layout/fragment_community"
         android:label="Community" >
         <action
             android:id="@+id/action_communityFragment_to_communityCreationFragment"
@@ -20,12 +22,13 @@
     <fragment
         android:id="@+id/profileFragment2"
         android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
+        tools:layout="@layout/profile_fragment"
         android:label="Profile" />
     <fragment
         android:id="@+id/communityCreationFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
-        android:label="Community Creation"
-        tools:layout="@layout/fragment_community_creation">
+        tools:layout="@layout/fragment_community_creation"
+        android:label="Community Creation">
         <action
             android:id="@+id/action_communityCreationFragment_to_communityPageFragment"
             app:destination="@id/communityPageFragment" />
@@ -33,5 +36,24 @@
     <fragment
         android:id="@+id/communityPageFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
-        android:label="CommunityPageFragment" />
+        android:label="Community Page"
+        tools:layout="@layout/fragment_community_page">
+        <action
+            android:id="@+id/action_communityPageFragment_to_communityPostTypesFragment"
+            app:destination="@id/communityPostTypesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPostTypesFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPostTypesFragment"
+        android:label="Community Post Types"
+        tools:layout="@layout/fragment_community_post_types" >
+        <action
+            android:id="@+id/action_communityPostTypesFragment_to_communityPostTypeCreationFragment"
+            app:destination="@id/communityPostTypeCreationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPostTypeCreationFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPostTypeCreationFragment"
+        android:label="Community Post Type Creation"
+        tools:layout="@layout/fragment_community_post_type_creation" />
 </navigation>
