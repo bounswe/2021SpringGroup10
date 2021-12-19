@@ -7,6 +7,8 @@ import { apiCall } from "../../helper"
 import { setUserSession } from '../../utils/common';
 import { useNavigate } from "react-router-dom";
 
+import {base_url, headers} from "../../utils/url"
+
 const Axios = require('axios');
 
  const LoginPage = (props) => {
@@ -25,12 +27,6 @@ const Axios = require('axios');
     const handle_mail_address_change = (event) => set_mail_address(event.target.value);
     const handle_login_or_register_change = (value) => set_login_or_register(value);
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'DELETE, GET, OPTIONS, POST, PUT',
-        'Access-Control-Allow-Headers': 'Authorization, Content-Type, Access-Control-Allow-Headers, X-Requested-With, Access-Control-Allow-Origin'
-    };
 
     let navigate = useNavigate()
 
@@ -41,33 +37,47 @@ const Axios = require('axios');
             "user_name": user_name,
             "password": password
         };
-        console.log("props:", props)
         Axios({
             headers: headers,
             method: "POST",
-            url: 'https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/sign_in/',
+            url: base_url + 'sign_in/',
             data: request_json,
         }).then(response => {
+            
             setLoading(false)
-            console.log(response)
             setUserSession(response.data.data.user_name)
-            console.log("props:", props)
             navigate('/home')
         }).catch(error => {
+            
             setLoading(false)
-            console.log(error)
-            console.log(error.response.response_message)
-            setError(error.response.response_message)
+            setError(error.response.data.response_message)
         })
     }
 
     const signup = () => {
+        setError(null)
+        setLoading(true)
         let request_json= {
             "user_name": user_name,
             "mail_address": mail_address,
             "password": password
         };
-        apiCall("sign up", request_json);
+        // apiCall("sign up", request_json);
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'sign_up/',
+            data: request_json,
+        }).then(response => {
+            console.log(response)
+            setLoading(false)
+            navigate('/profile-info')
+        }).catch(error => {
+            console.log(error)
+            console.log(error.response)
+            setLoading(false)
+            setError(error.response.data.response_message)
+        })
 
     }
 
@@ -177,6 +187,7 @@ const Axios = require('axios');
                     <Button variant="contained" color="primary" className="form__custom-button" onClick={signup}>
                         Sign Up
                     </Button>
+                    {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center", display: "flex", justifyContent: "space-between" }}>
                         Already have an account?
