@@ -3,18 +3,21 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import './styles.css'
 import Link from '@mui/material/Link';
-import { Link as RouterLink } from "react-router-dom";
 import { apiCall } from "../../helper"
+import { setUserSession } from '../../utils/common';
+import { useNavigate } from "react-router-dom";
 
 const Axios = require('axios');
 
-export default function LoginPage() {
+ const LoginPage = (props) => {
     const [user_name, set_username] = React.useState("");
     const [password, set_password] = React.useState("");
     const [password_repeat, set_password_repeat] = React.useState("");
     const [mail_address, set_mail_address] = React.useState("");
     const [login_or_register, set_login_or_register] = React.useState("login");
     const [password_match, set_password_match] = React.useState(true)
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(null);
 
     const handle_username_change = (event) => set_username(event.target.value);
     const handle_password_change = (event) => set_password(event.target.value);
@@ -22,12 +25,40 @@ export default function LoginPage() {
     const handle_mail_address_change = (event) => set_mail_address(event.target.value);
     const handle_login_or_register_change = (value) => set_login_or_register(value);
 
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'DELETE, GET, OPTIONS, POST, PUT',
+        'Access-Control-Allow-Headers': 'Authorization, Content-Type, Access-Control-Allow-Headers, X-Requested-With, Access-Control-Allow-Origin'
+    };
+
+    let navigate = useNavigate()
+
     const signin = () => {
+        setError(null);
+        setLoading(true);
         let request_json= {
             "user_name": user_name,
             "password": password
         };
-        apiCall("sign in", request_json);
+        console.log("props:", props)
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: 'https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/sign_in/',
+            data: request_json,
+        }).then(response => {
+            setLoading(false)
+            console.log(response)
+            setUserSession(response.data.data.user_name)
+            console.log("props:", props)
+            navigate('/home')
+        }).catch(error => {
+            setLoading(false)
+            console.log(error)
+            console.log(error.response.response_message)
+            setError(error.response.response_message)
+        })
     }
 
     const signup = () => {
@@ -76,8 +107,9 @@ export default function LoginPage() {
                         color="primary"
                         className="form__custom-button"
                         onClick={signin}>
-                        <RouterLink to="/home"> Log in </RouterLink>
+                        {loading ? "Loading..." : "Sign In"}
                     </Button>
+                    {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center" }}>
                         New to Purbee?
@@ -143,7 +175,7 @@ export default function LoginPage() {
                     />
 
                     <Button variant="contained" color="primary" className="form__custom-button" onClick={signup}>
-                        <RouterLink to="/profile-info"> Sign up </RouterLink>
+                        Sign Up
                     </Button>
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center", display: "flex", justifyContent: "space-between" }}>
@@ -160,3 +192,5 @@ export default function LoginPage() {
             </div>
         )
 }
+
+export default LoginPage
