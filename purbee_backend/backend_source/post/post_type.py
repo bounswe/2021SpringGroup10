@@ -8,7 +8,7 @@ from community.community import Community
 
 
 class PostType:
-    def __init__(self, fields_dictionary: dict,
+    def __init__(self,
                  post_type_name: str,
                  parent_community_id: int,
                  post_type_id: int,
