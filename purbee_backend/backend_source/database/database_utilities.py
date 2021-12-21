@@ -90,6 +90,22 @@ def add_post_to_user_postlist(user_name, post_id):
     registered_users.update({"user_name": user_name}, {"$set": {"post_list": post_list}})
 
 
+def remove_post_from_user_postlist(user_name, post_id):
+    post_list = get_user_by_name(user_name)["post_list"]
+    post_list.pop(post_id)
+    registered_users.update({"user_name": user_name}, {"$set": {"post_list": post_list}})
+
+
+def save_post(post_dict):
+    info = posts.insert_one(post_dict)
+    return info["insertedId"]
+
+
+def delete_post(post_id: int):
+    info = posts.deleteOne({"_id": post_id})
+    return info["deletedCount"]
+
+
 def save_a_new_post(post_dict):
     posts.insert_one(post_dict)
     return 0
@@ -100,9 +116,13 @@ def get_post_from_post_id(post_id):
 
 
 def save_post_type(post_type_dict):
-    print(post_type_dict)
-    post_types.insert_one(post_type_dict)
-    return 0
+    info = post_types.insert_one(post_type_dict)
+    return info["insertedId"]
+
+
+def delete_post_type(post_type_id: int):
+    info = posts.deleteOne({"_id": post_type_id})
+    return info["deletedCount"]
 
 
 def get_post_type_from_post_type_id(post_type_id):
