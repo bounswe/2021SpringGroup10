@@ -27,6 +27,64 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_page/subscribe', methods=["PUT"])
+def subscribe_to_community_page():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['user_id', 'community_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect son content. (necessary fields are user_id and community_id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect son content. (necessary fields are user_id and community_id)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
+        result, current_community = Community.subscribe(req['user_id'], req['community_id'])
+
+        if result == 0:
+            # successful
+            data['response_message'] = "Registered user with the id {} successfully subscribed to Community with " \
+                                       "the id {}".format(req['user_id'], req['community_id'])
+            data['community'] = current_community
+            status_code = SC_CREATED
+            return data, status_code
+        elif result == 1:
+            # update failed
+            data['response_message'] = "Some internal error occured"
+            status_code = SC_INTERNAL_ERROR
+            return data, status_code
+        elif result == 2:
+            # user is already subscriber
+            data['response_message'] = "Registered user with the id {} is already subscriber".format(req['user_id'])
+            status_code = SC_FORBIDDEN
+            return data, status_code
+        elif result == 11:
+            # there is no community
+            data['response_message'] = "There is no community with the id {}".format(req['community_id'])
+            status_code = SC_FORBIDDEN
+            return data, status_code
+        elif result == 12:
+            data['response_message'] = "There is no registered user wit hte id {}".format(req['user_id'])
+            status_code = SC_FORBIDDEN
+            # there is no user
+            return data, status_code
+        elif result == 10:
+            data['response_message'] = "Registered user {} added to the requester list".format(req['user_id'])
+            data['community'] = current_community
+            status_code = SC_CREATED
+            return data, status_code
+
+
+
 @app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
 def community_page():
     req = request.get_json()
