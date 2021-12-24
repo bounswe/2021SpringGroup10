@@ -4,7 +4,8 @@ from community.community import Community
 
 from database.database_utilities import (
     get_next_post_id,
-    get_next_post_type_id
+    get_next_post_type_id,
+    check_user_by_user_name
 )
 from login.login import (
     sign_up,
@@ -26,6 +27,55 @@ USER_PASSWORD = ""
 
 app = Flask(__name__)
 
+
+
+@app.route('/api/community_feed/', methods=['GET'])
+def community_feed():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    needed_keys = ["user_name", "community_id"]
+    if 2 != len(req):
+        # return invalid input error
+        data['response_message'] = "Incorrect json content. (necessary fields are user_name, community_id)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+    for r_keys in req:
+        if r_keys in needed_keys:
+            pass
+        else:
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+
+    community_id = req["community_id"]
+    user_name = req["user_name"]
+
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    community = Community.get_community_from_id(community_id)
+
+    if user_name not in community.subscriber_list:
+        if community.is_private:
+            data['response_message'] = "this is a private community and the user is not a subscriber of this community."
+            status_code = SC_FORBIDDEN
+            return data, status_code
+
+    if not community :
+        data['response_message'] = "there is no such community."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    data['response_message'] = "community post list successfully returned"
+    data['community_post_list'] = community.post_history_id_list.reverse()
+    status_code = SC_SUCCESS
+    return data, status_code
 
 @app.route('/api/community_page/subscribe', methods=["PUT"])
 def subscribe_to_community_page():
@@ -134,6 +184,7 @@ def unsubscribe_from_community_page():
     elif result == 10:
         # there is no user
         data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
+
 
 
 @app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
