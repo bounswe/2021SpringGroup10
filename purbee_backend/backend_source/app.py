@@ -5,7 +5,8 @@ from community.community import Community
 from database.database_utilities import (
     get_next_post_id,
     get_next_post_type_id,
-    check_user_by_user_name
+    check_user_by_user_name,
+    get_user_by_name
 )
 from login.login import (
     sign_up,
@@ -26,6 +27,65 @@ USER_NAME = ""
 USER_PASSWORD = ""
 
 app = Flask(__name__)
+
+
+@app.route('/api/user_feed/', methods=['GET'])
+def user_feed():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        user_name = req["user_name"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary fields are user_name)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+    post_list= {}
+    user = get_user_by_name(user_name)
+    following_list = user["following"]
+    for followedUserName in following_list:
+        followedUser = get_user_by_name(followedUserName)
+        followedUserPostList = followedUser["post_list"]
+        for postId in followedUserPostList:
+            post = Post.get_post_from_id(postId)
+            parent_community_id = post["base_post_type"]["parent_community_id"]
+            community = Community.get_community_from_id(parent_community_id)
+            if user_name not in community.subscriber_list:
+                if community.is_private:
+                    continue
+
+            post_list[postId] = post["date"]
+
+    for communityId in user["subscribed_communities"]:
+        community = Community.get_community_from_id(communityId)
+        for postId in community["post_history_id_list"]:
+            post = Post.get_post_from_id(postId)
+            post_list[postId] = post["date"]
+
+    post_list = list(dict.fromkeys(post_list))
+
+    dict(sorted(post_list.items(), key=lambda item: item[1], reverse=True))
+
+    data['response_message'] = "user feed post list successfully returned"
+    data['user_feed_post_list'] = post_list
+    status_code = SC_SUCCESS
+    return data, status_code
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/api/community_feed/', methods=['GET'])

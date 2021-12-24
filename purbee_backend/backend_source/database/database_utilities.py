@@ -133,7 +133,7 @@ def save_new_user(user_name, mail_address, password):
     try:
         user = {"_id": user_name, "user_name": user_name, "mail_address": mail_address, "password": password,
                 "followers": [], "following": [], "profile_photo": [], "last_name": [], "first_name": [],
-                "birth_date": [], "post_list": []}
+                "birth_date": [], "post_list": [], "subscribed_communities":[]}
         registered_users.insert_one(user)
     except:
         return 1
