@@ -55,7 +55,7 @@ def subscribe_to_community_page():
             data['response_message'] = "Registered user with the id {} successfully subscribed to Community with " \
                                        "the id {}".format(req['user_id'], req['community_id'])
             data['community'] = current_community
-            status_code = SC_CREATED
+            status_code = SC_SUCCESS
             return data, status_code
         elif result == 1:
             # update failed
@@ -80,7 +80,7 @@ def subscribe_to_community_page():
         elif result == 10:
             data['response_message'] = "Registered user {} added to the requester list".format(req['user_id'])
             data['community'] = current_community
-            status_code = SC_CREATED
+            status_code = SC_SUCCESS
             return data, status_code
 
 
