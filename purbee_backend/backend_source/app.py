@@ -36,13 +36,16 @@ def change_privacy_community_page():
         needed_keys = ['community_id', 'admin_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            pass
+            data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
         for r_keys in req:
             if r_keys in needed_keys:
                 pass
             else:
                 # return invalid input error
-                pass
+                data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+                status_code = SC_BAD_REQUEST
 
         result, current_community = Community.change_privacy(req['admin_id'], req['community_id'])
 
@@ -50,12 +53,12 @@ def change_privacy_community_page():
             # successful make private
             data['response_message'] = "Community privacy set to private"
             data['community'] = current_community
-            status_code = SC_CREATED
+            status_code = SC_SUCCESS
         elif result == 10:
             # successful make public
             data['response_message'] = "Community privacy set to public"
             data['community'] = current_community
-            status_code = SC_CREATED
+            status_code = SC_SUCCESS
         elif result == 11:
             data['response_message'] = "There is no community with the given community id {}".format(req['community_id'])
             status_code = SC_FORBIDDEN
