@@ -64,7 +64,7 @@ def subscribe_to_community_page():
             return data, status_code
         elif result == 2:
             # user is already subscriber
-            data['response_message'] = "Registered user with the id {} is already subscriber".format(req['user_id'])
+            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(req['user_id'])
             status_code = SC_FORBIDDEN
             return data, status_code
         elif result == 11:
