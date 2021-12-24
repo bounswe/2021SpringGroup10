@@ -1,11 +1,12 @@
 import pymongo
+from bson.objectid import ObjectId
 
 client = pymongo.MongoClient(
     "mongodb+srv://purbeeApp:QLi9WWoLf4MztDJv@cluster0.orh8z.mongodb.net/purbeeProduct?retryWrites=true&w=majority")
 db = client.purbeeProduct
 registered_users = db["registered_users"]
-post_types = db["post_types"]
-posts = db["posts"]
+post_types = db["PostTypes"]
+posts = db["Posts"]
 nextIds = db["nextIds"]
 communities = db['communities']
 
@@ -61,24 +62,6 @@ def get_post_type_from_post_type_id():
     pass
 
 
-def get_next_post_id():
-    counter = nextIds.find_one({"id": "post"})["counter"]
-    nextIds.update({"id": "post"}, {"$set": {"counter": counter + 1}})
-    return counter
-
-
-def get_next_post_type_id():
-    counter = nextIds.find_one({"id": "post_type"})["counter"]
-    nextIds.update({"id": "post_type"}, {"$set": {"counter": counter + 1}})
-    return counter
-
-
-def get_next_community_id():
-    counter = nextIds.find_one({"id": "community"})["counter"]
-    nextIds.update({"id": "community"}, {"$set": {"counter": counter + 1}})
-    return counter
-
-
 def update_community(community):
     communities.update({"id": community["id"]}, {"$set": community})
     return 0
@@ -97,36 +80,44 @@ def remove_post_from_user_postlist(user_name, post_id):
 
 
 def save_post(post_dict):
+    _id = post_dict.get("_id", False)
+    if _id:
+        post_dict["_id"] = ObjectId(_id)
     info = posts.insert_one(post_dict)
-    return info["insertedId"]
+    return str(info.inserted_id)
+
+
+def get_post(post_id: int):
+    res = posts.find_one({"_id": ObjectId(post_id)})
+    res["_id"] = str(res["_id"])
+    return res
 
 
 def delete_post(post_id: int):
-    info = posts.deleteOne({"_id": post_id})
-    return info["deletedCount"]
-
-
-def save_a_new_post(post_dict):
-    posts.insert_one(post_dict)
-    return 0
-
-
-def get_post_from_post_id(post_id):
-    return posts.find_one({"post_id": post_id})
+    info = posts.delete_one({"_id": ObjectId(post_id)})
+    return info.deleted_count
 
 
 def save_post_type(post_type_dict):
-    info = post_types.insert_one(post_type_dict)
-    return info["insertedId"]
+    _id = post_type_dict.get("_id", False)
+    if _id:
+        post_type_dict["_id"] = ObjectId(_id)
+    info = post_types.insert_one(
+        post_type_dict)  # returns WriteResult object where inserted_id attribute is <bson ObjectId obj>
+    return str(info.inserted_id)
+
+
+def get_post_type(post_type_id):
+    res = post_types.find_one(
+        {"_id": ObjectId(post_type_id)})  # returns dict where value of "_id" is <bson ObjectId obj>
+    res["_id"] = str(res["_id"])
+    return res
 
 
 def delete_post_type(post_type_id: int):
-    info = posts.deleteOne({"_id": post_type_id})
-    return info["deletedCount"]
-
-
-def get_post_type_from_post_type_id(post_type_id):
-    return post_types.find_one({"post_type_id": post_type_id})
+    info = posts.delete_one({"_id": ObjectId(
+        post_type_id)})  # returns DeleteResult object where inserted_id attribute is <bson ObjectId obj>
+    return info.deleted_count
 
 
 # community id decided by the user and does not related with any

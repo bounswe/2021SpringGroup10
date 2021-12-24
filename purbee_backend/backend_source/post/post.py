@@ -14,7 +14,6 @@ class Post:
                  # TODO: post_discussion_dictionary: dict,
                  ):
         self._id = _id
-        self.post_type_id = post_type_id
         self.post_owner_user_name = post_owner_user_name
         self.post_like_count = like_count
         self.post_fields_list = Post.post_entries_dictionary_list_to_post_fields_list(post_type_id,
@@ -35,13 +34,17 @@ class Post:
         self.post_like_count = self.post_like_count - 1
 
     def to_dict(self):
-        return {"_id": self._id,
+        dict = {
                 "post_type_id": self.post_type_id,
                 "post_owner_user_name": self.post_owner_user_name,
                 "post_like_count": self.post_like_count,
                 "post_entries": Post.post_entries_to_dict(self.post_entries),
                 # TODO: "post_discussion": Post.post_discussion_to_dict(self.post_discussion)
                 }
+        if getattr(self, "_id", False):
+            dict["_id"] = self._id
+
+        return dict
 
     def save_to_database(self):
         post_dictionary = self.to_dict()

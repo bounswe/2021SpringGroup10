@@ -17,10 +17,15 @@ class PostType:
         return self._id
 
     def to_dict(self):
-        return {"_id": self._id,
-                "post_type_name": self.post_type_name,
-                "parent_community_id": self.parent_community_id,
-                "post_field_info_dictionaries_list": self.post_field_info_dictionaries_list}
+        dict = {
+            "post_type_name": self.post_type_name,
+            "parent_community_id": self.parent_community_id,
+            "post_field_info_dictionaries_list": self.post_field_info_dictionaries_list}
+
+        if getattr(self, "_id", False):
+            dict["_id"] = self._id
+
+        return dict
 
     def save_to_database(self):
         post_type_dictionary = self.to_dict()
@@ -48,8 +53,16 @@ class PostType:
 
     @staticmethod
     def get_post_type_from_id(post_type_id: int):
-        post_type_dictionary = database_utilities.get_post_type_from_post_type_id(post_type_id)
+        post_type_dictionary = database_utilities.get_post_type(post_type_id)
         return PostType(**post_type_dictionary)
+
+    @staticmethod
+    def delete_post_type_by_id(post_type_id: int):
+        num_deleted = database_utilities.delete_post_type(post_type_id)
+        if num_deleted:
+            return post_type_id
+        else:
+            raise Exception(f"No such post_type with id \"{post_type_id}\" exists.")
 
     @staticmethod
     def create_new_post_type(post_type_name: str,

@@ -1,11 +1,6 @@
 from flask import Flask, request
-import re
-from community.community import Community
 
-from database.database_utilities import (
-    get_next_post_id,
-    get_next_post_type_id
-)
+from community.community import Community
 from login.login import (
     sign_up,
     sign_in,
@@ -36,7 +31,8 @@ def community_page():
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -44,7 +40,8 @@ def community_page():
                 pass
             else:
                 # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         community_instance = Community(req)
@@ -92,7 +89,8 @@ def community_page():
             status_code = SC_FORBIDDEN
             return data, status_code
     elif request.method == "PUT":
-        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list', 'description',
+        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list',
+                       'description',
                        'photo', 'community_creator_id', 'created_at', 'banned_user_list', 'is_private']
         if len(needed_keys) != len(req):
             # return invalid input error
@@ -241,7 +239,7 @@ def post():
         try:
             new_post = Post.create_new_post(post_type_id, post_owner_user_name, post_entries_dictionary_list)
         except Exception as e:
-            data = {"response_message": "Some error occured."}
+            data = {"response_message": str(e)}
             status_code = SC_BAD_REQUEST
         else:
             data["response_message"] = "Post is successfully created. "
@@ -261,7 +259,7 @@ def post():
         try:
             updated_post = Post.update_existing_post(_id, post_entries_dictionary_list)
         except Exception as e:
-            data = {"response_message": "Some error occured."}
+            data = {"response_message": str(e)}
             status_code = SC_BAD_REQUEST
         else:
             data["response_message"] = "Post is successfully updated. "
@@ -278,7 +276,7 @@ def post():
         try:
             post = Post.get_post_from_id(post_id)
         except Exception as e:
-            data = {"response_message": "Some error occured."}
+            data = {"response_message": str(e)}
             status_code = SC_BAD_REQUEST
         else:
             data["response_message"] = "Post is successfully returned. "
@@ -302,18 +300,19 @@ def post_type():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
-        try:
-            new_post_type = PostType.create_new_post_type(post_type_name,
-                                          parent_community_id,
-                                          post_field_info_dictionaries_list)
-        except Exception as e:
-            data = {"response_message": "Some error occurred."}
-            status_code = SC_BAD_REQUEST
         else:
-            data["response_message"] = "PostType is successfully created."
-            data["data"] = {"post_type_id": new_post_type.get_id()}
-            status_code = SC_SUCCESS
+
+            try:
+                new_post_type = PostType.create_new_post_type(post_type_name,
+                                                              parent_community_id,
+                                                              post_field_info_dictionaries_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "PostType is successfully created."
+                data["data"] = {"post_type_id": new_post_type.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "GET":
         try:
@@ -321,16 +320,17 @@ def post_type():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
-        try:
-            new_post_type = PostType.get_post_type_from_id(_id)
-        except Exception as e:
-            data = {"response_message": "Some error occurred"}
-            status_code = SC_BAD_REQUEST
         else:
-            data["response_message"] = "PostType is successfully created."
-            data["data"] = new_post_type.to_dict()
-            status_code = SC_SUCCESS
+
+            try:
+                new_post_type = PostType.get_post_type_from_id(_id)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "PostType is successfully created."
+                data["data"] = new_post_type.to_dict()
+                status_code = SC_SUCCESS
 
     return data, status_code
 
