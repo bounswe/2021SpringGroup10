@@ -113,6 +113,15 @@ class Community:
             self.update(community_dictionary)
         return result
 
+    def handle_unban_user(self, user_id):
+        community_dictionary = self.to_dict()
+        neu_banned_user_list = community_dictionary['banned_user_list']
+        neu_banned_user_list.append(user_id)
+        community_dictionary['banned_user_list'] = neu_banned_user_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result
 
     @staticmethod
     def ban_user(admin_id, community_id, user_id):
@@ -147,7 +156,34 @@ class Community:
             # internal error
             return 1, None
 
+    @staticmethod
+    def unban_user(admin_id, community_id, user_id):
+        current_community_dict = get_community_by_community_id(community_id)
+        if current_community_dict is None:
+            # there is no community
+            return 11, None
+        current_user = get_user_by_name(user_id)
+        if current_user is None:
+            # there is no user
+            return 12, None
+        admin = get_user_by_name(admin_id)
+        if admin is None:
+            # there is no admin
+            return 13, None
+        if admin_id not in current_community_dict['admin_list']:
+            # given admin is not an admin
+            return 14, None
+        if user_id not in current_community_dict['banned_user_list']:
+            # given user is not banned user
+            return 15, None
 
-
+        current_community = Community(current_community_dict)
+        result = current_community.handle_unban_user(user_id)
+        if result == 0:
+            # success
+            return 0, current_community.to_dict()
+        else:
+            # internal error
+            return 1, None
 
 
