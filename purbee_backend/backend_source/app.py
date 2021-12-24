@@ -59,6 +59,10 @@ def ban_from_community_page():
             # internal error
             data['response_message'] = "Some internal error occurred"
             status_code = SC_INTERNAL_ERROR
+        elif result == 2:
+            # user is already banned
+            data['response_message'] = "Given user with the user_id is already banned"
+            status_code = SC_FORBIDDEN
         elif result == 11:
             data['response_message'] = "There is no community with the given community_id"
             status_code = SC_FORBIDDEN
@@ -103,7 +107,7 @@ def unban_from_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.ban_user(req['admin_id'], req['community_id'], req['user_id'])
+        result, current_community = Community.unban_user(req['admin_id'], req['community_id'], req['user_id'])
 
         if result == 0:
             # success
@@ -114,10 +118,6 @@ def unban_from_community_page():
             # internal error
             data['response_message'] = "Some internal error occurred"
             status_code = SC_INTERNAL_ERROR
-        elif result == 2:
-            # user is already banned
-            data['response_message'] = "Given user with the user_id is already banned"
-            status_code = SC_FORBIDDEN
         elif result == 11:
             data['response_message'] = "There is no community with the given community_id"
             status_code = SC_FORBIDDEN
