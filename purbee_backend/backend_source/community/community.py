@@ -116,7 +116,7 @@ class Community:
     def handle_unban_user(self, user_id):
         community_dictionary = self.to_dict()
         neu_banned_user_list = community_dictionary['banned_user_list']
-        neu_banned_user_list.append(user_id)
+        neu_banned_user_list.remove(user_id)
         community_dictionary['banned_user_list'] = neu_banned_user_list
         result = update_community(community_dictionary)
         if result == 0:
