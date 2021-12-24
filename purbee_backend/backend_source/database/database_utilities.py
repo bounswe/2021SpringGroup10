@@ -57,10 +57,6 @@ def save_post_template():
     pass
 
 
-def get_post_type_from_post_type_id():
-    pass
-
-
 def get_next_post_id():
     counter = nextIds.find_one({"id": "post"})["counter"]
     nextIds.update({"id": "post"}, {"$set": {"counter": counter + 1}})

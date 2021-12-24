@@ -27,6 +27,24 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_feed/', methods=['GET'])
+def community_feed():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    community_id = req["community_id"]
+    community = Community.get_community_from_id(community_id)
+    if not community :
+        data['response_message'] = "there is no such community."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    data['response_message'] = "community post list successfully returned"
+    data['community_post_list'] = community.post_history_id_list.reverse()
+    status_code = SC_SUCCESS
+    return data, status_code
+
+
 @app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
 def community_page():
     req = request.get_json()

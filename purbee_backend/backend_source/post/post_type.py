@@ -56,6 +56,7 @@ class PostType:
     def get_post_type_from_id(post_type_id):
         #this is a db method in database_utilities.py
         post_type_dictionary = get_post_type_from_post_type_id(post_type_id)
+        print(post_type_dictionary)
         del post_type_dictionary["_id"]
         # do database stuff
         """
