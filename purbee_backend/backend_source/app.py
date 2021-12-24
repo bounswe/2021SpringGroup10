@@ -73,7 +73,7 @@ def subscribe_to_community_page():
             status_code = SC_FORBIDDEN
             return data, status_code
         elif result == 12:
-            data['response_message'] = "There is no registered user wit hte id {}".format(req['user_id'])
+            data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
             status_code = SC_FORBIDDEN
             # there is no user
             return data, status_code
@@ -83,6 +83,57 @@ def subscribe_to_community_page():
             status_code = SC_CREATED
             return data, status_code
 
+
+@app.route('/api/community_page/unsubscribe', methods=["PUT"])
+def unsubscribe_from_community_page():
+    req = request.get_json()
+    data = {'response_message': None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['user_id', 'community_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            pass
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                pass
+
+    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'])
+
+    if result == 0:
+        # successfully removed subscription from private or non private community
+        data['response_message'] = "Registered user with the id {} successfully unsubscribed".format(req['user_id'])
+        data['community'] = current_community
+        status_code = SC_CREATED
+        return data, status_code
+    elif result == 10:
+        # successfully removed request from private community
+        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(req['user_id'])
+        data['community'] = current_community
+        status_code = SC_CREATED
+        return data, status_code
+    elif result == 1:
+        # update failed
+        data['response_message'] = "Some internal error occured"
+        status_code = SC_INTERNAL_ERROR
+        return data, status_code
+    elif result == 2:
+        # user is not subscriber or requester
+        data['response_message'] = "Registered user with the id {} is not subscriber or subscription requester of the " \
+                                   "community with the id {}".format(req['user_id'], req['community_id'])
+        status_code = SC_FORBIDDEN
+        return data, status_code
+    elif result == 11:
+        # there is no community
+        data['response_message'] = "There is no community with the id {}".format(req['community_id'])
+        status_code = SC_FORBIDDEN
+        return data, status_code
+    elif result == 10:
+        # there is no user
+        data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
 
 
 @app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])

@@ -84,12 +84,32 @@ class Community:
             self.subscriber_list = neu_subscriber_list
         return result
 
+    def remove_subscriber(self, user_id):
+        neu_subscriber_list = self.subscriber_list
+        neu_subscriber_list.remove(user_id)
+        community_dictionary = self.to_dict()
+        community_dictionary['subscriber_list'] = neu_subscriber_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.subscriber_list = neu_subscriber_list
+        return result
+
     def add_requester(self, user_id):
         if user_id in self.subscriber_list or user_id in self.requesters:
             # already subscriber
             return 2
         neu_requester_list = self.requesters
         neu_requester_list.append(user_id)
+        community_dictionary = self.to_dict()
+        community_dictionary['requesters'] = neu_requester_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.requesters = neu_requester_list
+        return result
+
+    def remove_requester(self, user_id):
+        neu_requester_list = self.requesters
+        neu_requester_list.remove(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['requesters'] = neu_requester_list
         result = update_community(community_dictionary)
@@ -143,3 +163,43 @@ class Community:
                 return 0, current_community.to_dict()
         return result, None
 
+    @staticmethod
+    def unsubscribe(user_id, community_id):
+        current_community_dict = get_community_by_community_id(community_id)
+        if current_community_dict is None:
+            # there is no community with the given community id
+            return 11, None
+        current_user = get_user_by_name(user_id)
+        if current_user is None:
+            # there is no user with the given user id
+            return 12, None
+        current_community = Community(current_community_dict)
+        if current_community.is_private:
+            if user_id in current_community.requesters:
+                result = current_community.remove_requester(user_id)
+                if result == 0:
+                    # return success
+                    return 10, current_community.to_dict()
+            elif user_id in current_community.subscriber_list:
+                result = current_community.remove_subscriber(user_id)
+                if result == 0:
+                    # retrun success
+                    return 0, current_community.to_dict()
+                else:
+                    # return fail
+                    return 1, None
+            else:
+                # return fail
+                return 2, None
+        else:
+            if user_id in current_community.subscriber_list:
+                result = current_community.remove_subscriber(user_id)
+                if result == 0:
+                    # return success
+                    return 0, current_community.to_dict()
+                else:
+                    # return fail
+                    return 1, None
+            else:
+                # return fail
+                return 2, None
