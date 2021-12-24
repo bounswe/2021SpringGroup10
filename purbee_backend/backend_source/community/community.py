@@ -87,7 +87,6 @@ class Community:
     @staticmethod
     def get_community_from_id(community_id):
         community_dict = get_community_by_community_id(community_id)
-        print("community_dict", community_dict)
         if community_dict:
             return Community(community_dict)
         return None
