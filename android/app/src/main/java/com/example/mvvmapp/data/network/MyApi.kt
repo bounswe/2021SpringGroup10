@@ -1,10 +1,10 @@
 package com.example.mvvmapp.data.network
 
+import com.example.mvvmapp.data.network.requests.GetProfileInfoRequest
 import com.example.mvvmapp.data.network.requests.SignInRequest
 import com.example.mvvmapp.data.network.requests.SignUpRequest
-import com.example.mvvmapp.data.network.responses.QuotesResponse
-import com.example.mvvmapp.data.network.responses.SignInResponse
-import com.example.mvvmapp.data.network.responses.SignUpResponse
+import com.example.mvvmapp.data.network.requests.UpdateProfilePageRequest
+import com.example.mvvmapp.data.network.responses.*
 import com.google.gson.JsonObject
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -27,6 +27,16 @@ interface MyApi {
     suspend fun userSignup(
         @Body req: SignUpRequest
     ) : Response<SignUpResponse>
+
+    @POST("profile_page/")
+    suspend fun updateProfilePage(
+        @Body req: UpdateProfilePageRequest
+    ) : Response<UpdateProfilePageResponse>
+
+    @GET("profile_page/")
+    suspend fun updateProfilePageGet(
+        @Body req: GetProfileInfoRequest
+    ) : Response<GetProfileInfoResponse>
 
     @GET("quotes")
     suspend fun getQuotes() : Response<QuotesResponse>
