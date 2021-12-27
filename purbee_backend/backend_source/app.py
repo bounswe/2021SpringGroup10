@@ -28,6 +28,52 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_page/change_privacy', methods=["PUT"])
+def change_privacy_community_page():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['community_id', 'admin_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+                status_code = SC_BAD_REQUEST
+
+        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'])
+
+        if result == 0:
+            # successful make private
+            data['response_message'] = "Community privacy set to private"
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 10:
+            # successful make public
+            data['response_message'] = "Community privacy set to public"
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 11:
+            data['response_message'] = "There is no community with the given community id {}".format(req['community_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 12:
+            data['response_message'] = "There is no user with the given registered user id {}".format(req['admin_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 13:
+            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 1:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
+      
 
 @app.route('/api/community_feed/', methods=['GET'])
 def community_feed():
@@ -87,6 +133,7 @@ def subscribe_to_community_page():
         if len(needed_keys) != len(req):
             # return invalid input error
             data['response_message'] = "Incorrect son content. (necessary fields are user_id and community_id)"
+
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -184,7 +231,8 @@ def unsubscribe_from_community_page():
     elif result == 10:
         # there is no user
         data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
-
+        status_code = SC_FORBIDDEN
+        return data, status_code
 
 
 @app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])

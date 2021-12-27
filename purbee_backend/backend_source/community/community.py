@@ -14,6 +14,7 @@ class Community:
         # self.next_post_type_id = None
         self.admin_list = []
         self.subscriber_list = []
+        self.requesters = []
         self.post_type_id_list = []
         self.post_history_id_list = []
         self.requesters = []
@@ -47,7 +48,8 @@ class Community:
             'community_creator_id': self.community_creator_id,
             'created_at': self.created_at,
             'banned_user_list': self.banned_user_list,
-            'is_private': self.is_private
+            'is_private': self.is_private,
+            'requesters': self.requesters
         }
         return dict_object
 
@@ -134,12 +136,64 @@ class Community:
     def get_post_types(self):
         return self.post_type_id_list
 
+    def make_private(self):
+        community_dictionary = self.to_dict()
+        community_dictionary['is_private'] = True
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.is_private = True
+        return result
+
+    def make_public(self):
+        community_dictionary = self.to_dict()
+        community_dictionary['is_private'] = False
+        before_requesters = community_dictionary['requesters']
+        community_dictionary['requesters'] = []
+        subscribers = community_dictionary['subscriber_list']
+        subscribers.extend(before_requesters)
+        community_dictionary['subscriber_list'] = subscribers
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result
+
     @staticmethod
     def get_community_from_id(community_id):
         community_dict = get_community_by_community_id(community_id)
         if community_dict:
             return Community(community_dict)
         return None
+
+    @staticmethod
+    def change_privacy(admin_id, community_id):
+        community_dict = get_community_by_community_id(community_id)
+        if community_dict is None:
+            # there is no community with the given community id
+            return 11, None
+        current_user = get_user_by_name(admin_id)
+        if current_user is None:
+            # there is no user with the given admin id
+            return 12, None
+        if not admin_id in community_dict['admin_list']:
+            # given registered user is not the admin of the given community
+            return 13, None
+        current_community = Community(community_dict)
+        if current_community.is_private:
+            result = current_community.make_public()
+            if result == 0:
+                # return success to change to public
+                return 10, current_community.to_dict()
+            else:
+                # return fail
+                return 1, None
+        else:
+            result = current_community.make_private()
+            if result == 0:
+                # return success to change to private
+                return 0, current_community.to_dict()
+            else:
+                # return fail
+                return 1, None
 
     @staticmethod
     def subscribe(user_id, community_id):
@@ -203,3 +257,4 @@ class Community:
             else:
                 # return fail
                 return 2, None
+
