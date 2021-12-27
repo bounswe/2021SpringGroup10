@@ -165,7 +165,6 @@ class Community:
             return Community(community_dict)
         return None
 
-
     def handle_ban_user(self, user_id):
         community_dictionary = self.to_dict()
         if user_id in self.requesters:
@@ -260,7 +259,6 @@ class Community:
             # internal error
             return 1, None
 
-  
     @staticmethod
     def change_privacy(admin_id, community_id):
         community_dict = get_community_by_community_id(community_id)
@@ -355,3 +353,65 @@ class Community:
                 # return fail
                 return 2, None
 
+    @staticmethod
+    def accept_or_reject_subscription_requester(admin_id, community_id, user_id, action):
+        if action not in ['accept', 'reject']:
+            # bad request
+            return 2, None
+        current_community_dict = get_community_by_community_id(community_id)
+        if current_community_dict is None:
+            # there is no community
+            return 11, None
+        current_user = get_user_by_name(user_id)
+        if current_user is None:
+            # there is no user
+            return 12, None
+        current_admin = get_user_by_name(admin_id)
+        if current_admin is None:
+            # there is no user with the admin_id
+            return 13, None
+        if admin_id not in current_community_dict['admin_list']:
+            # user with the admin_id is not an admin
+            return 14, None
+        if user_id not in current_community_dict['requesters']:
+            # user is not a subscription requester
+            return 15, None
+        if user_id in current_community_dict['subscriber_list']:
+            # user is already a subscriber
+            return 16, None
+
+        current_community = Community(current_community_dict)
+        if action == 'accept':
+            result = current_community.handle_accept_request(user_id)
+        else:
+            result = current_community.handle_reject_request(user_id)
+
+        if result == 0:
+            # success
+            return 0, current_community.to_dict()
+        else:
+            # internal error
+            return 1, None
+
+    def handle_accept_request(self, user_id):
+        community_dictionary = self.to_dict()
+        neu_requester_list = community_dictionary['requesters']
+        neu_requester_list.remove(user_id)
+        community_dictionary['requesters'] = neu_requester_list
+        neu_subscriber_list = community_dictionary['subscriber_list']
+        neu_subscriber_list.append(user_id)
+        community_dictionary['subscriber_list'] = neu_subscriber_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result
+
+    def handle_reject_request(self, user_id):
+        community_dictionary = self.to_dict()
+        neu_requester_list = community_dictionary['requesters']
+        neu_requester_list.remove(user_id)
+        community_dictionary['requesters'] = neu_requester_list
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result

@@ -28,6 +28,65 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_page/request', methods=['PUT'])
+def handle_community_page_subscription_request():
+    req = request.get_json()
+    data = {'response_message': None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
+        if len(needed_keys) != len(req):
+            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                data[
+                    'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+        result, current_community = Community.accept_or_reject_subscription_requester(req['admin_id'],
+                                                                                          req['community_id'],
+                                                                                          req['user_id'], req['action'])
+
+        if result == 0:
+            # successful
+            data['response_message'] = "Requester successfully {}ed".format(req['action'])
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 1:
+            # internal error
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        elif result == 2:
+            # bad request
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            status_code = SC_BAD_REQUEST
+        elif result == 11:
+            data['response_message'] = "There is no community with the given community id"
+            status_code = SC_FORBIDDEN
+        elif result == 12:
+            data['response_message'] = "There is no registered user with the given user id"
+            status_code = SC_FORBIDDEN
+        elif result == 13:
+            data['response_message'] = "There is no registered user with the given admin id"
+            status_code = SC_FORBIDDEN
+        elif result == 14:
+            data['response_message'] = "Registered user with the admin id is not an admin"
+            status_code = SC_FORBIDDEN
+        elif result == 15:
+            data['response_message'] = "Registered user with the user id is not a subscription requester"
+            status_code = SC_FORBIDDEN
+        elif result == 16:
+            data['response_message'] = "Registered user with the user id is already a subscriber"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
+
+
 @app.route('/api/community_page/ban', methods=["PUT"])
 def ban_from_community_page():
     req = request.get_json()
@@ -184,7 +243,7 @@ def change_privacy_community_page():
             data['response_message'] = "Some internal error occurred"
             status_code = SC_INTERNAL_ERROR
         return data, status_code
-      
+
 
 @app.route('/api/community_feed/', methods=['GET'])
 def community_feed():
@@ -301,7 +360,20 @@ def unsubscribe_from_community_page():
         needed_keys = ['user_id', 'community_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            pass
+            data['response_message'] = "Incorrect json content. (necessary fields are user_id and community_id)"
+
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are user_id and community_id)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
         for r_keys in req:
             if r_keys in needed_keys:
                 pass
