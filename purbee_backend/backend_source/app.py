@@ -4,7 +4,8 @@ from community.community import Community
 
 from database.database_utilities import (
     get_next_post_id,
-    get_next_post_type_id
+    get_next_post_type_id,
+    check_user_by_user_name
 )
 from login.login import (
     sign_up,
@@ -133,7 +134,215 @@ def unban_from_community_page():
         elif result == 15:
             data['response_message'] = "The given user with the user_id is not a banned user"
             status_code = SC_FORBIDDEN
+        return data, status_code            
 
+      
+@app.route('/api/community_page/change_privacy', methods=["PUT"])
+def change_privacy_community_page():
+
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['community_id', 'admin_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
+                status_code = SC_BAD_REQUEST
+
+        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'])
+
+        if result == 0:
+            # successful make private
+            data['response_message'] = "Community privacy set to private"
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 10:
+            # successful make public
+            data['response_message'] = "Community privacy set to public"
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 11:
+            data['response_message'] = "There is no community with the given community id {}".format(req['community_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 12:
+            data['response_message'] = "There is no user with the given registered user id {}".format(req['admin_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 13:
+            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
+            status_code = SC_FORBIDDEN
+        elif result == 1:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
+      
+
+@app.route('/api/community_feed/', methods=['GET'])
+def community_feed():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    needed_keys = ["user_name", "community_id"]
+    if 2 != len(req):
+        # return invalid input error
+        data['response_message'] = "Incorrect json content. (necessary fields are user_name, community_id)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+    for r_keys in req:
+        if r_keys in needed_keys:
+            pass
+        else:
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+
+    community_id = req["community_id"]
+    user_name = req["user_name"]
+
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    community = Community.get_community_from_id(community_id)
+
+    if user_name not in community.subscriber_list:
+        if community.is_private:
+            data['response_message'] = "this is a private community and the user is not a subscriber of this community."
+            status_code = SC_FORBIDDEN
+            return data, status_code
+
+    if not community :
+        data['response_message'] = "there is no such community."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    data['response_message'] = "community post list successfully returned"
+    data['community_post_list'] = community.post_history_id_list.reverse()
+    status_code = SC_SUCCESS
+    return data, status_code
+  
+
+@app.route('/api/community_page/subscribe', methods=["PUT"])
+def subscribe_to_community_page():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['user_id', 'community_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data['response_message'] = "Incorrect son content. (necessary fields are user_id and community_id)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data['response_message'] = "Incorrect son content. (necessary fields are user_id and community_id)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
+        result, current_community = Community.subscribe(req['user_id'], req['community_id'])
+
+        if result == 0:
+            # successful
+            data['response_message'] = "Registered user with the id {} successfully subscribed to Community with " \
+                                       "the id {}".format(req['user_id'], req['community_id'])
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+            return data, status_code
+        elif result == 1:
+            # update failed
+            data['response_message'] = "Some internal error occured"
+            status_code = SC_INTERNAL_ERROR
+            return data, status_code
+        elif result == 2:
+            # user is already subscriber
+            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(req['user_id'])
+            status_code = SC_FORBIDDEN
+            return data, status_code
+        elif result == 11:
+            # there is no community
+            data['response_message'] = "There is no community with the id {}".format(req['community_id'])
+            status_code = SC_FORBIDDEN
+            return data, status_code
+        elif result == 12:
+            data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
+            status_code = SC_FORBIDDEN
+            # there is no user
+            return data, status_code
+        elif result == 10:
+            data['response_message'] = "Registered user {} added to the requester list".format(req['user_id'])
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+            return data, status_code
+
+
+@app.route('/api/community_page/unsubscribe', methods=["PUT"])
+def unsubscribe_from_community_page():
+    req = request.get_json()
+    data = {'response_message': None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['user_id', 'community_id']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            pass
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                pass
+
+    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'])
+
+    if result == 0:
+        # successfully removed subscription from private or non private community
+        data['response_message'] = "Registered user with the id {} successfully unsubscribed".format(req['user_id'])
+        data['community'] = current_community
+        status_code = SC_CREATED
+        return data, status_code
+    elif result == 10:
+        # successfully removed request from private community
+        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(req['user_id'])
+        data['community'] = current_community
+        status_code = SC_CREATED
+        return data, status_code
+    elif result == 1:
+        # update failed
+        data['response_message'] = "Some internal error occured"
+        status_code = SC_INTERNAL_ERROR
+        return data, status_code
+    elif result == 2:
+        # user is not subscriber or requester
+        data['response_message'] = "Registered user with the id {} is not subscriber or subscription requester of the " \
+                                   "community with the id {}".format(req['user_id'], req['community_id'])
+        status_code = SC_FORBIDDEN
+        return data, status_code
+    elif result == 11:
+        # there is no community
+        data['response_message'] = "There is no community with the id {}".format(req['community_id'])
+        status_code = SC_FORBIDDEN
+        return data, status_code
+    elif result == 10:
+        # there is no user
+        data['response_message'] = "There is no registered user with the id {}".format(req['user_id'])
+        status_code = SC_FORBIDDEN
         return data, status_code
 
 
