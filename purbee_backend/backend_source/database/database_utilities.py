@@ -1,5 +1,4 @@
 import pymongo
-from bson.objectid import ObjectId
 
 client = pymongo.MongoClient(
     "mongodb+srv://purbeeApp:QLi9WWoLf4MztDJv@cluster0.orh8z.mongodb.net/purbeeProduct?retryWrites=true&w=majority")
@@ -46,22 +45,6 @@ def save_new_community(community_dictionary):
         return 2
 
 
-def get_user_name(user_name):
-    pass
-
-
-def get_mail_address(user_name):
-    pass
-
-
-def save_post_template():
-    pass
-
-
-def get_post_type_from_post_type_id():
-    pass
-
-
 def update_community(community):
     communities.update({"id": community["id"]}, {"$set": community})
     return 0
@@ -80,43 +63,43 @@ def remove_post_from_user_postlist(user_name, post_id):
 
 
 def save_post(post_dict):
-    _id = post_dict.get("_id", False)
-    if _id:
-        post_dict["_id"] = ObjectId(_id)
     info = posts.insert_one(post_dict)
-    return str(info.inserted_id)
+    return info.inserted_id
+
+
+def update_post(post_dict):
+    info = posts.update({"_id": post_dict["_id"]}, {"$set": post_dict})
+    return info["nModified"]
 
 
 def get_post(post_id: int):
-    res = posts.find_one({"_id": ObjectId(post_id)})
-    res["_id"] = str(res["_id"])
+    res = posts.find_one({"_id": post_id})
     return res
 
 
 def delete_post(post_id: int):
-    info = posts.delete_one({"_id": ObjectId(post_id)})
+    info = posts.delete_one({"_id": post_id})
     return info.deleted_count
 
 
 def save_post_type(post_type_dict):
-    _id = post_type_dict.get("_id", False)
-    if _id:
-        post_type_dict["_id"] = ObjectId(_id)
     info = post_types.insert_one(
-        post_type_dict)  # returns WriteResult object where inserted_id attribute is <bson ObjectId obj>
-    return str(info.inserted_id)
+        post_type_dict)  # returns WriteResult object
+    return info.inserted_id
+
+def update_post_type(post_dict):
+    info = post_types.update({"_id": post_dict["_id"]}, {"$set": post_dict})
+    return info["nModified"]
 
 
 def get_post_type(post_type_id):
     res = post_types.find_one(
-        {"_id": ObjectId(post_type_id)})  # returns dict where value of "_id" is <bson ObjectId obj>
-    res["_id"] = str(res["_id"])
+        {"_id": post_type_id})  # returns dict where value of "_id" is <bson ObjectId obj>
     return res
 
 
 def delete_post_type(post_type_id: int):
-    info = posts.delete_one({"_id": ObjectId(
-        post_type_id)})  # returns DeleteResult object where inserted_id attribute is <bson ObjectId obj>
+    info = posts.delete_one({"_id": post_type_id})  # returns DeleteResult object
     return info.deleted_count
 
 

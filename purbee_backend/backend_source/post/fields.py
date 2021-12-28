@@ -35,10 +35,10 @@ class Price:
 
 
 class Participation:
-    def __init__(self, header):
+    def __init__(self, header, listOfParticipants=[], numOfParticipants=0):
         self.header = header
-        self.listOfParticipants = []
-        self.numOfParticipants = 0
+        self.listOfParticipants = listOfParticipants
+        self.numOfParticipants = numOfParticipants
 
     def participate(self, user_name):
         self.listOfParticipants = self.listOfParticipants.append(user_name)

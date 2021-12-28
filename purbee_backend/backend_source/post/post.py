@@ -2,20 +2,22 @@ from community.community import Community
 from database import database_utilities
 from . import fields
 from .post_type import PostType
+import uuid
 
 
 class Post:
-    def __init__(self,
+    def   __init__(self,
                  _id: int,
-                 post_type_id: int,
+                 post_type_id: str,
                  post_owner_user_name: str,
-                 like_count: int,
+                 post_liked_user_list: int,
                  post_entries_dictionary_list: dict,
                  # TODO: post_discussion_dictionary: dict,
                  ):
         self._id = _id
         self.post_owner_user_name = post_owner_user_name
-        self.post_like_count = like_count
+        self.post_liked_user_list = post_liked_user_list
+        self.post_type_id = post_type_id
         self.post_fields_list = Post.post_entries_dictionary_list_to_post_fields_list(post_type_id,
                                                                                       post_entries_dictionary_list)
         # TODO:
@@ -27,83 +29,108 @@ class Post:
     def update_post_entries(self, post_entries_dictionary: dict):
         self.post_fields_list = Post.post_entries_dictionary_to_list(post_entries_dictionary)
 
-    def like(self):
-        self.post_like_count = self.post_like_count + 1
+    def like(self, user_name):
+        lst = self.post_liked_user_list
+        if user_name not in lst:
+            lst.append(user_name)
+            self.update_in_database()
+        else:
+            raise Exception("User already liked the post.")
 
-    def unlike(self):
-        self.post_like_count = self.post_like_count - 1
+        return lst
+
+    def unlike(self, user_name):
+        lst = self.post_liked_user_list
+        try:
+            lst.remove(user_name)
+        except ValueError:
+            raise Exception("User has already not liked the post.")
+        self.update_in_database()
+        return lst
 
     def to_dict(self):
         dict = {
-                "post_type_id": self.post_type_id,
-                "post_owner_user_name": self.post_owner_user_name,
-                "post_like_count": self.post_like_count,
-                "post_entries": Post.post_entries_to_dict(self.post_entries),
-                # TODO: "post_discussion": Post.post_discussion_to_dict(self.post_discussion)
-                }
-        if getattr(self, "_id", False):
-            dict["_id"] = self._id
-
+            "_id": self.get_id(),
+            "post_type_id": self.post_type_id,
+            "post_owner_user_name": self.post_owner_user_name,
+            "post_liked_user_list": self.post_liked_user_list,
+            "post_entries_dictionary_list": Post.post_fields_list_to_post_entries_dictionary_list(self.post_fields_list),
+            # TODO: "post_discussion": Post.post_discussion_to_dict(self.post_discussion)
+        }
         return dict
 
     def save_to_database(self):
         post_dictionary = self.to_dict()
         # TODO: change the name of this function
-        _id = database_utilities.save_a_new_post(post_dictionary)
-        return _id
+        post_id = database_utilities.save_post(post_dictionary)
+        return post_id
 
-    @staticmethod
-    def get_post_from_id(post_id):
-        post_dictionary = database_utilities.get_post_from_post_id(post_id)
-        return Post(**post_dictionary)
+    def update_in_database(self):
+        post_dictionary = self.to_dict()
+        # TODO: change the name of this function
+        number_of_updated = database_utilities.update_post(post_dictionary)
+        if number_of_updated < 1:
+            raise Exception("Nothing could updated.")
 
+        return number_of_updated
+    
     @staticmethod
-    def create_new_post(post_type_id: int,
+    def create_post(post_type_id: str,
                         post_owner_user_name: str,
                         post_entries_dictionary_list: list
                         ):
-        post_id = None
-        like_count = 0
-        new_post = Post(post_id,
+        _id = str(uuid.uuid4())
+        post_liked_user_list = []
+        new_post = Post(_id,
                         post_type_id,
                         post_owner_user_name,
-                        like_count,
+                        post_liked_user_list,
                         post_entries_dictionary_list,
                         # TODO: post_discussion_dictionary
                         )
-
-        del new_post._id
-        _id = new_post.save_to_database()
-        del new_post
-
-        new_post = Post.get_post_from_id(_id)
-        new_post.has_created()
+        new_post.save_to_database()
+        Post.has_created(new_post)
         return new_post
-
+    
     @staticmethod
-    def update_existing_post(post_id: int,
+    def update_post(post_id: int,
                              post_entries_dictionary_list):
-        post = Post.get_post_from_id(post_id)
+        post = Post.get_post(post_id)
         post.update_post_entries(post_entries_dictionary_list)
-        _id = post.save_to_database()
+        post.update_in_database()
         return post
 
     @staticmethod
     def delete_existing_post(post_id: int):
-        database_utilities.delete_post(post_id)
+        post = Post.get_post(post_id)
+        post_type = PostType.get_post_type(post.post_type_id)
+        parent_community_id = post_type.parent_community_id
+
+        num_deleted = database_utilities.delete_post(post_id)
+        if num_deleted:
+            PostType.has_deleted(post.post_type_id, parent_community_id)
+            return post_id
+        else:
+            raise Exception(f"No such post_type with id \"{post_id}\" exists.")
         return post_id
 
     @staticmethod
-    def post_entries_dictionary_list_to_post_fields_list(post_entries_dictionary_list: list,
-                                                         post_type_id: int):
+    def get_post(post_id):
+        post_dictionary = database_utilities.get_post(post_id)
+        return Post(**post_dictionary)
+
+
+    @staticmethod
+    def post_entries_dictionary_list_to_post_fields_list(post_type_id: str,
+                                                         post_entries_dictionary_list: list):
         post_fields_list = []
 
         # Load the post_type object
-        post_type_instance = PostType.get_post_type_from_id(post_type_id)
-        post_field_info_dictionary_list = post_type_instance.post_field_info_dictionary_list
+        post_type_instance = PostType.get_post_type(post_type_id)
+        post_field_info_dictionaries_list = post_type_instance.post_field_info_dictionaries_list
 
         # All headers of a field is unique. This is ensured by PostType.create_new_post_type func.
-        for post_type_dictionary in post_field_info_dictionary_list:
+        for post_type_dictionary in post_field_info_dictionaries_list:
             field_header = post_type_dictionary["header"]
 
             post_field_dictionary = next(
@@ -128,16 +155,20 @@ class Post:
         return post_entries_dictionary_list
 
     @staticmethod
-    def has_created(self):
-        community = Community.get_community_from_id(self.base_post_type.parent_community_id)
-        community.post_history_id_list.append(self.post_id)
+    def has_created(post):
+        post_type = PostType.get_post_type(post.post_type_id)
+
+        community = Community.get_community_from_id(post_type.parent_community_id)
+        community.post_history_id_list.append(post.get_id())
 
         database_utilities.update_community(community.to_dict())
-        database_utilities.add_post_to_user_postlist(self.post_owner_user_name, self.post_id)
+        database_utilities.add_post_to_user_postlist(post.post_owner_user_name, post.get_id())
 
     @staticmethod
-    def has_deleted(self):
-        community = Community.get_community_from_id(self.base_post_type.parent_community_id)
-        community.post_history_id_list.pop(self.post_id)
+    def has_deleted(post_id, parent_community_id, post_owner_user_name):
+
+        community = Community.get_community_from_id(parent_community_id)
+        community.post_history_id_list.pop(post_id)
         database_utilities.update_community(community.to_dict())
-        database_utilities.remove_post_from_user_postlist(self.post_owner_user_name, self.post_id)
+
+        database_utilities.remove_post_from_user_postlist(post_owner_user_name, post_id)

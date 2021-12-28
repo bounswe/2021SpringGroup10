@@ -236,15 +236,16 @@ def post():
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
 
-        try:
-            new_post = Post.create_new_post(post_type_id, post_owner_user_name, post_entries_dictionary_list)
-        except Exception as e:
-            data = {"response_message": str(e)}
-            status_code = SC_BAD_REQUEST
         else:
-            data["response_message"] = "Post is successfully created. "
-            data["data"] = {"post_id": new_post.get_id()}
-            status_code = SC_SUCCESS
+            try:
+                new_post = Post.create_post(post_type_id, post_owner_user_name, post_entries_dictionary_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully created. "
+                data["data"] = {"post_id": new_post.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "PUT":  # Only for creating a new post.
 
@@ -255,36 +256,93 @@ def post():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
-        try:
-            updated_post = Post.update_existing_post(_id, post_entries_dictionary_list)
-        except Exception as e:
-            data = {"response_message": str(e)}
-            status_code = SC_BAD_REQUEST
         else:
-            data["response_message"] = "Post is successfully updated. "
-            data["data"] = {"post_id": updated_post.get_id()}
-            status_code = SC_SUCCESS
+            try:
+                updated_post = Post.update_post(_id, post_entries_dictionary_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully updated. "
+                data["data"] = {"post_id": updated_post.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "GET":
         try:
-            post_id = req["post_id"]
+            post_id = req["_id"]
         except Exception:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
-        try:
-            post = Post.get_post_from_id(post_id)
-        except Exception as e:
-            data = {"response_message": str(e)}
-            status_code = SC_BAD_REQUEST
         else:
-            data["response_message"] = "Post is successfully returned. "
-            data["data"] = post.to_dict()
-            status_code = SC_SUCCESS
+            try:
+                post = Post.get_post(post_id)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully returned. "
+                data["data"] = post.to_dict()
+                status_code = SC_SUCCESS
 
     return data, status_code
 
+
+@app.route('/api/post/like/', methods=['PUT'])
+def post_like():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["_id"]
+            user_name = req["user_name"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                post_liked_user_list = post.like(user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully created. "
+                data["data"] = {"post_liked_user_list": post_liked_user_list}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/unlike/', methods=['PUT'])
+def post_unlike():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["_id"]
+            user_name = req["user_name"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                post_liked_user_list = post.unlike(user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully created. "
+                data["data"] = {"post_liked_user_list": post_liked_user_list}
+                status_code = SC_SUCCESS
+
+    return data, status_code
 
 @app.route('/api/post_type/', methods=['GET', 'POST'])
 def post_type():
@@ -303,9 +361,9 @@ def post_type():
         else:
 
             try:
-                new_post_type = PostType.create_new_post_type(post_type_name,
-                                                              parent_community_id,
-                                                              post_field_info_dictionaries_list)
+                new_post_type = PostType.create_post_type(post_type_name,
+                                                          parent_community_id,
+                                                          post_field_info_dictionaries_list)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
@@ -323,7 +381,7 @@ def post_type():
         else:
 
             try:
-                new_post_type = PostType.get_post_type_from_id(_id)
+                new_post_type = PostType.get_post_type(_id)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
