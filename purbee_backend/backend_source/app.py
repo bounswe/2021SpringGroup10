@@ -28,6 +28,62 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/community_page/admin', methods=['PUT'])
+def community_page_admin():
+    req = request.get_json()
+    data = {'response_message': None}
+    status_code = None
+    if request.method == "PUT":
+        needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
+        if len(needed_keys) != len(req):
+            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
+        result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'], req['action'])
+
+        if result == 0:
+            # successful
+            data['response_message'] = "Registered user successfully changed"
+            data['community'] = current_community
+            status_code = SC_SUCCESS
+        elif result == 1:
+            # internal error
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        elif result == 2:
+            # bad request
+            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            status_code = SC_BAD_REQUEST
+        elif result == 11:
+            data['response_message'] = "There is no community with the given community id"
+            status_code = SC_FORBIDDEN
+        elif result == 12:
+            data['response_message'] = "There is no registered user with the given user id"
+            status_code = SC_FORBIDDEN
+        elif result == 13:
+            data['response_message'] = "There is no registered user with the given admin id"
+            status_code = SC_FORBIDDEN
+        elif result == 14:
+            data['response_message'] = "Registered user with the admin id is not an admin or community creator"
+            status_code = SC_FORBIDDEN
+        elif result == 15:
+            data['response_message'] = "Registered user with the user id is already an admin"
+            status_code = SC_FORBIDDEN
+        elif result == 16:
+            data['response_message'] = "Registered user with the user id is not an admin"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
+
+
 @app.route('/api/community_page/request', methods=['PUT'])
 def handle_community_page_subscription_request():
     req = request.get_json()

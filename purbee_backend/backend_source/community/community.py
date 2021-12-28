@@ -354,6 +354,66 @@ class Community:
                 return 2, None
 
     @staticmethod
+    def make_or_remove_admin(admin_id, community_id, user_id, action):
+        if action not in ['make', 'remove']:
+            # bad request
+            return 2, None
+        current_community_dict = get_community_by_community_id(community_id)
+        if current_community_dict is None:
+            # there is no community
+            return 11, None
+        current_user = get_user_by_name(user_id)
+        if current_user is None:
+            # there is no user
+            return 12, None
+        current_admin = get_user_by_name(admin_id)
+        if current_admin is None:
+            # there is no user with the admin_id
+            return 13, None
+        if admin_id not in current_community_dict['admin_list'] or admin_id != current_community_dict['community_creator_id']:
+            # user with the admin_id is not an admin or not and community creator
+            return 14, None
+
+        current_community = Community(current_community_dict)
+        if action == 'make':
+            result = current_community.handle_make_admin(user_id)
+        elif action == 'remove':
+            result = current_community.handle_remove_admin(user_id)
+        else:
+            # bad request
+            return 2, None
+
+        if result == 0:
+            # success
+            return 0, current_community.to_dict()
+        else:
+            return result, None
+
+    def handle_make_admin(self, user_id):
+        community_dictionary = self.to_dict()
+        if user_id in community_dictionary['admin_list']:
+            # user is already an admin
+            return 15
+        neu_admin_list = community_dictionary['admin_list']
+        neu_admin_list.append(user_id)
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result
+
+    def handle_remove_admin(self, user_id):
+        community_dictionary = self.to_dict()
+        if user_id not in community_dictionary['admin_list']:
+            # user is not an admin
+            return 16
+        neu_admin_list = community_dictionary['admin_list']
+        neu_admin_list.remove(user_id)
+        result = update_community(community_dictionary)
+        if result == 0:
+            self.update(community_dictionary)
+        return result
+
+    @staticmethod
     def accept_or_reject_subscription_requester(admin_id, community_id, user_id, action):
         if action not in ['accept', 'reject']:
             # bad request
@@ -385,7 +445,6 @@ class Community:
             result = current_community.handle_accept_request(user_id)
         else:
             result = current_community.handle_reject_request(user_id)
-
         if result == 0:
             # success
             return 0, current_community.to_dict()
