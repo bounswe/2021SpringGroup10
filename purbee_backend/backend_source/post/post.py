@@ -1,12 +1,13 @@
+import uuid
+
 from community.community import Community
 from database import database_utilities
 from . import fields
 from .post_type import PostType
-import uuid
 
 
 class Post:
-    def   __init__(self,
+    def __init__(self,
                  _id: int,
                  post_type_id: str,
                  post_owner_user_name: str,
@@ -48,37 +49,96 @@ class Post:
         self.update_in_database()
         return lst
 
+    def participate_to_a_participation_field(self, header_of_participation_field, user_name):
+        for field in self.post_fields_list:
+            if field.header == header_of_participation_field:
+                if not isinstance(field, fields.Participation):
+                    raise Exception(f"Given header name is not a header of a field\
+                    type \"Participation\", it is of type {type(field).__name__()}")
+                else:
+                    field.participate(user_name)
+                    return field.list_of_participants
+            else:
+                continue
+
+        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
+        with header {header_of_participation_field}")
+
+    def cancel_participation_to_a_participation_field(self, header_of_participation_field, user_name):
+        for field in self.post_fields_list:
+            if field.header == header_of_participation_field:
+                if not isinstance(field, fields.Participation):
+                    raise Exception(f"Given header name is not a header of a field\
+                    type \"Participation\", it is of type {type(field).__name__()}")
+                else:
+                    field.unparticipate(user_name)
+                    return field.list_of_participants
+            else:
+                continue
+
+        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
+        with header {header_of_participation_field}")
+
+    def vote_in_a_poll_field(self, header_of_poll_field, option, user_name):
+        for field in self.post_fields_list:
+            if field.header == header_of_poll_field:
+                if not isinstance(field, fields.Poll):
+                    raise Exception(f"Given header name is not a header of a field\
+                    type \"Poll\", it is of type {type(field).__name__()}")
+                else:
+                    field.vote_for(option, user_name)
+                    return field.options
+            else:
+                continue
+
+        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
+        with header {header_of_poll_field}")
+
+    def cancel_vote_in_a_poll_field(self, header_of_poll_field, option, user_name):
+        for field in self.post_fields_list:
+            if field.header == header_of_poll_field:
+                if not isinstance(field, fields.Poll):
+                    raise Exception(f"Given header name is not a header of a field\
+                    type \"Poll\", it is of type {type(field).__name__()}")
+                else:
+                    field.cancel_vote_for(option, user_name)
+                    return field.options
+            else:
+                continue
+
+        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
+        with header {header_of_poll_field}")
+
     def to_dict(self):
         dict = {
             "_id": self.get_id(),
             "post_type_id": self.post_type_id,
             "post_owner_user_name": self.post_owner_user_name,
             "post_liked_user_list": self.post_liked_user_list,
-            "post_entries_dictionary_list": Post.post_fields_list_to_post_entries_dictionary_list(self.post_fields_list),
+            "post_entries_dictionary_list": Post.post_fields_list_to_post_entries_dictionary_list(
+                self.post_fields_list),
             # TODO: "post_discussion": Post.post_discussion_to_dict(self.post_discussion)
         }
         return dict
 
     def save_to_database(self):
         post_dictionary = self.to_dict()
-        # TODO: change the name of this function
         post_id = database_utilities.save_post(post_dictionary)
         return post_id
 
     def update_in_database(self):
         post_dictionary = self.to_dict()
-        # TODO: change the name of this function
         number_of_updated = database_utilities.update_post(post_dictionary)
         if number_of_updated < 1:
             raise Exception("Nothing could updated.")
 
         return number_of_updated
-    
+
     @staticmethod
     def create_post(post_type_id: str,
-                        post_owner_user_name: str,
-                        post_entries_dictionary_list: list
-                        ):
+                    post_owner_user_name: str,
+                    post_entries_dictionary_list: list
+                    ):
         _id = str(uuid.uuid4())
         post_liked_user_list = []
         new_post = Post(_id,
@@ -91,10 +151,10 @@ class Post:
         new_post.save_to_database()
         Post.has_created(new_post)
         return new_post
-    
+
     @staticmethod
     def update_post(post_id: int,
-                             post_entries_dictionary_list):
+                    post_entries_dictionary_list):
         post = Post.get_post(post_id)
         post.update_post_entries(post_entries_dictionary_list)
         post.update_in_database()
@@ -119,7 +179,6 @@ class Post:
         post_dictionary = database_utilities.get_post(post_id)
         return Post(**post_dictionary)
 
-
     @staticmethod
     def post_entries_dictionary_list_to_post_fields_list(post_type_id: str,
                                                          post_entries_dictionary_list: list):
@@ -138,7 +197,8 @@ class Post:
                  if post_field_dictionary["header"] == field_header), None)
 
             field_type_name = post_type_dictionary["field_type"]
-
+            # TODO: to make the fields safe differentiate this behaviour for database
+            #  loaded Post objects and user created Post objects.
             field_instance = getattr(fields, field_type_name)(**post_field_dictionary)
             post_fields_list.append(field_instance)
 

@@ -250,7 +250,7 @@ def post():
     elif request.method == "PUT":  # Only for creating a new post.
 
         try:
-            _id = req["_id"]
+            _id = req["post_id"]
             post_entries_dictionary_list = req["post_entries_dictionary_list"]
 
         except Exception as e:
@@ -269,7 +269,7 @@ def post():
 
     elif request.method == "GET":
         try:
-            post_id = req["_id"]
+            post_id = req["post_id"]
         except Exception:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
@@ -295,7 +295,7 @@ def post_like():
 
     if request.method == "PUT":
         try:
-            post_id = req["_id"]
+            post_id = req["post_id"]
             user_name = req["user_name"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
@@ -324,7 +324,7 @@ def post_unlike():
 
     if request.method == "PUT":
         try:
-            post_id = req["_id"]
+            post_id = req["psot_id"]
             user_name = req["user_name"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
@@ -343,6 +343,147 @@ def post_unlike():
                 status_code = SC_SUCCESS
 
     return data, status_code
+
+
+@app.route('/api/post/participate/', methods=['PUT'])
+def post_participate():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_participation_field = req["header_of_participation_field"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                list_of_participants = post.participate_to_a_participation_field(header_of_participation_field,
+                                                                                 user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: \"{user_name}\"has been successfully \
+                     marked as participating to the \"Participation\" \
+                     field with header: \"{header_of_participation_field}\""
+                data["data"] = {"list_of_participants": list_of_participants}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/cancel_participate/', methods=['PUT'])
+def post_cancel_participate():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_participation_field = req["header_of_participation_field"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                list_of_participants = post.cancel_participation_to_a_participation_field(header_of_participation_field,
+                                                                                          user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: \"{user_name}\" has been successfully \
+                     unmarked as participating to the \"Participation\" \
+                     field with header: \"{header_of_participation_field}\""
+                data["data"] = {"list_of_participants": list_of_participants}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/vote/', methods=['PUT'])
+def post_vote():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_poll_field = req["header_of_poll_field"]
+            option = req["option"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                options = post.vote_in_a_poll_field(header_of_poll_field,
+                                                    option,
+                                                    user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: \"{user_name}\" has been successfully \
+                     voted for the option: \"{option}\" in the \"Poll\" \
+                     field with header: \"{header_of_poll_field}\""
+                data["data"] = {"options": options}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/cancel_vote/', methods=['PUT'])
+def post_cancel_vote():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_poll_field = req["header_of_poll_field"]
+            option = req["option"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post = Post.get_post(post_id)
+                options = post.cancel_vote_in_a_poll_field(header_of_poll_field,
+                                                           option,
+                                                           user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: \"{user_name}\" has successfully \
+                         unvoted for the option: \"{option}\" in the \"Poll\" \
+                         field with header: \"{header_of_poll_field}\""
+                data["data"] = {"options": options}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
 
 @app.route('/api/post_type/', methods=['GET', 'POST'])
 def post_type():
@@ -374,7 +515,7 @@ def post_type():
 
     elif request.method == "GET":
         try:
-            _id = req["_id"]
+            _id = req["post_type_id"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
