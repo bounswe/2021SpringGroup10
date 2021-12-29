@@ -244,7 +244,7 @@ def post():
                 status_code = SC_BAD_REQUEST
             else:
                 data["response_message"] = "Post is successfully created. "
-                data["data"] = {"post_id": new_post.get_id()}
+                data["data"] = {"_id": new_post.get_id()}
                 status_code = SC_SUCCESS
 
     elif request.method == "PUT":  # Only for creating a new post.
@@ -264,7 +264,7 @@ def post():
                 status_code = SC_BAD_REQUEST
             else:
                 data["response_message"] = "Post is successfully updated. "
-                data["data"] = {"post_id": updated_post.get_id()}
+                data["data"] = {"_id": updated_post.get_id()}
                 status_code = SC_SUCCESS
 
     elif request.method == "GET":
@@ -324,7 +324,7 @@ def post_unlike():
 
     if request.method == "PUT":
         try:
-            post_id = req["psot_id"]
+            post_id = req["post_id"]
             user_name = req["user_name"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
@@ -379,7 +379,7 @@ def post_participate():
     return data, status_code
 
 
-@app.route('/api/post/cancel_participate/', methods=['PUT'])
+@app.route('/api/post/cancel_participation/', methods=['PUT'])
 def post_cancel_participate():
     req = request.get_json()
     data = {"response_message": None}
@@ -510,7 +510,7 @@ def post_type():
                 status_code = SC_BAD_REQUEST
             else:
                 data["response_message"] = "PostType is successfully created."
-                data["data"] = {"post_type_id": new_post_type.get_id()}
+                data["data"] = {"_id": new_post_type.get_id()}
                 status_code = SC_SUCCESS
 
     elif request.method == "GET":
