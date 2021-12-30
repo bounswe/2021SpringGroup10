@@ -52,8 +52,6 @@ def user_search():
     return data, status_code
 
 
-
-
 @app.route('/api/user_feed', methods=['GET'])
 def user_feed():
     req = request.get_json()
