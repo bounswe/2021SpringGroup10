@@ -2,6 +2,8 @@ from flask import Flask, request
 import re
 from community.community import Community
 from datetime import datetime as dt
+import mpu
+from collections import Counter
 
 from database.database_utilities import (
     get_next_post_id,
@@ -42,7 +44,8 @@ def advanced_search():
         search_dictionary = req["search_dictionary"]
         community_id = req["community_id"]
     except:
-        data['response_message'] = "Incorrect json content. (necessary field is search_dictionary,user_name,community_id)"
+        data[
+            'response_message'] = "Incorrect json content. (necessary field is search_dictionary,user_name,community_id)"
         status_code = SC_BAD_REQUEST
         return data, status_code
 
@@ -61,15 +64,15 @@ def advanced_search():
             return data, status_code
 
     # defaultCurrency is TL
-    # search dictionary = {"PlainText": "search_text", "location" : {"main_location":"coordinates" , "radius":kms} ,
+    # default radius = 10 km
+    # search dictionary = {"PlainText": "search_text", "Location" : {"longitude":"coordinates" , "latitude": "coordinates" , "radius":kms} ,
     # "DateTime" : {"starting_date": "date1" , "ending_date":"date2", "starting_time": "time1" , "ending_time":"time2"}, "Price" : {"min_price" : "price1", "max_price": "price2", "currency":"currency"},
     # "Participation" : {"min_participation" : min_participation , "max_participation" : max_participation}
     # }
 
     community_post_list = [Post.get_post_from_id(id) for id in community.subscriber_list]
-
+    eligableList = []
     for filter in search_dictionary.keys():
-        eligableList = []
         for post in community_post_list:
             for field in post.post_fields_list:
                 if filter == "PlainText":
@@ -124,11 +127,10 @@ def advanced_search():
                         except:
                             currency = "TL"
 
+                        if max_price >= field.amount >= min_price:
+                            if field.currency == currency:
+                                eligableList.append(post._id)
 
-                        if max_price >= field.amount >= starting_date_converted:
-                            if ending_time_converted >= field.time >= starting_time_converted:
-                                if field.currency == currency:
-                                    eligableList.append(post._id)
                 if filter == "Participation":
                     if type(field).__name__ == "Participation":
                         try:
@@ -141,25 +143,34 @@ def advanced_search():
                         except:
                             max_participation = 999999999
 
-                        if max_price >= field.amount >= starting_date_converted:
-                            if ending_time_converted >= field.time >= starting_time_converted:
-                                if field.currency == currency:
-                                    eligableList.append(post._id)
+                        if max_participation >= len(field.list_of_participants)  >= min_participation:
+                            eligableList.append(post._id)
 
+                if filter == "Location":
+                    if type(field).__name__ == "Location":
+                        lat1 = search_dictionary["Location"]["latitude"]
+                        lon1 = search_dictionary["Location"]["longitude"]
+                        lat2 = field.latitude
+                        lon2 = field.longitude
 
+                        try:
+                            radius = search_dictionary["Location"]["radius"]
+                        except:
+                            data['response_message'] = "radius value needed for location filter"
+                            status_code = SC_BAD_REQUEST
+                            return data, status_code
 
+                        dist = mpu.haversine_distance((lat1, lon1), (lat2, lon2))
 
+                        if dist <= float(radius):
+                            eligableList.append(post._id)
 
-
-
-
-
-
-
-
-
-
-
+    occurences = Counter(eligableList)
+    results = [el for el in occurences.keys() if occurences[el] >= len(search_dictionary.keys())]
+    data['response_message'] = "search result successfully returned"
+    data['post_ids'] = results
+    status_code = SC_SUCCESS
+    return data, status_code
 
 
 @app.route('/api/user_search', methods=['GET'])
@@ -183,6 +194,7 @@ def user_search():
     status_code = SC_SUCCESS
     return data, status_code
 
+
 @app.route('/api/community_search', methods=['GET'])
 def community_search():
     req = request.get_json()
@@ -203,7 +215,6 @@ def community_search():
     data['community_names'] = community_names_contains_given_text
     status_code = SC_SUCCESS
     return data, status_code
-
 
 
 @app.route('/api/user_feed', methods=['GET'])
@@ -263,18 +274,21 @@ def community_page_admin():
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
             if r_keys in needed_keys:
                 pass
             else:
-                data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+                data[
+                    'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'], req['action'])
+        result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'],
+                                                                   req['action'])
 
         if result == 0:
             # successful
@@ -287,7 +301,8 @@ def community_page_admin():
             status_code = SC_INTERNAL_ERROR
         elif result == 2:
             # bad request
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
         elif result == 11:
             data['response_message'] = "There is no community with the given community id"
@@ -319,7 +334,8 @@ def handle_community_page_subscription_request():
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -331,8 +347,8 @@ def handle_community_page_subscription_request():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         result, current_community = Community.accept_or_reject_subscription_requester(req['admin_id'],
-                                                                                          req['community_id'],
-                                                                                          req['user_id'], req['action'])
+                                                                                      req['community_id'],
+                                                                                      req['user_id'], req['action'])
 
         if result == 0:
             # successful
@@ -387,7 +403,8 @@ def ban_from_community_page():
                 pass
             else:
                 # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary fields are admin_id, community_id, user_id)"
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are admin_id, community_id, user_id)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
@@ -476,12 +493,11 @@ def unban_from_community_page():
         elif result == 15:
             data['response_message'] = "The given user with the user_id is not a banned user"
             status_code = SC_FORBIDDEN
-        return data, status_code            
+        return data, status_code
 
-      
+
 @app.route('/api/community_page/change_privacy', methods=["PUT"])
 def change_privacy_community_page():
-
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -514,13 +530,15 @@ def change_privacy_community_page():
             data['community'] = current_community
             status_code = SC_SUCCESS
         elif result == 11:
-            data['response_message'] = "There is no community with the given community id {}".format(req['community_id'])
+            data['response_message'] = "There is no community with the given community id {}".format(
+                req['community_id'])
             status_code = SC_FORBIDDEN
         elif result == 12:
             data['response_message'] = "There is no user with the given registered user id {}".format(req['admin_id'])
             status_code = SC_FORBIDDEN
         elif result == 13:
-            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
+            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(
+                req['admin_id'], req['community_id'])
             status_code = SC_FORBIDDEN
         elif result == 1:
             data['response_message'] = "Some internal error occurred"
@@ -566,7 +584,7 @@ def community_feed():
             status_code = SC_FORBIDDEN
             return data, status_code
 
-    if not community :
+    if not community:
         data['response_message'] = "there is no such community."
         status_code = SC_FORBIDDEN
         return data, status_code
@@ -575,7 +593,7 @@ def community_feed():
     data['community_post_list'] = community.post_history_id_list.reverse()
     status_code = SC_SUCCESS
     return data, status_code
-  
+
 
 @app.route('/api/community_page/subscribe', methods=["PUT"])
 def subscribe_to_community_page():
@@ -614,7 +632,8 @@ def subscribe_to_community_page():
             return data, status_code
         elif result == 2:
             # user is already subscriber
-            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(req['user_id'])
+            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(
+                req['user_id'])
             status_code = SC_FORBIDDEN
             return data, status_code
         elif result == 11:
@@ -674,7 +693,8 @@ def unsubscribe_from_community_page():
         return data, status_code
     elif result == 10:
         # successfully removed request from private community
-        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(req['user_id'])
+        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(
+            req['user_id'])
         data['community'] = current_community
         status_code = SC_CREATED
         return data, status_code
@@ -710,7 +730,8 @@ def community_page():
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -718,7 +739,8 @@ def community_page():
                 pass
             else:
                 # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         community_instance = Community(req)
@@ -766,7 +788,8 @@ def community_page():
             status_code = SC_FORBIDDEN
             return data, status_code
     elif request.method == "PUT":
-        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list', 'description',
+        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list',
+                       'description',
                        'photo', 'community_creator_id', 'created_at', 'banned_user_list', 'is_private']
         if len(needed_keys) != len(req):
             # return invalid input error
@@ -914,7 +937,7 @@ def post():
             field_dics = fields_dictionary[key]
             actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', key)]) + "_fields"
             w_header_field_dics = getattr(base_post_type.post_fields, actual_name)
-            for field_dic, w_header in zip(field_dics,w_header_field_dics):
+            for field_dic, w_header in zip(field_dics, w_header_field_dics):
                 field_dic["header"] = w_header.header
         try:
             post = Post(base_post_type, fields_dictionary, post_id, user_name)
@@ -951,7 +974,7 @@ def post():
 
         post = Post.get_post_from_id(post_id)
         try:
-            updated_post = post.update(post.base_post_type, fields_dictionary, post.id, post.owner_user_name )
+            updated_post = post.update(post.base_post_type, fields_dictionary, post.id, post.owner_user_name)
         except Exception as e:
             if str(e) == "All fields should be specified":
                 data["response_message"] = str(e)
