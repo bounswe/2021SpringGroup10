@@ -1,6 +1,7 @@
 from flask import Flask, request
 import re
 from community.community import Community
+from datetime import datetime as dt
 
 from database.database_utilities import (
     get_next_post_id,
@@ -29,6 +30,136 @@ USER_NAME = ""
 USER_PASSWORD = ""
 
 app = Flask(__name__)
+
+
+@app.route('/api/advanced_search', methods=['GET'])
+def advanced_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        user_name = req["user_name"]
+        search_dictionary = req["search_dictionary"]
+        community_id = req["community_id"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary field is search_dictionary,user_name,community_id)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    community = Community.get_community_from_id(community_id)
+
+    if community.is_private:
+        if user_name not in community.subscriber_list:
+            data[
+                'response_message'] = "this is a private community and this user is not a subscriber of this community"
+            status_code = SC_FORBIDDEN
+            return data, status_code
+
+    # defaultCurrency is TL
+    # search dictionary = {"PlainText": "search_text", "location" : {"main_location":"coordinates" , "radius":kms} ,
+    # "DateTime" : {"starting_date": "date1" , "ending_date":"date2", "starting_time": "time1" , "ending_time":"time2"}, "Price" : {"min_price" : "price1", "max_price": "price2", "currency":"currency"},
+    # "Participation" : {"min_participation" : min_participation , "max_participation" : max_participation}
+    # }
+
+    community_post_list = [Post.get_post_from_id(id) for id in community.subscriber_list]
+
+    for filter in search_dictionary.keys():
+        eligableList = []
+        for post in community_post_list:
+            for field in post.post_fields_list:
+                if filter == "PlainText":
+                    if type(field).__name__ == "PlainText":
+                        search_text = search_dictionary["PlainText"]["search_text"]
+                        if search_text in field.text:
+                            eligableList.append(post._id)
+                if filter == "DateTime":
+                    if type(field).__name__ == "DateTime":
+                        try:
+                            starting_date = search_dictionary["DateTime"]["starting_date"]
+                        except:
+                            starting_date = "01.01.1000"
+
+                        try:
+                            ending_date = search_dictionary["DateTime"]["ending_date"]
+                        except:
+                            ending_date = "01.01.9999"
+
+                        try:
+                            starting_time = search_dictionary["DateTime"]["starting_time"]
+                        except:
+                            starting_time = "00.00"
+
+                        try:
+                            ending_time = search_dictionary["DateTime"]["ending_time"]
+                        except:
+                            ending_time = "23.59"
+
+                        starting_date_converted = dt.strptime(starting_date, "%d/%m/%y")
+                        ending_date_converted = dt.strptime(ending_date, "%d/%m/%y")
+                        starting_time_converted = dt.strptime(starting_time, '%H:%M')
+                        ending_time_converted = dt.strptime(ending_time, '%H:%M')
+
+                        if ending_date_converted >= field.date >= starting_date_converted:
+                            if ending_time_converted >= field.time >= starting_time_converted:
+                                eligableList.append(post._id)
+                if filter == "Price":
+                    if type(field).__name__ == "Price":
+                        try:
+                            min_price = float(search_dictionary["Price"]["min_price"])
+                        except:
+                            min_price = 0
+
+                        try:
+                            max_price = float(search_dictionary["Price"]["max_price"])
+                        except:
+                            max_price = 999999999
+
+                        try:
+                            currency = search_dictionary["Price"]["currency"]
+                        except:
+                            currency = "TL"
+
+
+                        if max_price >= field.amount >= starting_date_converted:
+                            if ending_time_converted >= field.time >= starting_time_converted:
+                                if field.currency == currency:
+                                    eligableList.append(post._id)
+                if filter == "Participation":
+                    if type(field).__name__ == "Participation":
+                        try:
+                            min_participation = int(search_dictionary["Participation"]["min_participation"])
+                        except:
+                            min_participation = 0
+
+                        try:
+                            max_participation = search_dictionary["Participation"]["max_participation"]
+                        except:
+                            max_participation = 999999999
+
+                        if max_price >= field.amount >= starting_date_converted:
+                            if ending_time_converted >= field.time >= starting_time_converted:
+                                if field.currency == currency:
+                                    eligableList.append(post._id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/api/user_search', methods=['GET'])
