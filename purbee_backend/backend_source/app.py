@@ -7,7 +7,8 @@ from database.database_utilities import (
     get_next_post_type_id,
     check_user_by_user_name,
     get_user_by_name,
-    get_all_user_names
+    get_all_user_names,
+    get_all_community_names
 )
 from login.login import (
     sign_up,
@@ -50,6 +51,28 @@ def user_search():
     data['user_names'] = user_names_contains_given_text
     status_code = SC_SUCCESS
     return data, status_code
+
+@app.route('/api/community_search', methods=['GET'])
+def community_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        search_text = req["search_text"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary field is search_text)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    community_names = get_all_community_names()
+
+    community_names_contains_given_text = [el for el in community_names if search_text in str(el)]
+
+    data['response_message'] = "search result successfully returned"
+    data['community_names'] = community_names_contains_given_text
+    status_code = SC_SUCCESS
+    return data, status_code
+
 
 
 @app.route('/api/user_feed', methods=['GET'])
