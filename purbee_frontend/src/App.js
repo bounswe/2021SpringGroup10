@@ -26,7 +26,7 @@ function App() {
               <Route path="/create-post-type" element={<CreatePostType />} />
               <Route path="/create-post" element={<CreatePost />} />
           </Routes>
-        </BrowserRouter>
+        </BrowserRouter> 
       </div>
   );
 }
