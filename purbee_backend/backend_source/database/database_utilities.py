@@ -87,6 +87,7 @@ def save_post_type(post_type_dict):
         post_type_dict)  # returns WriteResult object
     return info.inserted_id
 
+
 def update_post_type(post_dict):
     info = post_types.update({"_id": post_dict["_id"]}, {"$set": post_dict})
     return info["nModified"]

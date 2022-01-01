@@ -1,6 +1,7 @@
+import uuid
+
 from community.community import Community
 from database import database_utilities
-import uuid
 
 
 class PostType:
