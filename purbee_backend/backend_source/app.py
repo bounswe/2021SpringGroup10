@@ -5,7 +5,8 @@ from database.database_utilities import (
     get_next_post_id,
     get_next_post_type_id,
     check_user_by_user_name,
-    get_user_by_name
+    get_user_by_name,
+    get_all_user_names
 )
 
 from login.login import (
@@ -29,6 +30,29 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+
+@app.route('/api/user_search', methods=['GET'])
+def user_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        search_text = req["search_text"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary field is search_text)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    user_names = get_all_user_names()
+
+    user_names_contains_given_text = [el for el in user_names if search_text in el]
+
+    data['response_message'] = "search result successfully returned"
+    data['user_names'] = user_names_contains_given_text
+    status_code = SC_SUCCESS
+    return data, status_code
+
+
 @app.route('/api/user_feed', methods=['GET'])
 def user_feed():
     req = request.get_json()
@@ -45,7 +69,9 @@ def user_feed():
         data['response_message'] = "there is no such user."
         status_code = SC_FORBIDDEN
         return data, status_code
-    post_list= {}
+
+    post_list = {}
+
     user = get_user_by_name(user_name)
     following_list = user["following"]
     for followedUserName in following_list:
@@ -357,7 +383,7 @@ def change_privacy_community_page():
         return data, status_code
 
 
-@app.route('/api/community_feed/', methods=['GET'])
+@app.route('/api/community_feed', methods=['GET'])
 def community_feed():
     req = request.get_json()
     data = {"response_message": None}

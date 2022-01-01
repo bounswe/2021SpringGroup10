@@ -10,6 +10,10 @@ nextIds = db["nextIds"]
 communities = db['communities']
 
 
+def get_all_user_names():
+    return [user["user_name"] for user in registered_users.find({})]
+
+
 def get_community_by_community_id(community_id):
     return communities.find_one({"_id": community_id})
 
