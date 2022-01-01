@@ -141,7 +141,7 @@ def save_new_user(user_name, mail_address, password):
     try:
         user = {"_id": user_name, "user_name": user_name, "mail_address": mail_address, "password": password,
                 "followers": [], "following": [], "profile_photo": [], "last_name": [], "first_name": [],
-                "birth_date": [], "post_list": [], "subscribed_communities":[]}
+                "birth_date": [], "post_list": [], "subscribed_communities": []}
         registered_users.insert_one(user)
     except:
         return 1
@@ -219,6 +219,10 @@ def update_follower_and_following_lists(user_name1, user_name2):
     except:
         return 1
 
+def update_user_subscribed_communities(username,community_id):
+    subscribed_communities = get_user_by_name(username)["subscribed_communities"]
+    subscribed_communities.append(community_id)
+    registered_users.update({"user_name": username}, {"$set": {"subscribed_communities": subscribed_communities}})
 
 def get_profile_page_by_user_name(user_name):
     user = get_user_by_name(user_name)
