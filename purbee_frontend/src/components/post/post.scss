@@ -94,7 +94,11 @@ a, a:hover {
   }
 
   .postcard__img_link {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    justify-content: center;
+    //display: contents;
   }
 
   .postcard__bar {

@@ -43,7 +43,9 @@ export const posts = {
                     " nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate \n" +
                     "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, \n" +
                     "sunt in culpa qui officia deserunt mollit anim id est laborum. a aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris \n" +
-                    " nisi ut aliquip ex ea commodo cons"
+                    " nisi ut aliquip ex ea commodo consx ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate \n" +
+                    "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, \n" +
+                    "sunt in culpa q"
             },
             {
                 "amount": 17,
