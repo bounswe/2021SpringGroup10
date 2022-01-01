@@ -27,7 +27,6 @@ class PlainText:
 
 
 class Price:
-    # TODO: Update the fields of this class in the class diagram
     def __init__(self, header, amount, currency):
         self.header = header
         self.amount = amount
@@ -41,8 +40,8 @@ class Participation:
 
     def participate(self, user_name):
         if user_name in self.list_of_participants:
-            raise Exception(f"User with {user_name} has already been marked as participating to the \
-            \"Participation\" field with header {self.header}")
+            raise Exception(f"User with {user_name} has already been marked as participating to the Participation"
+                            f"field with header {self.header}")
         else:
             self.list_of_participants.append(user_name)
 
@@ -50,8 +49,8 @@ class Participation:
         try:
             self.list_of_participants.remove(user_name)
         except ValueError:
-            raise Exception(f"User with user_name {user_name}, has already not been marked as participating, to the\
-                            \"Participation\" field with the header {self.header}.")
+            raise Exception(f"User with user_name {user_name}, has already not been marked as participating, to the" \
+                            f"Participation field with the header {self.header}.")
 
 
 class Document:
@@ -67,12 +66,11 @@ class Photo:
 
 
 class Poll:
-    # TODO: update the class diagram fields accordingly
     def __init__(self, header, options, can_vote_for_n_many_options):
         self.header = header
 
         if not isinstance(can_vote_for_n_many_options, int) or can_vote_for_n_many_options < 1:
-            raise Exception(f"The argument \"can_vote_for_n_many_options\" can not be lowe than 1.")
+            raise Exception(f"The argument can_vote_for_n_many_options can not be lower than 1.")
         else:
             self.can_vote_for_n_many_options = can_vote_for_n_many_options
 
@@ -82,37 +80,35 @@ class Poll:
             self.options = options
 
     def vote_for(self, option, user_name):
-        number_of_votes_of_user = 0
-
         if option not in self.options.keys():
-            raise Exception(f"No such option as: \"{option}\" exists in the options\
-             of the \"Poll\" field with header {self.header}")
+            raise Exception(f"No such option as: {option} exists in the options " \
+                            f"of the Poll field with header {self.header}")
 
-        for option_list in option.values():
+        number_of_votes_of_user = 1
+        for option_list in self.options.values():
             if user_name in option_list:
                 number_of_votes_of_user = number_of_votes_of_user + 1
-
         if number_of_votes_of_user > self.can_vote_for_n_many_options:
-            raise Exception(f"User with {user_name} has already voted for \"{number_of_votes_of_user}\"\
-            many options (which is the limit)\
-            in the \"Poll\" field with header {self.header}")
+            raise Exception(f"User with {user_name} has already voted for {number_of_votes_of_user - 1}" \
+                            f" many options (which is the limit) " \
+                            f"in the Poll field with header {self.header}")
 
         if user_name in self.options[option]:
-            raise Exception(f"User with {user_name} has already voted for option: {option}, in the \
-                \"Poll\" field with header {self.header}")
+            raise Exception(f"User with {user_name} has already voted for option: {option}, in the" \
+                            f"Poll field with header {self.header}")
         else:
             self.options[option].append(user_name)
 
     def cancel_vote_for(self, option, user_name):
         if option not in self.options.keys():
-            raise Exception(f"No such option as: \"{option}\" exists in the options\
-             of the \"Poll\" field with header {self.header}")
+            raise Exception(f"No such option as: {option} exists in the options " \
+                            f"of the Poll field with header {self.header}")
 
         try:
             self.options[option].remove(user_name)
-            return self.list_of_participants
+            return self.options
         except ValueError:
-            raise Exception(f"User with user_name {user_name}, has already not voted for option: {option}, in the\
-                            \"Poll\" field with the header {self.header}.")
+            raise Exception(f"User with user_name {user_name}, has already not voted for option: {option}, in the " \
+                            f"Poll field with the header {self.header}.")
 
         self.options[option].remove(user_name)

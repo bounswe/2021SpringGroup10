@@ -303,13 +303,13 @@ def post_like():
 
         else:
             try:
-                post = Post.get_post(post_id)
-                post_liked_user_list = post.like(user_name)
+                post_liked_user_list = Post.action_like_post(post_id, user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
-                data["response_message"] = "Post is successfully created. "
+                data[
+                    "response_message"] = f"Post wtih id {post_id} is successfully liked by user with user_name {user_name}."
                 data["data"] = {"post_liked_user_list": post_liked_user_list}
                 status_code = SC_SUCCESS
 
@@ -329,16 +329,15 @@ def post_unlike():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
         else:
             try:
-                post = Post.get_post(post_id)
-                post_liked_user_list = post.unlike(user_name)
+                post_liked_user_list = Post.action_unlike_post(post_id, user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
-                data["response_message"] = "Post is successfully created. "
+                data[
+                    "response_message"] = f"Post wtih id {post_id} is successfully unliked by user with user_name {user_name}. "
                 data["data"] = {"post_liked_user_list": post_liked_user_list}
                 status_code = SC_SUCCESS
 
@@ -359,20 +358,17 @@ def post_participate():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
         else:
             try:
-                post = Post.get_post(post_id)
-                list_of_participants = post.participate_to_a_participation_field(header_of_participation_field,
-                                                                                 user_name)
+                list_of_participants = Post.action_participate(post_id, header_of_participation_field, user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
                 data[
-                    "response_message"] = f"User with user_name: \"{user_name}\"has been successfully \
-                     marked as participating to the \"Participation\" \
-                     field with header: \"{header_of_participation_field}\""
+                    "response_message"] = f"User with user_name: {user_name} has been successfully marked as " \
+                                          f"participating to the Participation" \
+                                          f" field with header: {header_of_participation_field}."
                 data["data"] = {"list_of_participants": list_of_participants}
                 status_code = SC_SUCCESS
 
@@ -393,20 +389,18 @@ def post_cancel_participate():
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
         else:
             try:
-                post = Post.get_post(post_id)
-                list_of_participants = post.cancel_participation_to_a_participation_field(header_of_participation_field,
-                                                                                          user_name)
+                list_of_participants = Post.action_cancel_participation(post_id, header_of_participation_field,
+                                                                        user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
                 data[
-                    "response_message"] = f"User with user_name: \"{user_name}\" has been successfully \
-                     unmarked as participating to the \"Participation\" \
-                     field with header: \"{header_of_participation_field}\""
+                    "response_message"] = f"User with user_name: {user_name} has been successfully unmarked as " \
+                                          f"participating to the Participation" \
+                                          f" field with header: {header_of_participation_field}."
                 data["data"] = {"list_of_participants": list_of_participants}
                 status_code = SC_SUCCESS
 
@@ -422,27 +416,22 @@ def post_vote():
     if request.method == "PUT":
         try:
             post_id = req["post_id"]
-            user_name = req["user_name"]
+            voter_user_name = req["voter_user_name"]
             header_of_poll_field = req["header_of_poll_field"]
             option = req["option"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
         else:
             try:
-                post = Post.get_post(post_id)
-                options = post.vote_in_a_poll_field(header_of_poll_field,
-                                                    option,
-                                                    user_name)
+                options = Post.action_vote(post_id, header_of_poll_field, option, voter_user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
                 data[
-                    "response_message"] = f"User with user_name: \"{user_name}\" has been successfully \
-                     voted for the option: \"{option}\" in the \"Poll\" \
-                     field with header: \"{header_of_poll_field}\""
+                    "response_message"] = f"User with user_name: {voter_user_name} has been successfully voted for " \
+                                          f"the option: {option} in the Poll field with header: {header_of_poll_field} "
                 data["data"] = {"options": options}
                 status_code = SC_SUCCESS
 
@@ -458,27 +447,22 @@ def post_cancel_vote():
     if request.method == "PUT":
         try:
             post_id = req["post_id"]
-            user_name = req["user_name"]
+            voter_user_name = req["voter_user_name"]
             header_of_poll_field = req["header_of_poll_field"]
             option = req["option"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
-
         else:
             try:
-                post = Post.get_post(post_id)
-                options = post.cancel_vote_in_a_poll_field(header_of_poll_field,
-                                                           option,
-                                                           user_name)
+                options = Post.action_cancel_vote(post_id, header_of_poll_field, option, voter_user_name)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
                 data[
-                    "response_message"] = f"User with user_name: \"{user_name}\" has successfully \
-                         unvoted for the option: \"{option}\" in the \"Poll\" \
-                         field with header: \"{header_of_poll_field}\""
+                    "response_message"] = f"User with user_name: {voter_user_name} has successfully cancelled their " \
+                                          f"vote for the option: {option} in the Poll field with header: {header_of_poll_field} "
                 data["data"] = {"options": options}
                 status_code = SC_SUCCESS
 
@@ -527,9 +511,25 @@ def post_type():
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
-                data["response_message"] = "PostType is successfully created."
+                data["response_message"] = "PostType is successfully retrieved."
                 data["data"] = new_post_type.to_dict()
                 status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/deneme/', methods=['GET', 'POST'])
+def deneme():
+    req = request.get_json()
+    community_id = req["community_id"]
+    data = {"response_message": None}
+    status_code = None
+
+    import database.database_utilities as dbu
+
+    print(dbu.get_community_by_community_id(community_id))
+    data["response_message"] = "Bla bla"
+    status_code = SC_SUCCESS
 
     return data, status_code
 

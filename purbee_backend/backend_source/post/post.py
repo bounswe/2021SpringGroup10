@@ -34,7 +34,6 @@ class Post:
         lst = self.post_liked_user_list
         if user_name not in lst:
             lst.append(user_name)
-            self.update_in_database()
         else:
             raise Exception("User already liked the post.")
 
@@ -46,7 +45,6 @@ class Post:
             lst.remove(user_name)
         except ValueError:
             raise Exception("User has already not liked the post.")
-        self.update_in_database()
         return lst
 
     def participate_to_a_participation_field(self, header_of_participation_field, user_name):
@@ -54,60 +52,61 @@ class Post:
             if field.header == header_of_participation_field:
                 if not isinstance(field, fields.Participation):
                     raise Exception(f"Given header name is not a header of a field\
-                    type \"Participation\", it is of type {type(field).__name__()}")
+                    type Participation, it is of type {type(field).__name__()}")
                 else:
                     field.participate(user_name)
+
                     return field.list_of_participants
             else:
                 continue
 
-        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
+        raise Exception(f"Post with _id: {self.get_id()} has no field of type Participation\
         with header {header_of_participation_field}")
 
     def cancel_participation_to_a_participation_field(self, header_of_participation_field, user_name):
         for field in self.post_fields_list:
             if field.header == header_of_participation_field:
                 if not isinstance(field, fields.Participation):
-                    raise Exception(f"Given header name is not a header of a field\
-                    type \"Participation\", it is of type {type(field).__name__()}")
+                    raise Exception(f"Given header name is not a header of a field" \
+                                    f"type Participation, it is of type {type(field).__name__()}")
                 else:
-                    field.unparticipate(user_name)
+                    field.cancel_participation(user_name)
                     return field.list_of_participants
             else:
                 continue
 
-        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
-        with header {header_of_participation_field}")
+        raise Exception(f"Post with _id: {self.get_id()} has no field of type Participation" \
+                        f"with header {header_of_participation_field}")
 
     def vote_in_a_poll_field(self, header_of_poll_field, option, user_name):
         for field in self.post_fields_list:
             if field.header == header_of_poll_field:
                 if not isinstance(field, fields.Poll):
-                    raise Exception(f"Given header name is not a header of a field\
-                    type \"Poll\", it is of type {type(field).__name__()}")
+                    raise Exception(f"Given header name is not a header of a field" \
+                                    f"type Poll, it is of type {type(field).__name__()}")
                 else:
                     field.vote_for(option, user_name)
                     return field.options
             else:
                 continue
 
-        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
-        with header {header_of_poll_field}")
+        raise Exception(f"Post with _id: {self.get_id()} has no field of type Participation" \
+                        f"with header {header_of_poll_field}")
 
     def cancel_vote_in_a_poll_field(self, header_of_poll_field, option, user_name):
         for field in self.post_fields_list:
             if field.header == header_of_poll_field:
                 if not isinstance(field, fields.Poll):
-                    raise Exception(f"Given header name is not a header of a field\
-                    type \"Poll\", it is of type {type(field).__name__()}")
+                    raise Exception(f"Given header name is not a header of a field" \
+                                    f"type Poll, it is of type {type(field).__name__()}")
                 else:
                     field.cancel_vote_for(option, user_name)
                     return field.options
             else:
                 continue
 
-        raise Exception(f"Post with \"_id\": {self.get_id()} has no field of type \"Participation\"\
-        with header {header_of_poll_field}")
+        raise Exception(f"Post with _id: {self.get_id()} has no field of type Participation" \
+                        f"with header {header_of_poll_field}")
 
     def to_dict(self):
         dict = {
@@ -139,6 +138,9 @@ class Post:
                     post_owner_user_name: str,
                     post_entries_dictionary_list: list
                     ):
+
+        # TODO: Check if user is eligible to post in the community.
+
         _id = str(uuid.uuid4())
         post_liked_user_list = []
         new_post = Post(_id,
@@ -171,7 +173,7 @@ class Post:
             PostType.has_deleted(post.post_type_id, parent_community_id)
             return post_id
         else:
-            raise Exception(f"No such post_type with id \"{post_id}\" exists.")
+            raise Exception(f"No such post_type with id {post_id} exists.")
         return post_id
 
     @staticmethod
@@ -232,3 +234,52 @@ class Post:
         database_utilities.update_community(community.to_dict())
 
         database_utilities.remove_post_from_user_postlist(post_owner_user_name, post_id)
+
+    @staticmethod
+    def action_like_post(post_id, user_name):
+        post = Post.get_post(post_id)
+        post_liked_user_list = post.like(user_name)
+        post.update_in_database()
+        return post_liked_user_list
+
+    @staticmethod
+    def action_unlike_post(post_id, user_name):
+        post = Post.get_post(post_id)
+        post_liked_user_list = post.unlike(user_name)
+        post.update_in_database()
+        return post_liked_user_list
+
+    @staticmethod
+    def action_vote(post_id, header_of_poll_field, option, voter_user_name):
+        post = Post.get_post(post_id)
+        options = post.vote_in_a_poll_field(header_of_poll_field,
+                                            option,
+                                            voter_user_name)
+        post.update_in_database()
+
+        return options
+
+    @staticmethod
+    def action_cancel_vote(post_id, header_of_poll_field, option, voter_user_name):
+        post = Post.get_post(post_id)
+        options = post.cancel_vote_in_a_poll_field(header_of_poll_field,
+                                                   option,
+                                                   voter_user_name)
+        post.update_in_database()
+        return options
+
+    @staticmethod
+    def action_participate(post_id, header_of_participation_field, user_name):
+        post = Post.get_post(post_id)
+        list_of_participants = post.participate_to_a_participation_field(header_of_participation_field,
+                                                                         user_name)
+        post.update_in_database()
+        return list_of_participants
+
+    @staticmethod
+    def action_cancel_participation(post_id, header_of_participation_field, user_name):
+        post = Post.get_post(post_id)
+        list_of_participants = post.cancel_participation_to_a_participation_field(header_of_participation_field,
+                                                                                  user_name)
+        post.update_in_database()
+        return list_of_participants

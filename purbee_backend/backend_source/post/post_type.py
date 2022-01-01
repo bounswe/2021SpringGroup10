@@ -34,11 +34,18 @@ class PostType:
     def create_post_type(post_type_name: str,
                          parent_community_id: int,
                          post_field_info_dictionaries_list: list):
-        # TODO: Make sure all headers are unique in a post type.
-        headers = [dic["header"] for dic in post_field_info_dictionaries_list]
 
+        # Check if headers of the fields are unique.
+        headers = [dic["header"] for dic in post_field_info_dictionaries_list]
         if len(headers) != len(set(headers)):
             raise Exception("Headers must be unique inside a post type.")
+
+        # Check if community with given id exists.
+        if database_utilities.get_community_by_community_id(parent_community_id) is None:
+            raise Exception("No such community with given parent community id exists.")
+
+        # TODO: Check if eligible.
+
         _id = str(uuid.uuid4())
         new_post_type = PostType(_id,
                                  post_type_name,
@@ -60,7 +67,7 @@ class PostType:
             PostType.has_deleted(post_type_id, parent_community_id)
             return post_type_id
         else:
-            raise Exception(f"No such post_type with id \"{post_type_id}\" exists.")
+            raise Exception(f"No such post_type with id {post_type_id} exists.")
 
     @staticmethod
     def get_post_type(post_type_id: int):
