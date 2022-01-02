@@ -6,53 +6,33 @@ import { MdFavorite, MdFavoriteBorder} from "react-icons/all";
 import {useEffect} from "react";
 
 
-const post_id = "fa8da556-68b5-4d4b-9ff8-040a07e93a7a"
-const post_type_id = posts[post_id]["post_type_id"]
-const post_type = post_types[post_type_id];
-let post_type_fields = post_type["post_field_info_dictionaries_list"]
-let fields = { //each field type has an array of headers
-    "PlainText": [],
-    "Price": [],
-    "Location": [],
-    "Participation": [],
-    "Images": [],
-    "Date": []
-}
-post_type_fields.map(field => {
-    fields[field["field_type"]].push(field["header"]);
-});
-
-const post_fields = posts[post_id]["post_entries_dictionary_list"];
-const post_likers = posts[post_id]["post_liked_user_list"]
-const post_owner = posts[post_id]["post_owner_user_name"]
-
-const text = (header) => post_fields.find(pf => pf["header"] === header)["text"];
-const location_text = (header) => post_fields.find(pf => pf["header"] === header)["text"]; //implement location
-const price = (header) => {
-    const f = post_fields.find(pf => pf["header"] === header);
-    return f["amount"] + " " + f["currency"];
-};
-const date = (header) => post_fields.find(pf => pf["header"] === header)["date"]
-const locations = () => {
-    let component = "";
-    const location_text = (header) => post_fields.find(pf => pf["header"] === header);
-    fields["Location"].map(header => {
-        component += (
-            <li className="tag__item play red">
-                <a href="#"><i className="fas fa-play mr-2"/>{location_text(header)}</a>
-            </li>
-        );
-    });
-    return component;
-}
 //                {fields["PlainText"].map(header => (<div className="postcard__preview-txt">{header + ": " + text(header)}</div>))}
 
 
-const Post = (data) => { // data shall contain post, post type id-name map,
+const Post = (data) => { // data shall contain post id, post types and post type id-name map,
+
+    const post_id = "fa8da556-68b5-4d4b-9ff8-040a07e93a7a"
+    const post = posts[post_id]
+    const post_type_id = post["post_type_id"]
+    const post_type = post_types[post_type_id];
+    let post_type_fields = post_type["post_field_info_dictionaries_list"]
+    let fields = { //each field type has an array of headers
+        "PlainText": [],
+        "Price": [],
+        "Location": [],
+        "Participation": [],
+        "Images": [],
+        "Date": []
+    }
+    post_type_fields.map(field => {
+        fields[field["field_type"]].push(field["header"]);
+    });
+
+
     const [current_image, set_current_image] = React.useState(0);
     const [post_like, set_post_like] = React.useState(false);
 
-    useEffect(() => {//do initial api calls
+    useEffect(() => {//do initial api calls fetch post
 
     }, [])
     const images = posts[post_id]["pictures"]
@@ -61,11 +41,35 @@ const Post = (data) => { // data shall contain post, post type id-name map,
     }
 
 
+    const post_fields = post["post_entries_dictionary_list"];
+    const post_likers = post["post_liked_user_list"]
+    const post_owner = post["post_owner_user_name"]
+
+    const text = (header) => post_fields.find(pf => pf["header"] === header)["text"];
+    const location_text = (header) => post_fields.find(pf => pf["header"] === header)["text"]; //implement location
+    const price = (header) => {
+        const f = post_fields.find(pf => pf["header"] === header);
+        return f["amount"] + " " + f["currency"];
+    };
+    const date = (header) => post_fields.find(pf => pf["header"] === header)["date"]
+    const locations = () => {
+        let component = "";
+        const location_text = (header) => post_fields.find(pf => pf["header"] === header);
+        fields["Location"].map(header => {
+            component += (
+                <li className="tag__item play red">
+                    <a href="#"><i className="fas fa-play mr-2"/>{location_text(header)}</a>
+                </li>
+            );
+        });
+        return component;
+    }
+
 
     return (
     <div>
         <article className="postcard dark red">
-            <a className="postcard__img_link" href="#">
+            <a className="postcard__img_link">
                 <img className="postcard__img" src={images[current_image]} alt="Image Title" onClick={(event) => {
                     set_current_image((current_image+1) % images.length);
                     console.log((current_image+1)%images.length)
