@@ -1,7 +1,9 @@
+import datetime
 import uuid
 
 from community.community import Community
 from database import database_utilities
+from discussion.discussion import Discussion
 from . import fields
 from .post_type import PostType
 
@@ -13,7 +15,9 @@ class Post:
                  post_owner_user_name: str,
                  post_liked_user_list: int,
                  post_entries_dictionary_list: dict,
-                 # TODO: post_discussion_dictionary: dict,
+                 post_discussion_id: str,
+                 post_creation_time: str,
+                 post_title: str
                  ):
         self._id = _id
         self.post_owner_user_name = post_owner_user_name
@@ -21,8 +25,9 @@ class Post:
         self.post_type_id = post_type_id
         self.post_fields_list = Post.post_entries_dictionary_list_to_post_fields_list(post_type_id,
                                                                                       post_entries_dictionary_list)
-        # TODO:
-        #  self.post_discussion_list = Post.post_discussion_dictionary_to_list(post_discussion_dictionary)
+        self.post_discussion_id = post_discussion_id
+        self.post_creation_time = post_creation_time
+        self.post_title = post_title
 
     def get_id(self):
         return self._id
@@ -116,7 +121,9 @@ class Post:
             "post_liked_user_list": self.post_liked_user_list,
             "post_entries_dictionary_list": Post.post_fields_list_to_post_entries_dictionary_list(
                 self.post_fields_list),
-            # TODO: "post_discussion": Post.post_discussion_to_dict(self.post_discussion)
+            "post_discussion_id": self.post_discussion_id,
+            "post_creation_time": self.post_creation_time,
+            "post_title": self.post_creation_time
         }
         return dict
 
@@ -136,19 +143,25 @@ class Post:
     @staticmethod
     def create_post(post_type_id: str,
                     post_owner_user_name: str,
-                    post_entries_dictionary_list: list
+                    post_entries_dictionary_list: list,
+                    post_title: str
                     ):
 
         # TODO: Check if user is eligible to post in the community.
 
         _id = str(uuid.uuid4())
         post_liked_user_list = []
+        post_discussion_id = Discussion.create_new_empty_discussion()["id"]
+        post_creation_time = str(datetime.datetime.now())
+
         new_post = Post(_id,
                         post_type_id,
                         post_owner_user_name,
                         post_liked_user_list,
                         post_entries_dictionary_list,
-                        # TODO: post_discussion_dictionary
+                        post_discussion_id,
+                        post_creation_time,
+                        post_title
                         )
         new_post.save_to_database()
         Post.has_created(new_post)
@@ -220,20 +233,24 @@ class Post:
     def has_created(post):
         post_type = PostType.get_post_type(post.post_type_id)
 
-        community = Community.get_community_from_id(post_type.parent_community_id)
-        community.post_history_id_list.append(post.get_id())
+        # Update Community's post list
+        community_dictionary = database_utilities.get_community_by_community_id(post_type.parent_community_id)
+        community_dictionary["post_history_id_list"].append(post.get_id())
+        Community.update_on_database(community_dictionary)
 
-        database_utilities.update_community(community.to_dict())
+        # Update user's post list
         database_utilities.add_post_to_user_postlist(post.post_owner_user_name, post.get_id())
 
     @staticmethod
     def has_deleted(post_id, parent_community_id, post_owner_user_name):
-
-        community = Community.get_community_from_id(parent_community_id)
-        community.post_history_id_list.pop(post_id)
-        database_utilities.update_community(community.to_dict())
-
-        database_utilities.remove_post_from_user_postlist(post_owner_user_name, post_id)
+        # Carry out the community related updates.
+        community_dictionary = database_utilities.get_community_by_community_id(parent_community_id)
+        try:
+            community_dictionary["post_type_id_list"].remove(post_id)
+            database_utilities.remove_post_from_user_postlist(post_owner_user_name, post_id)
+        except ValueError:
+            raise Exception("No post with given id exists.")
+        Community.update_on_database(community_dictionary)
 
     @staticmethod
     def action_like_post(post_id, user_name):

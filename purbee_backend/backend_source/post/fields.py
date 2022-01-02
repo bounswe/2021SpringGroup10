@@ -14,11 +14,11 @@ class DateTime:
 
 
 class Location:
-    def __init__(self, header, location, text):
+    def __init__(self, header, latitude, longitude, text):
         self.header = header
-        self.location = location
+        self.latitude = latitude
+        self.longitude = longitude
         self.text = text
-
 
 class PlainText:
     def __init__(self, header, text):
