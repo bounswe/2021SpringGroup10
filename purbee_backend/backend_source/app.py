@@ -741,7 +741,7 @@ def profile_page():
         return data, status_code
 
     if request.method == "POST":
-        return_status = update_profile_page(user_name, req)
+        return_status = update_profile_page(user_name, req["profile_info"])
         if return_status == 0:
             data["response_message"] = "User page updated successfully."
             status_code = SC_SUCCESS
