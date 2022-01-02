@@ -47,15 +47,15 @@ def save_new_community(community_dictionary, env=None):
         community_database = test_communities
     else:
         community_database = communities
-    if get_community_by_community_id(community_dictionary['id']):
+    if get_community_by_community_id(community_dictionary['id'], env):
         return 1
     try:
         community = {}
         for key in community_dictionary:
             if key == 'id':
                 community['_id'] = community_dictionary[key]
-            else:
-                community[key] = community_dictionary[key]
+
+            community[key] = community_dictionary[key]
 
         community_database.insert_one(community)
         return 0
@@ -91,11 +91,6 @@ def get_next_community_id():
     counter = nextIds.find_one({"id": "community"})["counter"]
     nextIds.update({"id": "community"}, {"$set": {"counter": counter + 1}})
     return counter
-
-
-def update_community(community):
-    communities.update({"id": community["id"]}, {"$set": community})
-    return 0
 
 
 def add_post_to_user_postlist(user_name, post_id):

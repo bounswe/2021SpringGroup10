@@ -105,7 +105,7 @@ class Community:
         neu_requester_list.append(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['requesters'] = neu_requester_list
-        result = update_community(community_dictionary, env)
+        result = update_community(community_dictionary, env=env)
         if result == 0:
             self.requesters = neu_requester_list
         return result
@@ -120,7 +120,7 @@ class Community:
             self.requesters = neu_requester_list
         return result
 
-    def ban_member(self, user_id):
+    def ban_member(self, user_id, env=None):
         neu_subscriber_list = self.subscriber_list
         neu_banned_user_list = self.banned_user_list
         neu_subscriber_list.remove(user_id)
@@ -128,7 +128,7 @@ class Community:
         community_dictionary = self.to_dict()
         community_dictionary['subscriber_list'] = neu_subscriber_list
         community_dictionary['banned_user_list'] = neu_banned_user_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.subscriber_list = neu_subscriber_list
             self.banned_user_list = neu_banned_user_list
@@ -210,7 +210,7 @@ class Community:
         if admin is None:
             # there is no admin
             return 13, None
-        if admin_id not in current_community_dict['admin_list']:
+        if admin_id not in current_community_dict['admin_list'] and admin_id != current_community_dict['community_creator_id']:
             # given user as an admin is not an admin
             return 14, None
         if user_id in current_community_dict['admin_list']:
@@ -243,7 +243,7 @@ class Community:
         if admin is None:
             # there is no admin
             return 13, None
-        if admin_id not in current_community_dict['admin_list']:
+        if admin_id not in current_community_dict['admin_list'] and admin_id != current_community_dict['community_creator_id']:
             # given admin is not an admin
             return 14, None
         if user_id not in current_community_dict['banned_user_list']:
@@ -261,15 +261,15 @@ class Community:
 
     @staticmethod
     def change_privacy(admin_id, community_id, env=None):
-        community_dict = get_community_by_community_id(community_id)
+        community_dict = get_community_by_community_id(community_id, env)
         if community_dict is None:
             # there is no community with the given community id
             return 11, None
-        current_user = get_user_by_name(admin_id)
+        current_user = get_user_by_name(admin_id, env)
         if current_user is None:
             # there is no user with the given admin id
             return 12, None
-        if not admin_id in community_dict['admin_list']:
+        if not (admin_id in community_dict['admin_list'] or admin_id == community_dict['community_creator_id']):
             # given registered user is not the admin of the given community
             return 13, None
         current_community = Community(community_dict)
@@ -370,9 +370,11 @@ class Community:
         if current_admin is None:
             # there is no user with the admin_id
             return 13, None
-        if admin_id not in current_community_dict['admin_list'] or admin_id != current_community_dict['community_creator_id']:
+        if admin_id not in current_community_dict['admin_list'] and admin_id != current_community_dict['community_creator_id']:
             # user with the admin_id is not an admin or not and community creator
             return 14, None
+        if user_id in current_community_dict['banned_user_list']:
+            return 17, None
 
         current_community = Community(current_community_dict)
         if action == 'make':
@@ -430,7 +432,7 @@ class Community:
         if current_admin is None:
             # there is no user with the admin_id
             return 13, None
-        if admin_id not in current_community_dict['admin_list']:
+        if admin_id not in current_community_dict['admin_list'] and admin_id != current_community_dict['community_creator_id']:
             # user with the admin_id is not an admin
             return 14, None
         if user_id not in current_community_dict['requesters']:

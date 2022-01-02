@@ -85,6 +85,9 @@ def community_page_admin():
         elif result == 16:
             data['response_message'] = "Registered user with the user id is not an admin"
             status_code = SC_FORBIDDEN
+        elif result == 17:
+            data['response_message'] = "Registered user with the user id is a banned user"
+            status_code = SC_FORBIDDEN
 
         return data, status_code
 
@@ -316,6 +319,7 @@ def change_privacy_community_page():
             status_code = SC_FORBIDDEN
         elif result == 13:
             data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
+            data['creator'] = current_community
             status_code = SC_FORBIDDEN
         elif result == 1:
             data['response_message'] = "Some internal error occurred"
@@ -473,13 +477,13 @@ def unsubscribe_from_community_page():
         # successfully removed subscription from private or non private community
         data['response_message'] = "Registered user with the id {} successfully unsubscribed".format(req['user_id'])
         data['community'] = current_community
-        status_code = SC_CREATED
+        status_code = SC_SUCCESS
         return data, status_code
     elif result == 10:
         # successfully removed request from private community
         data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(req['user_id'])
         data['community'] = current_community
-        status_code = SC_CREATED
+        status_code = SC_SUCCESS
         return data, status_code
     elif result == 1:
         # update failed
