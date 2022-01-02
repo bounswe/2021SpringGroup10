@@ -126,6 +126,10 @@ def community_page_admin():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
@@ -143,7 +147,7 @@ def community_page_admin():
                 return data, status_code
 
         result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'],
-                                                                   req['action'])
+                                                                   req['action'], env)
 
         if result == 0:
             # successful
@@ -177,6 +181,9 @@ def community_page_admin():
         elif result == 16:
             data['response_message'] = "Registered user with the user id is not an admin"
             status_code = SC_FORBIDDEN
+        elif result == 17:
+            data['response_message'] = "Registered user with the user id is a banned user"
+            status_code = SC_FORBIDDEN
 
         return data, status_code
 
@@ -186,6 +193,10 @@ def handle_community_page_subscription_request():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
@@ -202,8 +213,9 @@ def handle_community_page_subscription_request():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         result, current_community = Community.accept_or_reject_subscription_requester(req['admin_id'],
-                                                                                      req['community_id'],
-                                                                                      req['user_id'], req['action'])
+                                                                                          req['community_id'],
+                                                                                          req['user_id'], req['action'],
+                                                                                      env)
 
         if result == 0:
             # successful
@@ -246,6 +258,10 @@ def ban_from_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'community_id', 'user_id']
         if len(needed_keys) != len(req):
@@ -263,7 +279,7 @@ def ban_from_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.ban_user(req['admin_id'], req['community_id'], req['user_id'])
+        result, current_community = Community.ban_user(req['admin_id'], req['community_id'], req['user_id'], env)
 
         if result == 0:
             # success
@@ -305,6 +321,10 @@ def unban_from_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'community_id', 'user_id']
         if len(needed_keys) != len(req):
@@ -322,7 +342,7 @@ def unban_from_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.unban_user(req['admin_id'], req['community_id'], req['user_id'])
+        result, current_community = Community.unban_user(req['admin_id'], req['community_id'], req['user_id'], env)
 
         if result == 0:
             # success
@@ -356,6 +376,10 @@ def change_privacy_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['community_id', 'admin_id']
         if len(needed_keys) != len(req):
@@ -372,7 +396,7 @@ def change_privacy_community_page():
                 data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
                 status_code = SC_BAD_REQUEST
 
-        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'])
+        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'], env)
 
         if result == 0:
             # successful make private
@@ -392,8 +416,7 @@ def change_privacy_community_page():
             data['response_message'] = "There is no user with the given registered user id {}".format(req['admin_id'])
             status_code = SC_FORBIDDEN
         elif result == 13:
-            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(
-                req['admin_id'], req['community_id'])
+            data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
             status_code = SC_FORBIDDEN
         elif result == 1:
             data['response_message'] = "Some internal error occurred"
@@ -448,6 +471,10 @@ def subscribe_to_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['user_id', 'community_id']
         if len(needed_keys) != len(req):
@@ -464,7 +491,7 @@ def subscribe_to_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.subscribe(req['user_id'], req['community_id'])
+        result, current_community = Community.subscribe(req['user_id'], req['community_id'], env)
 
         if result == 0:
             # successful
@@ -507,6 +534,10 @@ def unsubscribe_from_community_page():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['user_id', 'community_id']
         if len(needed_keys) != len(req):
@@ -532,20 +563,20 @@ def unsubscribe_from_community_page():
                 # return invalid input error
                 pass
 
-    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'])
+    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'], env)
 
     if result == 0:
         # successfully removed subscription from private or non private community
         data['response_message'] = "Registered user with the id {} successfully unsubscribed".format(req['user_id'])
         data['community'] = current_community
-        status_code = SC_CREATED
+        status_code = SC_SUCCESS
         return data, status_code
     elif result == 10:
         # successfully removed request from private community
         data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(
             req['user_id'])
         data['community'] = current_community
-        status_code = SC_CREATED
+        status_code = SC_SUCCESS
         return data, status_code
     elif result == 1:
         # update failed
@@ -575,6 +606,10 @@ def community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "POST":
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
@@ -593,7 +628,7 @@ def community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         community_instance = Community(req)
-        post_result = community_instance.save2database()
+        post_result = community_instance.save2database(env)
         if post_result == 0:
             # return success
             data['response_message'] = "Community Page successfully created."
@@ -624,7 +659,7 @@ def community_page():
                 data['response_message'] = "Incorrect json content. (necessary field is id)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
-        community_instance = Community.get_community_from_id(req['id'])
+        community_instance = Community.get_community_from_id(req['id'], env)
         if community_instance:
             # return success
             data['response_message'] = "Community successfully found"
@@ -653,11 +688,11 @@ def community_page():
                 data['response_message'] = "Incorrect json content. (necessary field are the community class fields)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
-        community_instance = Community.get_community_from_id(req['id'])
+        community_instance = Community.get_community_from_id(req['id'], env)
         if community_instance:
             community_instance.update(req)
             community_dictionary = community_instance.to_dict()
-            update_result = Community.update_on_database(community_dictionary)
+            update_result = Community.update_on_database(community_dictionary, env)
             if update_result == 0:
                 # return success
                 data['response_message'] = "Community successfully updated"

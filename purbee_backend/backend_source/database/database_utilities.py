@@ -11,6 +11,22 @@ communities = db['communities']
 discussions = db['discussions']
 comments = db['comments']
 
+test_db = client.purbeeTest
+test_registered_users = test_db["registered_users"]
+test_post_types = test_db["post_types"]
+test_posts = test_db["posts"]
+test_nextIds = test_db['nextIds']
+test_communities = test_db['communities']
+test_discussions = test_db['discussions']
+test_comments = test_db['comments']
+
+def get_community_by_community_id(community_id, env=None):
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
+    return community_database.find_one({"_id": community_id})
+
 
 def get_all_community_names():
     return [community["_id"] for community in communities.find({})]
@@ -20,12 +36,12 @@ def get_all_user_names():
     return [user["user_name"] for user in registered_users.find({})]
 
 
-def get_community_by_community_id(community_id):
-    return communities.find_one({"_id": community_id})
-
-
-def update_community(community_dictionary):
-    db_return = communities.update({"_id": community_dictionary['id']}, {
+def update_community(community_dictionary, env=None):
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
+    db_return = community_database.update({"_id": community_dictionary['id']}, {
         "$set": community_dictionary})
 
     if db_return["ok"] != 1.0:
@@ -100,30 +116,29 @@ def get_discussion_dict_by_discussion_id(discussion_id):
     return discussions.find_one({"_id": discussion_id})
 
 
-def save_new_community(community_dictionary):
+def save_new_community(community_dictionary, env=None):
     # RETURN
     # 0 -> Success
     # 1 -> already have this community with community id
     # 2 -> some another error probably related with community_dictionary
-    if get_community_by_community_id(community_dictionary['id']):
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
+    if get_community_by_community_id(community_dictionary['id'], env):
         return 1
     try:
         community = {}
         for key in community_dictionary:
             if key == 'id':
                 community['_id'] = community_dictionary[key]
-            else:
-                community[key] = community_dictionary[key]
 
-        communities.insert_one(community)
+            community[key] = community_dictionary[key]
+
+        community_database.insert_one(community)
         return 0
     except:
         return 2
-
-
-def update_community(community):
-    communities.update({"id": community["id"]}, {"$set": community})
-    return 0
 
 
 def add_post_to_user_postlist(user_name, post_id):
@@ -186,14 +201,18 @@ def delete_post_type(post_type_id: int):
 # def get_next_community_id():
 # pass
 
-def get_user_by_name(user_name):
+def get_user_by_name(user_name, env=None):
     """
     :param
         user_name:
     :return:
         None if fails to find the user. Else returns user dictionary.
     """
-    return registered_users.find_one({"user_name": user_name})
+    if env == "test":
+        registered_user_database = test_registered_users
+    else:
+        registered_user_database = registered_users
+    return registered_user_database.find_one({"user_name": user_name})
 
 
 def check_user_by_user_name(user_name):
