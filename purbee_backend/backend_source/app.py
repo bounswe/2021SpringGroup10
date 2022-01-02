@@ -1,12 +1,14 @@
 from flask import Flask, request
-import re
-from community.community import Community
 
+from community.community import Community
 from database.database_utilities import (
-    get_next_post_id,
-    get_next_post_type_id,
-    check_user_by_user_name
+    check_user_by_user_name,
+    get_user_by_name,
+    get_all_user_names,
+    get_all_community_names,
+update_user_subscribed_communities
 )
+
 from login.login import (
     sign_up,
     sign_in,
@@ -28,6 +30,97 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+
+@app.route('/api/user_search', methods=['GET'])
+def user_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        search_text = req["search_text"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary field is search_text)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    user_names = get_all_user_names()
+
+    user_names_contains_given_text = [el for el in user_names if search_text in el]
+
+    data['response_message'] = "search result successfully returned"
+    data['user_names'] = user_names_contains_given_text
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/community_search', methods=['GET'])
+def community_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        search_text = req["search_text"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary field is search_text)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    community_names = get_all_community_names()
+
+    community_names_contains_given_text = [el for el in community_names if search_text in str(el)]
+
+    data['response_message'] = "search result successfully returned"
+    data['community_names'] = community_names_contains_given_text
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/user_feed', methods=['GET'])
+def user_feed():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        user_name = req["user_name"]
+    except:
+        data['response_message'] = "Incorrect json content. (necessary fields are user_name)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    post_list = []
+
+    user = get_user_by_name(user_name)
+    following_list = user["following"]
+    for followedUserName in following_list:
+        followedUser = get_user_by_name(followedUserName)
+        followedUserPostList = followedUser["post_list"]
+        for postId in followedUserPostList:
+            post = Post.get_post(postId)
+            parent_community_id = post["base_post_type"]["parent_community_id"]
+            community = Community.get_community_from_id(parent_community_id)
+            if user_name not in community.subscriber_list:
+                if community.is_private:
+                    continue
+
+            post_list.append(postId)
+
+    for communityId in user["subscribed_communities"]:
+        community = Community.get_community_from_id(communityId)
+        for postId in community.post_history_id_list:
+            post = Post.get_post(postId)
+            post_list.append(postId)
+
+    post_list.reverse()
+
+    data['response_message'] = "user feed post list successfully returned"
+    data['user_feed_post_list'] = post_list
+    status_code = SC_SUCCESS
+    return data, status_code
+
+
 @app.route('/api/community_page/admin', methods=['PUT'])
 def community_page_admin():
     req = request.get_json()
@@ -40,14 +133,16 @@ def community_page_admin():
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
             if r_keys in needed_keys:
                 pass
             else:
-                data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+                data[
+                    'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
@@ -65,7 +160,8 @@ def community_page_admin():
             status_code = SC_INTERNAL_ERROR
         elif result == 2:
             # bad request
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
         elif result == 11:
             data['response_message'] = "There is no community with the given community id"
@@ -104,7 +200,8 @@ def handle_community_page_subscription_request():
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
-            data['response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
+            data[
+                'response_message'] = "Incorrect json content. (needed keys are admin_id, user_id, community_id, action)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -177,7 +274,8 @@ def ban_from_community_page():
                 pass
             else:
                 # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary fields are admin_id, community_id, user_id)"
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are admin_id, community_id, user_id)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
@@ -270,12 +368,11 @@ def unban_from_community_page():
         elif result == 15:
             data['response_message'] = "The given user with the user_id is not a banned user"
             status_code = SC_FORBIDDEN
-        return data, status_code            
+        return data, status_code
 
-      
+
 @app.route('/api/community_page/change_privacy', methods=["PUT"])
 def change_privacy_community_page():
-
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -312,14 +409,14 @@ def change_privacy_community_page():
             data['community'] = current_community
             status_code = SC_SUCCESS
         elif result == 11:
-            data['response_message'] = "There is no community with the given community id {}".format(req['community_id'])
+            data['response_message'] = "There is no community with the given community id {}".format(
+                req['community_id'])
             status_code = SC_FORBIDDEN
         elif result == 12:
             data['response_message'] = "There is no user with the given registered user id {}".format(req['admin_id'])
             status_code = SC_FORBIDDEN
         elif result == 13:
             data['response_message'] = "The user with the given id {} is not an admin of the community {}".format(req['admin_id'], req['community_id'])
-            data['creator'] = current_community
             status_code = SC_FORBIDDEN
         elif result == 1:
             data['response_message'] = "Some internal error occurred"
@@ -327,7 +424,7 @@ def change_privacy_community_page():
         return data, status_code
 
 
-@app.route('/api/community_feed/', methods=['GET'])
+@app.route('/api/community_feed', methods=['GET'])
 def community_feed():
     req = request.get_json()
     data = {"response_message": None}
@@ -339,15 +436,6 @@ def community_feed():
         data['response_message'] = "Incorrect json content. (necessary fields are user_name, community_id)"
         status_code = SC_BAD_REQUEST
         return data, status_code
-    for r_keys in req:
-        if r_keys in needed_keys:
-            pass
-        else:
-            # return invalid input error
-            data[
-                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
-            status_code = SC_BAD_REQUEST
-            return data, status_code
 
     community_id = req["community_id"]
     user_name = req["user_name"]
@@ -365,16 +453,18 @@ def community_feed():
             status_code = SC_FORBIDDEN
             return data, status_code
 
-    if not community :
+    if not community:
         data['response_message'] = "there is no such community."
         status_code = SC_FORBIDDEN
         return data, status_code
 
+    ids = community.post_history_id_list
+    ids.reverse()
     data['response_message'] = "community post list successfully returned"
-    data['community_post_list'] = community.post_history_id_list.reverse()
+    data['community_post_list'] = ids
     status_code = SC_SUCCESS
     return data, status_code
-  
+
 
 @app.route('/api/community_page/subscribe', methods=["PUT"])
 def subscribe_to_community_page():
@@ -407,6 +497,7 @@ def subscribe_to_community_page():
             # successful
             data['response_message'] = "Registered user with the id {} successfully subscribed to Community with " \
                                        "the id {}".format(req['user_id'], req['community_id'])
+            update_user_subscribed_communities(req['user_id'], req['community_id'])
             data['community'] = current_community
             status_code = SC_SUCCESS
             return data, status_code
@@ -417,7 +508,8 @@ def subscribe_to_community_page():
             return data, status_code
         elif result == 2:
             # user is already subscriber
-            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(req['user_id'])
+            data['response_message'] = "Registered user with the id {} is already subscriber or requester".format(
+                req['user_id'])
             status_code = SC_FORBIDDEN
             return data, status_code
         elif result == 11:
@@ -481,7 +573,8 @@ def unsubscribe_from_community_page():
         return data, status_code
     elif result == 10:
         # successfully removed request from private community
-        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(req['user_id'])
+        data['response_message'] = "Registered user with the id {} successfully removed subscription request".format(
+            req['user_id'])
         data['community'] = current_community
         status_code = SC_SUCCESS
         return data, status_code
@@ -521,7 +614,8 @@ def community_page():
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
             # return invalid input error
-            data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
             status_code = SC_BAD_REQUEST
             return data, status_code
         for r_keys in req:
@@ -529,7 +623,8 @@ def community_page():
                 pass
             else:
                 # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are id, is_private, community_creator_id"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         community_instance = Community(req)
@@ -577,7 +672,8 @@ def community_page():
             status_code = SC_FORBIDDEN
             return data, status_code
     elif request.method == "PUT":
-        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list', 'description',
+        needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list',
+                       'description',
                        'photo', 'community_creator_id', 'created_at', 'banned_user_list', 'is_private']
         if len(needed_keys) != len(req):
             # return invalid input error
@@ -715,93 +811,243 @@ def post():
     status_code = None
 
     if request.method == "POST":  # Only for creating a new post.
-        post_type_id = req["post_type_id"]
-        fields_dictionary = req["fields_dictionary"]
-        post_id = get_next_post_id()
-        user_name = req["user_name"]  # TODO: use for authorization
-
-        base_post_type = PostType.get_post_type_from_id(post_type_id)
-        for key in fields_dictionary.keys():
-            field_dics = fields_dictionary[key]
-            actual_name = "_".join([i.lower() for i in re.findall('[A-Z][^A-Z]*', key)]) + "_fields"
-            w_header_field_dics = getattr(base_post_type.post_fields, actual_name)
-            for field_dic, w_header in zip(field_dics,w_header_field_dics):
-                field_dic["header"] = w_header.header
         try:
-            post = Post(base_post_type, fields_dictionary, post_id, user_name)
+            post_type_id = req["post_type_id"]
+            post_owner_user_name = req["post_owner_user_name"]
+            post_entries_dictionary_list = req["post_entries_dictionary_list"]
         except Exception as e:
-            if str(e) == "All fields should be specified":
-                data["response_message"] = str(e)
-                status_code = SC_BAD_REQUEST
-            print(str(e))
-            # TODO: Add other cases for other possible exceptions
-            return data, status_code
-
-        print("the post:", post.to_dict())
-        post.save2database()  # TODO: check for database errors
-        post.has_created()
-
-        post_id = post.post_id
-        del post
-
-        # TODO: check_if_eligible(user_name,parent_community_id)
-
-        return_status = 0
-        if return_status == 0:
-            data["response_message"] = "Post is successfully created. "
-            data["data"] = {"post_id": post_id}
-            status_code = SC_SUCCESS
-        elif return_status == 1:
-            data["response_message"] = "Some error occurred"
+            data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                new_post = Post.create_post(post_type_id, post_owner_user_name, post_entries_dictionary_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully created. "
+                data["data"] = {"_id": new_post.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "PUT":  # Only for creating a new post.
-        post_id = req["post_id"]
-        fields_dictionary = req["fields_dictionary"]
-        user_name = req["user_name"]  # TODO: use for authorization
 
-        post = Post.get_post_from_id(post_id)
         try:
-            updated_post = post.update(post.base_post_type, fields_dictionary, post.id, post.owner_user_name )
+            _id = req["post_id"]
+            post_entries_dictionary_list = req["post_entries_dictionary_list"]
+
         except Exception as e:
-            if str(e) == "All fields should be specified":
-                data["response_message"] = str(e)
-                status_code = SC_BAD_REQUEST
-            # TODO: Add other cases for other possible exceptions
-            return data, status_code
-
-        updated_post.save2database()  # TODO: check for database errors
-
-        post_id = updated_post.id
-        del updated_post
-
-        # TODO: check_if_eligible(user_name,parent_community_id)
-
-        return_status = 0
-        if return_status == 0:
-            data["response_message"] = "Post is successfully created. "
-            data["data"] = {"post_id": post_id}
-            status_code = SC_SUCCESS
-        elif return_status == 1:
-            data["response_message"] = "Some error occurred"
+            data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
+        else:
+            try:
+                updated_post = Post.update_post(_id, post_entries_dictionary_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully updated. "
+                data["data"] = {"_id": updated_post.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "GET":
-        post_id = req["post_id"]
-        user_name = req["user_name"]  # TODO: use for authorization
-
-        post = Post.get_post_from_id(post_id)
-
-        # TODO: check_if_eligible(user_name,parent_community_id)
-
-        return_status = 0
-        if return_status == 0:
-            data["response_message"] = "Post is successfully created. "
-            data["data"] = post.to_dict()
-            status_code = SC_SUCCESS
-        elif return_status == 1:
-            data["response_message"] = "Some error occurred"
+        try:
+            post_id = req["post_id"]
+        except Exception:
+            data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
+        else:
+            try:
+                post = Post.get_post(post_id)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "Post is successfully returned. "
+                data["data"] = post.to_dict()
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/like/', methods=['PUT'])
+def post_like():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+
+        else:
+            try:
+                post_liked_user_list = Post.action_like_post(post_id, user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"Post wtih id {post_id} is successfully liked by user with user_name {user_name}."
+                data["data"] = {"post_liked_user_list": post_liked_user_list}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/unlike/', methods=['PUT'])
+def post_unlike():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+        else:
+            try:
+                post_liked_user_list = Post.action_unlike_post(post_id, user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"Post wtih id {post_id} is successfully unliked by user with user_name {user_name}. "
+                data["data"] = {"post_liked_user_list": post_liked_user_list}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/participate/', methods=['PUT'])
+def post_participate():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_participation_field = req["header_of_participation_field"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+        else:
+            try:
+                list_of_participants = Post.action_participate(post_id, header_of_participation_field, user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: {user_name} has been successfully marked as " \
+                                          f"participating to the Participation" \
+                                          f" field with header: {header_of_participation_field}."
+                data["data"] = {"list_of_participants": list_of_participants}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/cancel_participation/', methods=['PUT'])
+def post_cancel_participate():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            user_name = req["user_name"]
+            header_of_participation_field = req["header_of_participation_field"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+        else:
+            try:
+                list_of_participants = Post.action_cancel_participation(post_id, header_of_participation_field,
+                                                                        user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: {user_name} has been successfully unmarked as " \
+                                          f"participating to the Participation" \
+                                          f" field with header: {header_of_participation_field}."
+                data["data"] = {"list_of_participants": list_of_participants}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/vote/', methods=['PUT'])
+def post_vote():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            voter_user_name = req["voter_user_name"]
+            header_of_poll_field = req["header_of_poll_field"]
+            option = req["option"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+        else:
+            try:
+                options = Post.action_vote(post_id, header_of_poll_field, option, voter_user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: {voter_user_name} has been successfully voted for " \
+                                          f"the option: {option} in the Poll field with header: {header_of_poll_field} "
+                data["data"] = {"options": options}
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/post/cancel_vote/', methods=['PUT'])
+def post_cancel_vote():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+
+    if request.method == "PUT":
+        try:
+            post_id = req["post_id"]
+            voter_user_name = req["voter_user_name"]
+            header_of_poll_field = req["header_of_poll_field"]
+            option = req["option"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
+            status_code = SC_BAD_REQUEST
+        else:
+            try:
+                options = Post.action_cancel_vote(post_id, header_of_poll_field, option, voter_user_name)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data[
+                    "response_message"] = f"User with user_name: {voter_user_name} has successfully cancelled their " \
+                                          f"vote for the option: {option} in the Poll field with header: {header_of_poll_field} "
+                data["data"] = {"options": options}
+                status_code = SC_SUCCESS
 
     return data, status_code
 
@@ -813,50 +1059,60 @@ def post_type():
     status_code = None
 
     if request.method == "POST":  # Cannot edit post type, so this is creating a post type
-        fields_dictionary = req["fields_dictionary"]
-        user_name = req["user_name"]  # TODO: use for authorization
-        post_type_name = req["post_type_name"]
-        parent_community_id = req["parent_community_id"]
-
-        community = Community.get_community_from_id(parent_community_id)  # TODO: use for authorization
-
-        post_type_id = get_next_post_type_id()
-        post_type = PostType(fields_dictionary, post_type_name, parent_community_id, post_type_id)
-
-        post_type.save2database()
-        post_type.has_created()
-
-        post_type_id = post_type.post_type_id
-        del post_type
-
-        # TODO: check_if_eligible(user_name,parent_community_id)
-
-        return_status = 0
-        if return_status == 0:
-            data["response_message"] = "PostType is successfully created."
-            data["data"] = {"post_type_id": post_type_id}
-            status_code = SC_SUCCESS
-        elif return_status == 1:
-            data["response_message"] = "Some error occurred"
+        try:
+            post_type_name = req["post_type_name"]
+            parent_community_id = req["parent_community_id"]
+            post_field_info_dictionaries_list = req["post_field_info_dictionaries_list"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
+        else:
+
+            try:
+                new_post_type = PostType.create_post_type(post_type_name,
+                                                          parent_community_id,
+                                                          post_field_info_dictionaries_list)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "PostType is successfully created."
+                data["data"] = {"_id": new_post_type.get_id()}
+                status_code = SC_SUCCESS
 
     elif request.method == "GET":
-        post_type_id = req["post_type_id"]
-
-        post_type = PostType.get_post_type_from_id(post_type_id)
-
-        post_type_dict = post_type.to_dict()
-
-        return_status = 0
-        if return_status == 0:
-            data["response_message"] = "PostType is successfully returned."
-            data["data"] = post_type_dict
-            status_code = SC_SUCCESS
-        elif return_status == 1:
-            data["response_message"] = "Some error occurred"
+        try:
+            _id = req["post_type_id"]
+        except Exception as e:
+            data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
+        else:
 
-        del post_type
+            try:
+                new_post_type = PostType.get_post_type(_id)
+            except Exception as e:
+                data = {"response_message": str(e)}
+                status_code = SC_BAD_REQUEST
+            else:
+                data["response_message"] = "PostType is successfully retrieved."
+                data["data"] = new_post_type.to_dict()
+                status_code = SC_SUCCESS
+
+    return data, status_code
+
+
+@app.route('/api/deneme/', methods=['GET', 'POST'])
+def deneme():
+    req = request.get_json()
+    community_id = req["community_id"]
+    data = {"response_message": None}
+    status_code = None
+
+    import database.database_utilities as dbu
+
+    print(dbu.get_community_by_community_id(community_id))
+    data["response_message"] = "Bla bla"
+    status_code = SC_SUCCESS
 
     return data, status_code
 
