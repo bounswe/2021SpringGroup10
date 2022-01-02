@@ -121,9 +121,9 @@ class Post:
             "post_liked_user_list": self.post_liked_user_list,
             "post_entries_dictionary_list": Post.post_fields_list_to_post_entries_dictionary_list(
                 self.post_fields_list),
-            "post_discussion_id": self.post_discussion_id,
+            "post_discussion_id": str(self.post_discussion_id),
             "post_creation_time": self.post_creation_time,
-            "post_title": self.post_creation_time
+            "post_title": self.post_title
         }
         return dict
 
