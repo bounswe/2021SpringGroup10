@@ -4,7 +4,7 @@ from database.database_utilities import (
     update_community,
     get_user_by_name
 )
-import sys
+import datetime
 
 
 class Community:
@@ -49,12 +49,12 @@ class Community:
             'community_creator_id': self.community_creator_id,
             'created_at': self.created_at,
             'banned_user_list': self.banned_user_list,
-            'is_private': self.is_private,
-            'requesters': self.requesters
+            'is_private': self.is_private
         }
         return dict_object
 
     def save2database(self, env=None):
+        self.update({"created_at": str(datetime.datetime.now())})
         community_dictionary = self.to_dict()
         result = save_new_community(community_dictionary, env)
         return result
