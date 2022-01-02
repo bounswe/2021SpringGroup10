@@ -2,8 +2,6 @@ from flask import Flask, request
 
 from community.community import Community
 from database.database_utilities import (
-    get_next_post_id,
-    get_next_post_type_id,
     check_user_by_user_name,
     get_user_by_name,
     get_all_user_names,
@@ -750,7 +748,7 @@ def profile_page():
         return data, status_code
 
     if request.method == "POST":
-        return_status = update_profile_page(user_name, req)
+        return_status = update_profile_page(user_name, req["profile_info"])
         if return_status == 0:
             data["response_message"] = "User page updated successfully."
             status_code = SC_SUCCESS
