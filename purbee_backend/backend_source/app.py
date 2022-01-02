@@ -776,7 +776,7 @@ def profile_page():
         return data, status_code
 
     if request.method == "POST":
-        return_status = update_profile_page(user_name, req)
+        return_status = update_profile_page(user_name, req["profile_info"])
         if return_status == 0:
             data["response_message"] = "User page updated successfully."
             status_code = SC_SUCCESS
@@ -815,13 +815,14 @@ def post():
             post_type_id = req["post_type_id"]
             post_owner_user_name = req["post_owner_user_name"]
             post_entries_dictionary_list = req["post_entries_dictionary_list"]
+            post_title = req["post_title"]
         except Exception as e:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
 
         else:
             try:
-                new_post = Post.create_post(post_type_id, post_owner_user_name, post_entries_dictionary_list)
+                new_post = Post.create_post(post_type_id, post_owner_user_name, post_entries_dictionary_list, post_title)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST

@@ -77,22 +77,17 @@ class PostType:
 
     @staticmethod
     def has_created(post_type):
-        # Carry out the community related updates.
-        community = Community.get_community_from_id(post_type.parent_community_id)
-
-        #   Append new post_type_id to community_post_type_id list
-        community.post_type_id_list.append(post_type.get_id())
-
-        # Save the updated community.
-        database_utilities.update_community(community.to_dict())
+        # Update new post_type_id to community_post_type_id list
+        community_dictionary = database_utilities.get_community_by_community_id(post_type.parent_community_id)
+        community_dictionary["post_type_id_list"].append(post_type.get_id())
+        Community.update_on_database(community_dictionary)
 
     @staticmethod
     def has_deleted(post_type_id, parent_community_id):
         # Carry out the community related updates.
-        community = Community.get_community_from_id(parent_community_id)
-
-        #   Append new post_type_id to community_post_type_id list
-        community.post_type_id_list.pop(post_type_id)
-
-        # Save the updated community.
-        database_utilities.update_community(community.to_dict())
+        community_dictionary = database_utilities.get_community_by_community_id(parent_community_id)
+        try:
+            community_dictionary["post_type_id_list"].remove(post_type_id)
+        except ValueError:
+            raise Exception("No post_type with given id exists.")
+        Community.update_on_database(community_dictionary)

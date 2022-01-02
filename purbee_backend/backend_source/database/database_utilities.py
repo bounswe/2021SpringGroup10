@@ -8,13 +8,17 @@ post_types = db["PostTypes"]
 posts = db["Posts"]
 nextIds = db["nextIds"]
 communities = db['communities']
+discussions = db['discussions']
+comments = db['comments']
+
 test_db = client.purbeeTest
 test_registered_users = test_db["registered_users"]
 test_post_types = test_db["post_types"]
 test_posts = test_db["posts"]
 test_nextIds = test_db['nextIds']
 test_communities = test_db['communities']
-
+test_discussions = test_db['discussions']
+test_comments = test_db['comments']
 
 def get_community_by_community_id(community_id, env=None):
     if env == "test":
@@ -44,6 +48,72 @@ def update_community(community_dictionary, env=None):
         return 1
     else:
         return 0
+
+
+def create_new_comment(comment_dict):
+    if get_comment_dict_by_comment_id(comment_dict["id"]):
+        return 1
+    try:
+        neu_comment = {}
+        for key in comment_dict:
+            if key == "id":
+                neu_comment['_id'] = comment_dict[key]
+            else:
+                neu_comment[key] = comment_dict[key]
+
+        comments.insert_one(neu_comment)
+        return 0
+    except:
+        return 2
+
+
+def get_comment_dict_by_comment_id(comment_id):
+    return comments.find_one({"_id": comment_id})
+
+
+def update_comment(comment_dictionary):
+    id_value = comment_dictionary.pop('id')
+    db_return = comments.update({"_id": id_value}, {
+        "$set": comment_dictionary
+    })
+
+    if db_return["ok"] != 1.0:
+        return 1
+    else:
+        return 0
+
+
+def update_discussion(discussion_dictionary):
+    id_value = discussion_dictionary.pop('id')
+    db_return = discussions.update({"_id": id_value}, {
+        "$set": discussion_dictionary
+    })
+
+    if db_return["ok"] != 1.0:
+        return 1
+    else:
+        return 0
+
+
+def create_new_discussion(discussion_dictionary):
+    if get_discussion_dict_by_discussion_id(discussion_dictionary["id"]):
+        return 1
+    try:
+        neu_discussion = {}
+        for key in discussion_dictionary:
+            if key == "id":
+                neu_discussion['_id'] = discussion_dictionary[key]
+            else:
+                neu_discussion[key] = discussion_dictionary[key]
+
+        discussions.insert_one(neu_discussion)
+        return 0
+    except:
+        return 2
+
+
+def get_discussion_dict_by_discussion_id(discussion_id):
+    return discussions.find_one({"_id": discussion_id})
 
 
 def save_new_community(community_dictionary, env=None):
