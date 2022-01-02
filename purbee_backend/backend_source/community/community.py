@@ -54,14 +54,14 @@ class Community:
         }
         return dict_object
 
-    def save2database(self):
+    def save2database(self, env=None):
         community_dictionary = self.to_dict()
-        result = save_new_community(community_dictionary)
+        result = save_new_community(community_dictionary, env)
         return result
 
     @staticmethod
-    def update_on_database(community_dictionary):
-        result = update_community(community_dictionary)
+    def update_on_database(community_dictionary, env=None):
+        result = update_community(community_dictionary, env)
         return result
 
     def remove_member(self, user_id):
@@ -74,7 +74,7 @@ class Community:
             self.subscriber_list = neu_subscriber_list
         return result
 
-    def add_subscriber(self, user_id):
+    def add_subscriber(self, user_id, env):
         if user_id in self.subscriber_list:
             # already subscriber
             return 2
@@ -82,22 +82,22 @@ class Community:
         neu_subscriber_list.append(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['subscriber_list'] = neu_subscriber_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.subscriber_list = neu_subscriber_list
         return result
 
-    def remove_subscriber(self, user_id):
+    def remove_subscriber(self, user_id, env=None):
         neu_subscriber_list = self.subscriber_list
         neu_subscriber_list.remove(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['subscriber_list'] = neu_subscriber_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.subscriber_list = neu_subscriber_list
         return result
 
-    def add_requester(self, user_id):
+    def add_requester(self, user_id, env=None):
         if user_id in self.subscriber_list or user_id in self.requesters:
             # already subscriber
             return 2
@@ -105,17 +105,17 @@ class Community:
         neu_requester_list.append(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['requesters'] = neu_requester_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.requesters = neu_requester_list
         return result
 
-    def remove_requester(self, user_id):
+    def remove_requester(self, user_id, env=None):
         neu_requester_list = self.requesters
         neu_requester_list.remove(user_id)
         community_dictionary = self.to_dict()
         community_dictionary['requesters'] = neu_requester_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.requesters = neu_requester_list
         return result
@@ -137,15 +137,15 @@ class Community:
     def get_post_types(self):
         return self.post_type_id_list
 
-    def make_private(self):
+    def make_private(self, env=None):
         community_dictionary = self.to_dict()
         community_dictionary['is_private'] = True
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.is_private = True
         return result
 
-    def make_public(self):
+    def make_public(self, env=None):
         community_dictionary = self.to_dict()
         community_dictionary['is_private'] = False
         before_requesters = community_dictionary['requesters']
@@ -153,19 +153,19 @@ class Community:
         subscribers = community_dictionary['subscriber_list']
         subscribers.extend(before_requesters)
         community_dictionary['subscriber_list'] = subscribers
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result
 
     @staticmethod
-    def get_community_from_id(community_id):
-        community_dict = get_community_by_community_id(community_id)
+    def get_community_from_id(community_id, env=None):
+        community_dict = get_community_by_community_id(community_id, env)
         if community_dict:
             return Community(community_dict)
         return None
 
-    def handle_ban_user(self, user_id):
+    def handle_ban_user(self, user_id, env=None):
         community_dictionary = self.to_dict()
         if user_id in self.requesters:
             neu_requesters = community_dictionary['requesters']
@@ -179,34 +179,34 @@ class Community:
             neu_banned_user_list = community_dictionary['banned_user_list']
             neu_banned_user_list.append(user_id)
             community_dictionary['banned_user_list'] = neu_banned_user_list
-            result = update_community(community_dictionary)
+            result = update_community(community_dictionary, env)
             if result == 0:
                 self.update(community_dictionary)
             return result
         else:
             return 2
 
-    def handle_unban_user(self, user_id):
+    def handle_unban_user(self, user_id, env=None):
         community_dictionary = self.to_dict()
         neu_banned_user_list = community_dictionary['banned_user_list']
         neu_banned_user_list.remove(user_id)
         community_dictionary['banned_user_list'] = neu_banned_user_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result
 
     @staticmethod
-    def ban_user(admin_id, community_id, user_id):
-        current_community_dict = get_community_by_community_id(community_id)
+    def ban_user(admin_id, community_id, user_id, env=None):
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community with the given community id
             return 11, None
-        current_user = get_user_by_name(user_id)
+        current_user = get_user_by_name(user_id, env)
         if current_user is None:
             # there is no user to ban
             return 12, None
-        admin = get_user_by_name(admin_id)
+        admin = get_user_by_name(admin_id, env)
         if admin is None:
             # there is no admin
             return 13, None
@@ -221,7 +221,7 @@ class Community:
             return 16, None
 
         current_community = Community(current_community_dict)
-        result = current_community.handle_ban_user(user_id)
+        result = current_community.handle_ban_user(user_id, env)
         if result == 0:
             # return success
             return 0, current_community.to_dict()
@@ -230,16 +230,16 @@ class Community:
             return result, None
 
     @staticmethod
-    def unban_user(admin_id, community_id, user_id):
-        current_community_dict = get_community_by_community_id(community_id)
+    def unban_user(admin_id, community_id, user_id, env=None):
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community
             return 11, None
-        current_user = get_user_by_name(user_id)
+        current_user = get_user_by_name(user_id, env)
         if current_user is None:
             # there is no user
             return 12, None
-        admin = get_user_by_name(admin_id)
+        admin = get_user_by_name(admin_id, env)
         if admin is None:
             # there is no admin
             return 13, None
@@ -251,7 +251,7 @@ class Community:
             return 15, None
 
         current_community = Community(current_community_dict)
-        result = current_community.handle_unban_user(user_id)
+        result = current_community.handle_unban_user(user_id, env)
         if result == 0:
             # success
             return 0, current_community.to_dict()
@@ -260,7 +260,7 @@ class Community:
             return 1, None
 
     @staticmethod
-    def change_privacy(admin_id, community_id):
+    def change_privacy(admin_id, community_id, env=None):
         community_dict = get_community_by_community_id(community_id)
         if community_dict is None:
             # there is no community with the given community id
@@ -274,7 +274,7 @@ class Community:
             return 13, None
         current_community = Community(community_dict)
         if current_community.is_private:
-            result = current_community.make_public()
+            result = current_community.make_public(env)
             if result == 0:
                 # return success to change to public
                 return 10, current_community.to_dict()
@@ -282,7 +282,7 @@ class Community:
                 # return fail
                 return 1, None
         else:
-            result = current_community.make_private()
+            result = current_community.make_private(env)
             if result == 0:
                 # return success to change to private
                 return 0, current_community.to_dict()
@@ -291,46 +291,46 @@ class Community:
                 return 1, None
 
     @staticmethod
-    def subscribe(user_id, community_id):
-        current_community_dict = get_community_by_community_id(community_id)
+    def subscribe(user_id, community_id, env=None):
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community with the given community id
             return 11, None
-        current_user = get_user_by_name(user_id) # user names and ids are the same
+        current_user = get_user_by_name(user_id, env)        # user names and ids are the same
         if current_user is None:
             # there is no user with the given user id
             return 12, None
         current_community = Community(current_community_dict)
         if current_community.is_private:
             # eger community privatesa
-            result = current_community.add_requester(user_id)
+            result = current_community.add_requester(user_id, env)
             if result == 0:
                 return 10, current_community.to_dict()
         else:
-            result = current_community.add_subscriber(user_id)
+            result = current_community.add_subscriber(user_id, env)
             if result == 0:
                 return 0, current_community.to_dict()
         return result, None
 
     @staticmethod
-    def unsubscribe(user_id, community_id):
-        current_community_dict = get_community_by_community_id(community_id)
+    def unsubscribe(user_id, community_id, env=None):
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community with the given community id
             return 11, None
-        current_user = get_user_by_name(user_id)
+        current_user = get_user_by_name(user_id, env)
         if current_user is None:
             # there is no user with the given user id
             return 12, None
         current_community = Community(current_community_dict)
         if current_community.is_private:
             if user_id in current_community.requesters:
-                result = current_community.remove_requester(user_id)
+                result = current_community.remove_requester(user_id, env)
                 if result == 0:
                     # return success
                     return 10, current_community.to_dict()
             elif user_id in current_community.subscriber_list:
-                result = current_community.remove_subscriber(user_id)
+                result = current_community.remove_subscriber(user_id, env)
                 if result == 0:
                     # retrun success
                     return 0, current_community.to_dict()
@@ -342,7 +342,7 @@ class Community:
                 return 2, None
         else:
             if user_id in current_community.subscriber_list:
-                result = current_community.remove_subscriber(user_id)
+                result = current_community.remove_subscriber(user_id, env)
                 if result == 0:
                     # return success
                     return 0, current_community.to_dict()
@@ -354,19 +354,19 @@ class Community:
                 return 2, None
 
     @staticmethod
-    def make_or_remove_admin(admin_id, community_id, user_id, action):
+    def make_or_remove_admin(admin_id, community_id, user_id, action, env=None):
         if action not in ['make', 'remove']:
             # bad request
             return 2, None
-        current_community_dict = get_community_by_community_id(community_id)
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community
             return 11, None
-        current_user = get_user_by_name(user_id)
+        current_user = get_user_by_name(user_id, env)
         if current_user is None:
             # there is no user
             return 12, None
-        current_admin = get_user_by_name(admin_id)
+        current_admin = get_user_by_name(admin_id, env)
         if current_admin is None:
             # there is no user with the admin_id
             return 13, None
@@ -376,9 +376,9 @@ class Community:
 
         current_community = Community(current_community_dict)
         if action == 'make':
-            result = current_community.handle_make_admin(user_id)
+            result = current_community.handle_make_admin(user_id, env)
         elif action == 'remove':
-            result = current_community.handle_remove_admin(user_id)
+            result = current_community.handle_remove_admin(user_id, env)
         else:
             # bad request
             return 2, None
@@ -389,44 +389,44 @@ class Community:
         else:
             return result, None
 
-    def handle_make_admin(self, user_id):
+    def handle_make_admin(self, user_id, env=None):
         community_dictionary = self.to_dict()
         if user_id in community_dictionary['admin_list']:
             # user is already an admin
             return 15
         neu_admin_list = community_dictionary['admin_list']
         neu_admin_list.append(user_id)
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result
 
-    def handle_remove_admin(self, user_id):
+    def handle_remove_admin(self, user_id, env=None):
         community_dictionary = self.to_dict()
         if user_id not in community_dictionary['admin_list']:
             # user is not an admin
             return 16
         neu_admin_list = community_dictionary['admin_list']
         neu_admin_list.remove(user_id)
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result
 
     @staticmethod
-    def accept_or_reject_subscription_requester(admin_id, community_id, user_id, action):
+    def accept_or_reject_subscription_requester(admin_id, community_id, user_id, action, env=None):
         if action not in ['accept', 'reject']:
             # bad request
             return 2, None
-        current_community_dict = get_community_by_community_id(community_id)
+        current_community_dict = get_community_by_community_id(community_id, env)
         if current_community_dict is None:
             # there is no community
             return 11, None
-        current_user = get_user_by_name(user_id)
+        current_user = get_user_by_name(user_id, env)
         if current_user is None:
             # there is no user
             return 12, None
-        current_admin = get_user_by_name(admin_id)
+        current_admin = get_user_by_name(admin_id, env)
         if current_admin is None:
             # there is no user with the admin_id
             return 13, None
@@ -442,9 +442,9 @@ class Community:
 
         current_community = Community(current_community_dict)
         if action == 'accept':
-            result = current_community.handle_accept_request(user_id)
+            result = current_community.handle_accept_request(user_id, env)
         else:
-            result = current_community.handle_reject_request(user_id)
+            result = current_community.handle_reject_request(user_id, env)
         if result == 0:
             # success
             return 0, current_community.to_dict()
@@ -452,7 +452,7 @@ class Community:
             # internal error
             return 1, None
 
-    def handle_accept_request(self, user_id):
+    def handle_accept_request(self, user_id, env=None):
         community_dictionary = self.to_dict()
         neu_requester_list = community_dictionary['requesters']
         neu_requester_list.remove(user_id)
@@ -460,17 +460,17 @@ class Community:
         neu_subscriber_list = community_dictionary['subscriber_list']
         neu_subscriber_list.append(user_id)
         community_dictionary['subscriber_list'] = neu_subscriber_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result
 
-    def handle_reject_request(self, user_id):
+    def handle_reject_request(self, user_id, env=None):
         community_dictionary = self.to_dict()
         neu_requester_list = community_dictionary['requesters']
         neu_requester_list.remove(user_id)
         community_dictionary['requesters'] = neu_requester_list
-        result = update_community(community_dictionary)
+        result = update_community(community_dictionary, env)
         if result == 0:
             self.update(community_dictionary)
         return result

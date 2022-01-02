@@ -33,6 +33,10 @@ def community_page_admin():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
@@ -47,7 +51,8 @@ def community_page_admin():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'], req['action'])
+        result, current_community = Community.make_or_remove_admin(req['admin_id'], req['community_id'], req['user_id'],
+                                                                   req['action'], env)
 
         if result == 0:
             # successful
@@ -89,6 +94,10 @@ def handle_community_page_subscription_request():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'user_id', 'community_id', 'action']
         if len(needed_keys) != len(req):
@@ -105,7 +114,8 @@ def handle_community_page_subscription_request():
                 return data, status_code
         result, current_community = Community.accept_or_reject_subscription_requester(req['admin_id'],
                                                                                           req['community_id'],
-                                                                                          req['user_id'], req['action'])
+                                                                                          req['user_id'], req['action'],
+                                                                                      env)
 
         if result == 0:
             # successful
@@ -148,6 +158,10 @@ def ban_from_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'community_id', 'user_id']
         if len(needed_keys) != len(req):
@@ -164,7 +178,7 @@ def ban_from_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.ban_user(req['admin_id'], req['community_id'], req['user_id'])
+        result, current_community = Community.ban_user(req['admin_id'], req['community_id'], req['user_id'], env)
 
         if result == 0:
             # success
@@ -206,6 +220,10 @@ def unban_from_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['admin_id', 'community_id', 'user_id']
         if len(needed_keys) != len(req):
@@ -223,7 +241,7 @@ def unban_from_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.unban_user(req['admin_id'], req['community_id'], req['user_id'])
+        result, current_community = Community.unban_user(req['admin_id'], req['community_id'], req['user_id'], env)
 
         if result == 0:
             # success
@@ -258,6 +276,10 @@ def change_privacy_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['community_id', 'admin_id']
         if len(needed_keys) != len(req):
@@ -274,7 +296,7 @@ def change_privacy_community_page():
                 data['response_message'] = "Incorrect json content. (necessary fields are admin_id and community_id)"
                 status_code = SC_BAD_REQUEST
 
-        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'])
+        result, current_community = Community.change_privacy(req['admin_id'], req['community_id'], env)
 
         if result == 0:
             # successful make private
@@ -355,6 +377,10 @@ def subscribe_to_community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['user_id', 'community_id']
         if len(needed_keys) != len(req):
@@ -371,7 +397,7 @@ def subscribe_to_community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
 
-        result, current_community = Community.subscribe(req['user_id'], req['community_id'])
+        result, current_community = Community.subscribe(req['user_id'], req['community_id'], env)
 
         if result == 0:
             # successful
@@ -412,6 +438,10 @@ def unsubscribe_from_community_page():
     req = request.get_json()
     data = {'response_message': None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "PUT":
         needed_keys = ['user_id', 'community_id']
         if len(needed_keys) != len(req):
@@ -437,7 +467,7 @@ def unsubscribe_from_community_page():
                 # return invalid input error
                 pass
 
-    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'])
+    result, current_community = Community.unsubscribe(req['user_id'], req['community_id'], env)
 
     if result == 0:
         # successfully removed subscription from private or non private community
@@ -479,6 +509,10 @@ def community_page():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
     if request.method == "POST":
         needed_keys = ['id', 'is_private', 'community_creator_id']
         if len(needed_keys) != len(req):
@@ -495,7 +529,7 @@ def community_page():
                 status_code = SC_BAD_REQUEST
                 return data, status_code
         community_instance = Community(req)
-        post_result = community_instance.save2database()
+        post_result = community_instance.save2database(env)
         if post_result == 0:
             # return success
             data['response_message'] = "Community Page successfully created."
@@ -526,7 +560,7 @@ def community_page():
                 data['response_message'] = "Incorrect json content. (necessary field is id)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
-        community_instance = Community.get_community_from_id(req['id'])
+        community_instance = Community.get_community_from_id(req['id'], env)
         if community_instance:
             # return success
             data['response_message'] = "Community successfully found"
@@ -554,11 +588,11 @@ def community_page():
                 data['response_message'] = "Incorrect json content. (necessary field are the community class fields)"
                 status_code = SC_BAD_REQUEST
                 return data, status_code
-        community_instance = Community.get_community_from_id(req['id'])
+        community_instance = Community.get_community_from_id(req['id'], env)
         if community_instance:
             community_instance.update(req)
             community_dictionary = community_instance.to_dict()
-            update_result = Community.update_on_database(community_dictionary)
+            update_result = Community.update_on_database(community_dictionary, env)
             if update_result == 0:
                 # return success
                 data['response_message'] = "Community successfully updated"

@@ -8,14 +8,28 @@ post_types = db["post_types"]
 posts = db["posts"]
 nextIds = db["nextIds"]
 communities = db['communities']
+test_db = client.purbeeTest
+test_registered_users = test_db["registered_users"]
+test_post_types = test_db["post_types"]
+test_posts = test_db["posts"]
+test_nextIds = test_db['nextIds']
+test_communities = test_db['communities']
 
 
-def get_community_by_community_id(community_id):
-    return communities.find_one({"_id": community_id})
+def get_community_by_community_id(community_id, env=None):
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
+    return community_database.find_one({"_id": community_id})
 
 
-def update_community(community_dictionary):
-    db_return = communities.update({"_id": community_dictionary['id']}, {
+def update_community(community_dictionary, env=None):
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
+    db_return = community_database.update({"_id": community_dictionary['id']}, {
         "$set": community_dictionary})
 
     if db_return["ok"] != 1.0:
@@ -24,11 +38,15 @@ def update_community(community_dictionary):
         return 0
 
 
-def save_new_community(community_dictionary):
+def save_new_community(community_dictionary, env=None):
     # RETURN
     # 0 -> Success
     # 1 -> already have this community with community id
     # 2 -> some another error probably related with community_dictionary
+    if env == "test":
+        community_database = test_communities
+    else:
+        community_database = communities
     if get_community_by_community_id(community_dictionary['id']):
         return 1
     try:
@@ -39,7 +57,7 @@ def save_new_community(community_dictionary):
             else:
                 community[key] = community_dictionary[key]
 
-        communities.insert_one(community)
+        community_database.insert_one(community)
         return 0
     except:
         return 2
@@ -110,14 +128,18 @@ def get_post_type_from_post_type_id(post_type_id):
 # def get_next_community_id():
 # pass
 
-def get_user_by_name(user_name):
+def get_user_by_name(user_name, env=None):
     """
     :param
         user_name:
     :return:
         None if fails to find the user. Else returns user dictionary.
     """
-    return registered_users.find_one({"user_name": user_name})
+    if env == "test":
+        registered_user_database = test_registered_users
+    else:
+        registered_user_database = registered_users
+    return registered_user_database.find_one({"user_name": user_name})
 
 
 def check_user_by_user_name(user_name):
