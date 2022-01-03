@@ -44,7 +44,6 @@ def update_community(community_dictionary, env=None):
     db_return = community_database.update({"_id": community_dictionary['_id']}, {
         "$set": community_dictionary})
 
-    print(db_return)
 
     if db_return["ok"] != 1.0:
         return 1

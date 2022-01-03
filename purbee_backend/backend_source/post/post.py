@@ -235,7 +235,6 @@ class Post:
 
         # Update Community's post list
         community_dictionary = database_utilities.get_community_by_community_id(post_type.parent_community_id)
-        print()
         community_dictionary["post_history_id_list"].append(post.get_id())
         Community.update_on_database(community_dictionary)
 
