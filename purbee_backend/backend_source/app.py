@@ -11,6 +11,8 @@ update_follower_and_following_lists,
 update_follower_and_following_lists2
 
 )
+from comment.comment import Comment
+from discussion.discussion import Discussion
 
 from login.login import (
     sign_up,
@@ -1293,6 +1295,101 @@ def post_type():
 
     return data, status_code
 
+
+@app.route("api/comment", methods=["POST"])
+def comment():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    if request.method == "POST":
+        needed_keys = ['user_id', 'parent_discussion_id', 'text']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
+    result, current_comment = Comment.create_comment(req['parent_discussion_id'], req['text'], req['user_id'], env)
+
+    if result == 11:
+        # there is no parent discussion
+        data['response_message'] = "There is no parent discussion with the given discussion id"
+        status_code = SC_FORBIDDEN
+    elif result == 12:
+        data['response_message'] = "Given text is empty"
+        status_code = SC_FORBIDDEN
+    elif result == 13:
+        data['response_message'] = "There is no registered user with the given user id"
+        status_code = SC_FORBIDDEN
+    elif result == 14:
+        data['response_message'] = "A new Discussion could not created"
+        status_code = SC_INTERNAL_ERROR
+    elif result == 0:
+        data['response_message'] = "Successfully a comment created"
+        data['comment'] = current_comment
+        status_code = SC_CREATED
+    else:
+        data['response_message'] = "Parent discussion related internal error occurred"
+        status_code = SC_INTERNAL_ERROR
+    return data, status_code
+
+
+@app.route("api/comment/<comment_id>", methods=['GET'])
+def comment_get(comment_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        current_comment = Comment.get_comment_by_comment_id(comment_id, env)
+        if current_comment:
+            data['response_message'] = "Successfully comment found"
+            data['comment'] = current_comment
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "There is no comment with the given comment id"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
+
+
+@app.route("api/discussion/<discussion_id>", methods=["GET"])
+def discussion_get(discussion_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        result, current_discussion = Discussion.get_discussion(discussion_id, env)
+        if result == 11:
+            data['response_message'] = "There is no discussion with the given discussion id"
+            status_code = SC_FORBIDDEN
+        elif result == 0:
+            data['response_message'] = "Successfully discussion found"
+            data['discussion'] = current_discussion
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
 
 
 if __name__ == '__main__':
