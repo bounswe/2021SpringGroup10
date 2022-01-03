@@ -31,7 +31,7 @@ function App() {
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/post" element={<Post />} />
           </Routes>
-        </BrowserRouter>
+        </BrowserRouter> 
       </div>
   );
 }
