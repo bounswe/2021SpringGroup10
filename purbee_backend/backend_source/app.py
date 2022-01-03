@@ -612,7 +612,7 @@ def community_page_get(community_id):
     except KeyError:
         env = None
     if request.method == "GET":
-        community_instance = Community.get_community_from_id(req['id'], env)
+        community_instance = Community.get_community_from_id(community_id, env)
         if community_instance:
             # return success
             data['response_message'] = "Community successfully found"
