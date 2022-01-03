@@ -1,4 +1,3 @@
-import mpu
 from flask import Flask, request
 
 from community.community import Community
@@ -999,7 +998,7 @@ def profile_page():
         return data, status_code
 
 
-@app.route("/api/post/<post_id>", methods=["GET"])
+#@app.route("/api/post/<post_id>", methods=["GET"])
 def post_get(post_id):
     data = {"response_message": None}
     status_code = None
@@ -1046,22 +1045,21 @@ def post():
     elif request.method == "PUT":  # Only for creating a new post.
 
         try:
-            _id = req["post_id"]
-            post_entries_dictionary_list = req["post_entries_dictionary_list"]
-
-        except Exception as e:
+            post_id = req["post_id"]
+        except Exception:
             data = {"response_message": "Necessary arguments are not given."}
             status_code = SC_BAD_REQUEST
         else:
             try:
-                updated_post = Post.update_post(_id, post_entries_dictionary_list)
+                post = Post.get_post(post_id)
             except Exception as e:
                 data = {"response_message": str(e)}
                 status_code = SC_BAD_REQUEST
             else:
-                data["response_message"] = "Post is successfully updated. "
-                data["data"] = {"_id": updated_post.get_id()}
+                data["response_message"] = "Post is successfully returned. "
+                data["data"] = post.to_dict()
                 status_code = SC_SUCCESS
+
     return data, status_code
 
 
