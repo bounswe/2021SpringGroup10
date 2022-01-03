@@ -42,6 +42,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Create Post"
+            android:drawableLeft="@drawable/ic_post"
+            android:drawablePadding="2dip"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/editTextPost"
             app:layout_constraintTop_toBottomOf="@+id/editTextPost"
