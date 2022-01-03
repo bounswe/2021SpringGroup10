@@ -6,8 +6,10 @@ import DatePicker from '@mui/lab/DatePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import FileBase64 from 'react-file-base64';
-import {Link as RouterLink}from "react-router-dom";
-import {apiCall} from "../../helper";
+import { getUser } from '../../utils/common';
+import {base_url, headers} from "../../utils/url"
+import { useNavigate } from "react-router-dom";
+const Axios = require('axios');
 
 export default function ProfileInfo() {
     const [first_name, set_first_name] = React.useState("");
@@ -15,20 +17,52 @@ export default function ProfileInfo() {
     const [bio, set_bio] = React.useState("");
     const [birth_date, set_birth_date] = React.useState("");
     const [photo, set_photo] = React.useState("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(null);
+
+    let navigate = useNavigate()
 
     const handle_save = () => {
+        setError(null);
+        setLoading(true);
         const request_json = {
-            'user_name': "a",
-            'profile_photo': photo,
-            'bio': bio,
-            'first_name': first_name,
-            'last_name': last_name,
-            'birth_date': birth_date
+            "user_name": "Aayysy123"
+            // 'profile_photo': photo,
+            // 'bio': bio,
+            // 'first_name': first_name,
+            // 'last_name': last_name,
+            // 'birth_date': birth_date
         };
-        apiCall("profile page", request_json);
-    }
-    const handle_skip = () => {
-        //TODO
+
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'profile_page/',
+            data: request_json,
+        }).then(response => {
+            
+            setLoading(false)
+            navigate('/home')
+        }).catch(error => {
+            
+            setLoading(false)
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+            //setError(error.response.data.response_message)
+        })
     }
 
     return (
@@ -92,15 +126,16 @@ export default function ProfileInfo() {
                     color="primary"
                     className="form__custom-button"
                     onClick={handle_save}>
-                    <RouterLink to="/home"> Save </RouterLink>
+                    {loading ? "Loading..." : "Save"}
                 </Button>
-                <Button
+                {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
+                {/* <Button
                     variant="contained"
                     color="primary"
                     className="form__custom-button"
                     onClick={handle_skip}>
                     <RouterLink to="/home"> Skip </RouterLink>
-                </Button>
+                </Button> */}
             </form>
 
 

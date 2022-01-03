@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import './styles.css'
 import Link from '@mui/material/Link';
-import { apiCall } from "../../helper"
 import { setUserSession } from '../../utils/common';
 import { useNavigate } from "react-router-dom";
 
@@ -62,7 +61,7 @@ const Axios = require('axios');
             "mail_address": mail_address,
             "password": password
         };
-        // apiCall("sign up", request_json);
+        
         Axios({
             headers: headers,
             method: "POST",
@@ -70,6 +69,7 @@ const Axios = require('axios');
             data: request_json,
         }).then(response => {
             console.log(response)
+            setUserSession(request_json.user_name)
             setLoading(false)
             navigate('/profile-info')
         }).catch(error => {
