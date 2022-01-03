@@ -26,7 +26,7 @@ class Discussion:
 
     @staticmethod
     def create_new_empty_discussion(env=None):
-        discussion_id = uuid.uuid4()
+        discussion_id = str(uuid.uuid4())
         discussion_dict = {
             'id': discussion_id,
             'comment_list': []

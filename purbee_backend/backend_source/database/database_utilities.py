@@ -77,7 +77,12 @@ def get_comment_dict_by_comment_id(comment_id, env=None):
         comment_db = test_comments
     else:
         comment_db = comments
-    return comment_db.find_one({"_id": comment_id})
+    result = comment_db.find_one({"_id": comment_id})
+    if result is None:
+        return None
+    result.pop("_id")
+    result["id"] = comment_id
+    return result
 
 
 def update_comment(comment_dictionary, env=None):
@@ -138,7 +143,12 @@ def get_discussion_dict_by_discussion_id(discussion_id, env=None):
         discussion_db = test_discussions
     else:
         discussion_db = discussions
-    return discussion_db.find_one({"_id": discussion_id})
+    result = discussion_db.find_one({"_id": discussion_id})
+    if result:
+        result.pop("_id")
+        result['id'] = discussion_id
+        return result
+    return None
 
 
 def save_new_community(community_dictionary, env=None):
