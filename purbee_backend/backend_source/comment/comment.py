@@ -63,9 +63,9 @@ class Comment:
         if result == 0:
             after_result = Discussion.add_comment(neu_comment_id, parent_discussion_id, env)
             if after_result == 0:
-                return 0
+                return 0, current_comment_dict
             else:
-                return after_result + 20
+                return after_result + 20, current_comment_dict
         return result, current_comment_dict
 
     @staticmethod

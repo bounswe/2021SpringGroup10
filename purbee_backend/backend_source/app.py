@@ -1298,7 +1298,7 @@ def post_type():
 
 
 @app.route("/api/comment", methods=["POST"])
-def comment():
+def comment_post():
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1391,6 +1391,15 @@ def discussion_get(discussion_id):
             data['response_message'] = "Some internal error occurred"
             status_code = SC_INTERNAL_ERROR
         return data, status_code
+
+
+@app.route("/api/discussion", methods=["POST"])
+def discussion_post():
+    current_discussion = Discussion.create_new_empty_discussion()
+    data = {
+        "discussion": current_discussion
+    }
+    return data, 201
 
 
 if __name__ == '__main__':
