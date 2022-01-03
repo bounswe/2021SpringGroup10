@@ -906,7 +906,7 @@ def sign_in_endpoint():
     return data, status_code
 
 
-@app.route('/api/profile_page/', methods=['POST', 'GET'])
+@app.route('/api/profile_page/', methods=['POST', 'PUT'])
 def profile_page():
     # TODO change the GET functionality input type
     req = request.get_json()
@@ -933,7 +933,7 @@ def profile_page():
 
         return data, status_code
 
-    if request.method == "GET":
+    if request.method == "PUT":
         db_return = get_profile_page(user_name)
         if db_return == 2:
             data["response_message"] = "Database error occurred."
@@ -1198,7 +1198,7 @@ def post_cancel_vote():
     return data, status_code
 
 
-@app.route('/api/post_type/', methods=['GET', 'POST'])
+@app.route('/api/post_type/', methods=['PUT', 'POST'])
 def post_type():
     # TODO change the input type of the GET functionality
     req = request.get_json()
@@ -1227,7 +1227,7 @@ def post_type():
                 data["data"] = {"_id": new_post_type.get_id()}
                 status_code = SC_SUCCESS
 
-    elif request.method == "GET":
+    elif request.method == "PUT":
         try:
             _id = req["post_type_id"]
         except Exception as e:
