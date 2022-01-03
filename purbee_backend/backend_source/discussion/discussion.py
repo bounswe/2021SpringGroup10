@@ -1,7 +1,8 @@
 from database.database_utilities import (
     create_new_discussion,
     update_discussion,
-    get_discussion_dict_by_discussion_id
+    get_discussion_dict_by_discussion_id,
+    get_comment_dict_by_comment_id
 )
 import uuid
 
@@ -46,3 +47,18 @@ class Discussion:
         current_discussion = get_discussion_dict_by_discussion_id(discussion_id, env)
         current_discussion['comment_list'].append(comment_id)
         return Discussion.update_on_database(current_discussion, env)
+
+    @staticmethod
+    def get_discussion(discussion_id, env=None):
+        current_discussion = get_discussion_dict_by_discussion_id(discussion_id, env)
+        if current_discussion is None:
+            # there is no discussion with the given discussion id
+            return 11, None
+        comment_list = current_discussion['comment_list']
+        resulting_comments = []
+        for comment_id in comment_list:
+            current_comment = get_comment_dict_by_comment_id(comment_id, env)
+            resulting_comments.append(current_comment)
+        current_discussion['comment_object_list'] = resulting_comments
+        return 0, current_discussion
+

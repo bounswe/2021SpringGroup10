@@ -1371,5 +1371,28 @@ def comment_get(comment_id):
         return data, status_code
 
 
+@app.route("api/discussion/<discussion_id>", methods=["GET"])
+def discussion_get(discussion_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        result, current_discussion = Discussion.get_discussion(discussion_id, env)
+        if result == 11:
+            data['response_message'] = "There is no discussion with the given discussion id"
+            status_code = SC_FORBIDDEN
+        elif result == 0:
+            data['response_message'] = "Successfully discussion found"
+            data['discussion'] = current_discussion
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
