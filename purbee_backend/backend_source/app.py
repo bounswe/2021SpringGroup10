@@ -7,7 +7,10 @@ from database.database_utilities import (
     get_user_by_name,
     get_all_user_names,
     get_all_community_names,
-update_user_subscribed_communities
+update_user_subscribed_communities,
+update_follower_and_following_lists,
+update_follower_and_following_lists2
+
 )
 
 from login.login import (
@@ -905,6 +908,55 @@ def sign_in_endpoint():
 
     return data, status_code
 
+@app.route('/api/follow/', methods=['PUT'])
+def follow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists(follower,following)
+
+    data["response_message"] = "succesfully followed."
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/unfollow/', methods=['PUT'])
+def unfollow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists2(follower,following)
+
+    data["response_message"] = "succesfully unfollowed."
+    status_code = SC_SUCCESS
+    return data, status_code
 
 @app.route('/api/profile_page/', methods=['POST', 'GET'])
 def profile_page():

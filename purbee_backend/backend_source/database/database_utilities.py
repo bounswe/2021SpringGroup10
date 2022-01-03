@@ -307,6 +307,18 @@ def update_follower_and_following_lists(user_name1, user_name2):
     except:
         return 1
 
+def update_follower_and_following_lists2(user_name1, user_name2):
+    try:
+        following = get_user_by_name(user_name1)["following"]
+        following.remove(user_name2)
+        registered_users.update({"user_name": user_name1}, {"$set": {"following": following}})
+        followers = get_user_by_name(user_name2)["followers"]
+        followers.remove(user_name1)
+        registered_users.update({"user_name": user_name2}, {"$set": {"followers": followers}})
+        return 0
+    except:
+        return 1
+
 def update_user_subscribed_communities(username,community_id):
     subscribed_communities = get_user_by_name(username)["subscribed_communities"]
     subscribed_communities.append(community_id)
