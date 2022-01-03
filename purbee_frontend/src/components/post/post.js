@@ -1,50 +1,66 @@
 import * as React from 'react';
 import Popup from 'reactjs-popup';
 import './post.scss';
-import {posts, post_types} from './mock_post';
+import {posts, post_types, post_api_result, post_type_api_result} from './mock_post';
 import { MdFavorite, MdFavoriteBorder} from "react-icons/all";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 
 //                {fields["PlainText"].map(header => (<div className="postcard__preview-txt">{header + ": " + text(header)}</div>))}
 
-
-const Post = (data) => { // data shall contain post id, post types and post type id-name map,
-
-    const post_id = "fa8da556-68b5-4d4b-9ff8-040a07e93a7a"
-    const post = posts[post_id]
-    const post_type_id = post["post_type_id"]
-    const post_type = post_types[post_type_id];
-    let post_type_fields = post_type["post_field_info_dictionaries_list"]
-    let fields = { //each field type has an array of headers
-        "PlainText": [],
-        "Price": [],
-        "Location": [],
-        "Participation": [],
-        "Images": [],
-        "Date": []
-    }
-    post_type_fields.map(field => {
-        fields[field["field_type"]].push(field["header"]);
-    });
-
+export const Post = (props) => { // data shall contain post id, post types and post type id-name map,
 
     const [current_image, set_current_image] = React.useState(0);
     const [post_like, set_post_like] = React.useState(false);
+    const [post_fields, set_post_fields] = React.useState([]);
+    const [post_likers, set_post_likers] = React.useState([]);
+    const [post_owner, set_post_owner] = useState("");
+    const [post, set_post] = React.useState({});
+    const [post_type, set_post_type] =  React.useState({});
+    const [fields, set_fields] = React.useState({});
+    const [calls_done, set_calls_done] = React.useState(false);
 
-    useEffect(() => {//do initial api calls fetch post
+
+    useEffect(() => {//do initial api calls fetch post;
+        const post_id = "fa8da556-68b5-4d4b-9ff8-040a07e93a7a" //give through props
+
+        set_post_owner("gökberk");
+        console.log(post_owner);
+        console.log("xxx")
+
+        //const post = posts[post_id]
+
+        const post_type_id = post["post_type_id"]
+
+        //const post_type = post_types[post_type_id];
+        set_post_type(post_type_api_result);
+
+        let post_type_fields = post_type["post_field_info_dictionaries_list"]
+        let fieldss = { //each field type has an array of headers
+            "PlainText": [],
+            "Price": [],
+            "Location": [],
+            "Participation": [],
+            "Images": [],
+            "Date": []
+        }
+        post_type_fields.map(field => {
+            fieldss[field["field_type"]].push(field["header"]);
+        });
+        set_fields(fieldss);
+
+        set_post_fields(post["post_entries_dictionary_list"]);
+        set_post_likers(post["post_liked_user_list"]);
+        set_post_owner(post["post_owner_user_name"]);
+        set_calls_done(true);
 
     }, [])
-    const images = posts[post_id]["pictures"]
+    //const images = posts[post_id]["pictures"]
     const likeClick = () => {
         set_post_like(!post_like);
     }
 
-
-    const post_fields = post["post_entries_dictionary_list"];
-    const post_likers = post["post_liked_user_list"]
-    const post_owner = post["post_owner_user_name"]
-
+    console.log(post);
     const text = (header) => post_fields.find(pf => pf["header"] === header)["text"];
     const location_text = (header) => post_fields.find(pf => pf["header"] === header)["text"]; //implement location
     const price = (header) => {
@@ -64,23 +80,32 @@ const Post = (data) => { // data shall contain post id, post types and post type
         });
         return component;
     }
+    const image = (header) => post_fields.find(pf => pf["header"] === header)["image"]
 
-
-    return (
-    <div>
-        <article className="postcard dark red">
-            <a className="postcard__img_link">
+    /* IMAGE PART
+    * <a className="postcard__img_link">
                 <img className="postcard__img" src={images[current_image]} alt="Image Title" onClick={(event) => {
                     set_current_image((current_image+1) % images.length);
                     console.log((current_image+1)%images.length)
                 }}/>
                 <br/>
             </a>
+    * */
+
+    return (
+    !calls_done ? <div> calls are not done</div>
+        :
+    <div>
+        <article className="postcard dark red">
+            <a className="postcard__img_link">
+                <img className="postcard__img" src="https://i.imgur.com/8WRRCb.png" alt="Image Title"/>
+                <br/>
+            </a>
             <div className="postcard__text">
-                <h1 className="postcard__title red"><a href="#">{"POST TITLE!!!!!!!!!!!"}</a></h1>
+                <h1 className="postcard__title red"><a href="#">{post["post_title"]}</a></h1>
                 <div className="postcard__subtitle small">
                     <time dateTime="2020-05-25 12:00:00">
-                        <i className="fas fa-calendar-alt mr-2"/>Creator: <a href="asd">{posts[post_id]["post_owner_user_name"]}<br/></a>
+                        <i className="fas fa-calendar-alt mr-2"/>Creator: <a href="asd">{post["post_owner_user_name"]}<br/></a>
                         {fields["Date"].map(header => (<i className="postcard__preview-txt-onur">+{header + ": " + date(header)}<br/></i>))}
                         {fields["Price"].map(header => (<i className="fas fa-calendar-alt mr-2">{"+" + header + ": " + price(header)}<br/></i>))}
 
