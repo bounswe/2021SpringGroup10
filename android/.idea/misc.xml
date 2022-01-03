@@ -3,14 +3,21 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/edit_text_round_gray_background.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_navigation.xml" value="0.16041666666666668" />
         <entry key="app/src/main/res/layout/activity_profile_creation.xml" value="0.12771739130434784" />
         <entry key="app/src/main/res/layout/dropdown_item.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_basic_post_creation.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_community.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_community_creation.xml" value="0.12771739130434784" />
         <entry key="app/src/main/res/layout/fragment_community_page.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.125" />
+        <entry key="app/src/main/res/layout/fragment_community_post_type_creation.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_create_post.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.11" />
+        <entry key="app/src/main/res/layout/fragment_profile_creation.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_search.xml" value="0.12771739130434784" />
+        <entry key="app/src/main/res/layout/item_post_type.xml" value="0.1" />
         <entry key="app/src/main/res/layout/profile_fragment.xml" value="0.1" />
         <entry key="app/src/main/res/menu/nav_menu.xml" value="0.1" />
       </map>
