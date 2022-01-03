@@ -24,6 +24,7 @@ from post.post import Post
 from post.post_type import PostType
 from datetime import datetime as dt
 from collections import Counter
+import mpu
 
 SC_FORBIDDEN = 403
 SC_SUCCESS = 200
