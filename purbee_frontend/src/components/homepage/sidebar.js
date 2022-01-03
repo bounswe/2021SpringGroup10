@@ -38,7 +38,7 @@ export const SideBar = (props) => {
                 <ListItemText primary={"Purbee"} />
             </ListItem>
             <List>
-                <Link to="/profile-page" style={{ textDecoration: 'none', color: "#101010" }} >
+                <Link to="/home" style={{ textDecoration: 'none', color: "#101010" }} >
                     <ListItem button >
                         <ListItemIcon >
                             <HomeIcon />
