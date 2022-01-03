@@ -426,6 +426,7 @@ def change_privacy_community_page():
 
 @app.route('/api/community_feed', methods=['GET'])
 def community_feed():
+    # TODO change the input style of the endpoint
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -601,7 +602,30 @@ def unsubscribe_from_community_page():
         return data, status_code
 
 
-@app.route('/api/community_page/', methods=['POST', 'GET', 'PUT'])
+@app.route('/api/community_page/<community_id>', methods=["GET"])
+def community_page_get(community_id):
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    if request.method == "GET":
+        community_instance = Community.get_community_from_id(req['id'], env)
+        if community_instance:
+            # return success
+            data['response_message'] = "Community successfully found"
+            data['community_instance'] = community_instance.to_dict()
+            status_code = SC_SUCCESS
+        else:
+            # return not found error
+            data['response_message'] = "Specified community with the id not found"
+            status_code = SC_FORBIDDEN
+        return data, status_code
+
+
+@app.route('/api/community_page/', methods=['POST', 'PUT'])
 def community_page():
     req = request.get_json()
     data = {"response_message": None}
@@ -644,33 +668,7 @@ def community_page():
             data['response_message'] = 'Internal Error'
             status_code = SC_INTERNAL_ERROR
             return data, status_code
-    elif request.method == "GET":
-        needed_keys = ['id']
-        if len(needed_keys) != len(req):
-            # return invalid input error
-            data['response_message'] = "Incorrect json content. (necessary field is id)"
-            status_code = SC_BAD_REQUEST
-            return data, status_code
-        for r_keys in req:
-            if r_keys in needed_keys:
-                pass
-            else:
-                # return invalid input error
-                data['response_message'] = "Incorrect json content. (necessary field is id)"
-                status_code = SC_BAD_REQUEST
-                return data, status_code
-        community_instance = Community.get_community_from_id(req['id'], env)
-        if community_instance:
-            # return success
-            data['response_message'] = "Community successfully found"
-            data['community_instance'] = community_instance.to_dict()
-            status_code = SC_SUCCESS
-            return data, status_code
-        else:
-            # return not found error
-            data['response_message'] = "Specified community with the id not found"
-            status_code = SC_FORBIDDEN
-            return data, status_code
+
     elif request.method == "PUT":
         needed_keys = ['id', 'admin_list', 'subscriber_list', 'post_type_id_list', 'post_history_id_list',
                        'description',
@@ -765,6 +763,7 @@ def sign_in_endpoint():
 
 @app.route('/api/profile_page/', methods=['POST', 'GET'])
 def profile_page():
+    # TODO change the GET functionality input type
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -806,6 +805,7 @@ def profile_page():
 
 @app.route('/api/post/', methods=['GET', 'POST', 'PUT'])
 def post():
+    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1055,6 +1055,7 @@ def post_cancel_vote():
 
 @app.route('/api/post_type/', methods=['GET', 'POST'])
 def post_type():
+    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1104,6 +1105,7 @@ def post_type():
 
 @app.route('/api/deneme/', methods=['GET', 'POST'])
 def deneme():
+    # TODO change the GET functionality input type
     req = request.get_json()
     community_id = req["community_id"]
     data = {"response_message": None}
