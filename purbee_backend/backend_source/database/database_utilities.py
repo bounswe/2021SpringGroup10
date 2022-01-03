@@ -322,10 +322,12 @@ def update_profile_info_by_user_name(user_name, profile_info_dict):
 def update_follower_and_following_lists(user_name1, user_name2):
     try:
         following = get_user_by_name(user_name1)["following"]
-        following.append(user_name2)
+        if user_name2 not in following:
+            following.append(user_name2)
         registered_users.update({"user_name": user_name1}, {"$set": {"following": following}})
         followers = get_user_by_name(user_name2)["followers"]
-        followers.append(user_name1)
+        if user_name1 not in followers:
+            followers.append(user_name1)
         registered_users.update({"user_name": user_name2}, {"$set": {"followers": followers}})
         return 0
     except:
@@ -334,10 +336,12 @@ def update_follower_and_following_lists(user_name1, user_name2):
 def update_follower_and_following_lists2(user_name1, user_name2):
     try:
         following = get_user_by_name(user_name1)["following"]
-        following.remove(user_name2)
+        if user_name2 not in following:
+            following.remove(user_name2)
         registered_users.update({"user_name": user_name1}, {"$set": {"following": following}})
         followers = get_user_by_name(user_name2)["followers"]
-        followers.remove(user_name1)
+        if user_name1 not in followers:
+            followers.remove(user_name1)
         registered_users.update({"user_name": user_name2}, {"$set": {"followers": followers}})
         return 0
     except:
@@ -354,5 +358,5 @@ def get_profile_page_by_user_name(user_name):
         return 1
     else:
         profile_info_fields = ['profile_photo', "following", "followers", "first_name", "last_name", "birth_date",
-                               "post_list", "user_name"]
+                               "post_list", "user_name","subscribed_communities"]
         return {key: value for key, value in user.items() if (key in profile_info_fields)}
