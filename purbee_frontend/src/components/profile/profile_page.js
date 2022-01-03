@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {base_url, headers} from "../../utils/url"
 import { getUser } from '../../utils/common';
 import { List, ListItem, Divider, ListItemText, Button } from '@mui/material';
+import Header from "../homepage/header";
+import { useParams } from 'react-router-dom'
+// import Feed from '../feed/feed'
 
 const Axios = require('axios');
 
@@ -23,8 +26,11 @@ const Profile = () => {
     const [follow_message, set_follow_message] = useState("Follow")
 
     let navigate = useNavigate()
+    const { user_name_ } = useParams()
 
     useEffect(() => {
+        console.log(user_name_)
+        
         const request_json = {
             "user_name": user_name
         }
@@ -90,8 +96,10 @@ const Profile = () => {
     }
 
     if(page_state == "profile") {
+
         return (
-            <div>
+            <div className="App">
+                <Header />
                 <div style={{
                     display:"flex",
                     justifyContent: "space-around",
@@ -116,14 +124,15 @@ const Profile = () => {
                             <h5 onClick={open_followers}>{followers.length} followers</h5>
                             <h5 onClick={open_following}>{following.length} following</h5>
                             {user_name != getUser() ? <Button
-                variant="contained"
-                color="primary"
-                style={{height: "20px"}}
-                onClick={follow_user}
-                className="form__custom-button">{follow_message}</Button> : null}
+                                variant="contained"
+                                color="primary"
+                                style={{height: "20px"}}
+                                onClick={follow_user}
+                                className="form__custom-button">{follow_message}</Button> : null}
                         </div>
                     </div>
                 </div>
+                {/* <Feed id_list = {posts} /> */}
             </div>
         )
     }
@@ -146,7 +155,8 @@ const Profile = () => {
             bgcolor: 'background.paper',
           };
         return (
-            <div>
+            <div className='App'>
+                <Header />
                 <Button
                 variant="contained"
                 color="primary"
@@ -180,7 +190,8 @@ const Profile = () => {
             bgcolor: 'background.paper',
           };
         return (
-            <div>
+            <div className='App'>
+                <Header />
                 <Button
                 variant="contained"
                 color="primary"

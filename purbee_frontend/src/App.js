@@ -14,6 +14,7 @@ import {
     useNavigate,
 } from "react-router-dom";
 import CreatePost from './components/createpost/create_post';
+import Search from './components/search/search_page';
 
 const asd = () => (<div>HELLOOOO</div>);
 
@@ -31,7 +32,8 @@ function App() {
               <Route path="/create-post-type" element={<CreatePostType />} />
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/post" element={<Post />} />
-              <Route path ="/profile-page" element = {<ProfilePage />} />
+              <Route path ="/profile-page/:user_name_" element = {<ProfilePage />} />
+              <Route path ="/search-page/:search_item" element = {<Search />} />
           </Routes>
         </BrowserRouter> 
       </div>
