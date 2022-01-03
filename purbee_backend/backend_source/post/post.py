@@ -17,7 +17,8 @@ class Post:
                  post_entries_dictionary_list: dict,
                  post_discussion_id: str,
                  post_creation_time: str,
-                 post_title: str
+                 post_title: str,
+                 post_tag_list: list
                  ):
         self._id = _id
         self.post_owner_user_name = post_owner_user_name
@@ -28,6 +29,7 @@ class Post:
         self.post_discussion_id = post_discussion_id
         self.post_creation_time = post_creation_time
         self.post_title = post_title
+        self.post_tag_list = post_tag_list
 
     def get_id(self):
         return self._id
@@ -123,7 +125,8 @@ class Post:
                 self.post_fields_list),
             "post_discussion_id": str(self.post_discussion_id),
             "post_creation_time": self.post_creation_time,
-            "post_title": self.post_title
+            "post_title": self.post_title,
+            "post_tag_list": self.post_tag_list
         }
         return dict
 
@@ -153,7 +156,7 @@ class Post:
         post_liked_user_list = []
         post_discussion_id = Discussion.create_new_empty_discussion()["id"]
         post_creation_time = str(datetime.datetime.now())
-
+        post_tag_list = []
         new_post = Post(_id,
                         post_type_id,
                         post_owner_user_name,
@@ -161,7 +164,8 @@ class Post:
                         post_entries_dictionary_list,
                         post_discussion_id,
                         post_creation_time,
-                        post_title
+                        post_title,
+                        post_tag_list
                         )
         new_post.save_to_database()
         Post.has_created(new_post)
