@@ -26,6 +26,10 @@ class HomeFragment : Fragment() {
             view.findNavController().navigate(R.id.action_homeFragment_to_searchFragment)
 
         }
+        binding.createPostButton.setOnClickListener { view ->
+            view.findNavController().navigate(R.id.action_homeFragment_to_createPostFragment)
+
+        }
 
         return binding.root
     }

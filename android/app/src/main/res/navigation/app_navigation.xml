@@ -13,7 +13,11 @@
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/communityFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityFragment"
@@ -23,6 +27,21 @@
             android:id="@+id/action_communityFragment_to_communityCreationFragment"
             app:destination="@id/communityCreationFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/createBasicPostFragment"
+        android:name="com.example.mvvmapp.ui.home.CreateBasicPostFragment"
+        tools:layout="@layout/fragment_basic_post_creation"
+        android:label="Create Basic Post" />
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.example.mvvmapp.ui.home.CreatePostFragment"
+        tools:layout="@layout/fragment_create_post"
+        android:label="Create Post" >
+        <action
+        android:id="@+id/action_createPostFragment_to_createBasicPostFragment"
+        app:destination="@id/createBasicPostFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.mvvmapp.ui.home.SearchFragment"
