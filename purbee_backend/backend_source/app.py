@@ -1343,10 +1343,32 @@ def comment():
     elif result == 0:
         data['response_message'] = "Successfully a comment created"
         data['comment'] = current_comment
-        status_code = SC_SUCCESS
+        status_code = SC_CREATED
     else:
         data['response_message'] = "Parent discussion related internal error occurred"
         status_code = SC_INTERNAL_ERROR
+    return data, status_code
+
+
+@app.route("api/comment/<comment_id>", methods=['GET'])
+def comment_get(comment_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        current_comment = Comment.get_comment_by_comment_id(comment_id, env)
+        if current_comment:
+            data['response_message'] = "Successfully comment found"
+            data['comment'] = current_comment
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "There is no comment with the given comment id"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
 
 
 if __name__ == '__main__':

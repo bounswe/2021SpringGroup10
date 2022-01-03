@@ -3,7 +3,8 @@ from database.database_utilities import (
     get_discussion_dict_by_discussion_id,
     create_new_comment,
     update_comment,
-    get_user_by_name
+    get_user_by_name,
+    get_comment_dict_by_comment_id
 )
 from discussion.discussion import Discussion
 
@@ -66,3 +67,7 @@ class Comment:
             else:
                 return after_result + 20
         return result, current_comment_dict
+
+    @staticmethod
+    def get_comment_by_comment_id(comment_id, env=None):
+        return get_comment_dict_by_comment_id(comment_id, env)
