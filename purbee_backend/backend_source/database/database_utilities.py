@@ -41,7 +41,7 @@ def update_community(community_dictionary, env=None):
         community_database = test_communities
     else:
         community_database = communities
-    db_return = community_database.update({"_id": community_dictionary['_id']}, {
+    db_return = community_database.update({"_id": community_dictionary['id']}, {
         "$set": community_dictionary})
 
 

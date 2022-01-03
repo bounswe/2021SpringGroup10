@@ -1296,7 +1296,7 @@ def post_type():
     return data, status_code
 
 
-@app.route("api/comment", methods=["POST"])
+@app.route("/api/comment", methods=["POST"])
 def comment():
     req = request.get_json()
     data = {"response_message": None}
@@ -1348,7 +1348,7 @@ def comment():
     return data, status_code
 
 
-@app.route("api/comment/<comment_id>", methods=['GET'])
+@app.route("/api/comment/<comment_id>", methods=['GET'])
 def comment_get(comment_id):
     try:
         env = request.headers['env']
@@ -1369,7 +1369,7 @@ def comment_get(comment_id):
         return data, status_code
 
 
-@app.route("api/discussion/<discussion_id>", methods=["GET"])
+@app.route("/api/discussion/<discussion_id>", methods=["GET"])
 def discussion_get(discussion_id):
     try:
         env = request.headers['env']
