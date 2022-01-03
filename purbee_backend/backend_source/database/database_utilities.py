@@ -51,8 +51,12 @@ def update_community(community_dictionary, env=None):
         return 0
 
 
-def create_new_comment(comment_dict):
-    if get_comment_dict_by_comment_id(comment_dict["id"]):
+def create_new_comment(comment_dict, env=None):
+    if env == "test":
+        comment_db = test_comments
+    else:
+        comment_db = comments
+    if get_comment_dict_by_comment_id(comment_dict["id"], env):
         return 1
     try:
         neu_comment = {}
@@ -62,19 +66,27 @@ def create_new_comment(comment_dict):
             else:
                 neu_comment[key] = comment_dict[key]
 
-        comments.insert_one(neu_comment)
+        comment_db.insert_one(neu_comment)
         return 0
     except:
         return 2
 
 
-def get_comment_dict_by_comment_id(comment_id):
-    return comments.find_one({"_id": comment_id})
+def get_comment_dict_by_comment_id(comment_id, env=None):
+    if env == 'test':
+        comment_db = test_comments
+    else:
+        comment_db = comments
+    return comment_db.find_one({"_id": comment_id})
 
 
-def update_comment(comment_dictionary):
+def update_comment(comment_dictionary, env=None):
+    if env == 'test':
+        comment_db = test_comments
+    else:
+        comment_db = comments
     id_value = comment_dictionary.pop('id')
-    db_return = comments.update({"_id": id_value}, {
+    db_return = comment_db.update({"_id": id_value}, {
         "$set": comment_dictionary
     })
 
@@ -84,9 +96,13 @@ def update_comment(comment_dictionary):
         return 0
 
 
-def update_discussion(discussion_dictionary):
+def update_discussion(discussion_dictionary, env=None):
+    if env == 'test':
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
     id_value = discussion_dictionary.pop('id')
-    db_return = discussions.update({"_id": id_value}, {
+    db_return = discussion_db.update({"_id": id_value}, {
         "$set": discussion_dictionary
     })
 
@@ -96,8 +112,12 @@ def update_discussion(discussion_dictionary):
         return 0
 
 
-def create_new_discussion(discussion_dictionary):
-    if get_discussion_dict_by_discussion_id(discussion_dictionary["id"]):
+def create_new_discussion(discussion_dictionary, env=None):
+    if env == 'test':
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
+    if get_discussion_dict_by_discussion_id(discussion_dictionary["id"], env):
         return 1
     try:
         neu_discussion = {}
@@ -107,14 +127,18 @@ def create_new_discussion(discussion_dictionary):
             else:
                 neu_discussion[key] = discussion_dictionary[key]
 
-        discussions.insert_one(neu_discussion)
+        discussion_db.insert_one(neu_discussion)
         return 0
     except:
         return 2
 
 
-def get_discussion_dict_by_discussion_id(discussion_id):
-    return discussions.find_one({"_id": discussion_id})
+def get_discussion_dict_by_discussion_id(discussion_id, env=None):
+    if env == "test":
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
+    return discussion_db.find_one({"_id": discussion_id})
 
 
 def save_new_community(community_dictionary, env=None):

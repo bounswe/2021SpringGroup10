@@ -12,6 +12,8 @@ update_follower_and_following_lists,
 update_follower_and_following_lists2
 
 )
+from comment.comment import Comment
+from discussion.discussion import Discussion
 
 from login.login import (
     sign_up,
@@ -1295,6 +1297,35 @@ def post_type():
 
     return data, status_code
 
+
+@app.route("api/comment", methods=["POST"])
+def comment():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    if request.method == "POST":
+        needed_keys = ['user_id', 'parent_discussion_id', 'text']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
+
+    result, current_comment = Comment.create_comment(req['parent_discussion_id'], req['text'], req['user_id'], env)
 
 
 if __name__ == '__main__':
