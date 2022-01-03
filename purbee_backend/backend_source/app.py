@@ -958,9 +958,8 @@ def unfollow():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/profile_page/', methods=['POST', 'GET'])
+@app.route('/api/profile_page/', methods=['POST', 'PUT'])
 def profile_page():
-    # TODO change the GET functionality input type
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -985,7 +984,7 @@ def profile_page():
 
         return data, status_code
 
-    if request.method == "GET":
+    if request.method == "PUT":
         db_return = get_profile_page(user_name)
         if db_return == 2:
             data["response_message"] = "Database error occurred."
@@ -1000,9 +999,25 @@ def profile_page():
         return data, status_code
 
 
-@app.route('/api/post/', methods=['GET', 'POST', 'PUT'])
+@app.route("/api/post/<post_id>", methods=["GET"])
+def post_get(post_id):
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        try:
+            post = Post.get_post(post_id)
+        except Exception as e:
+            data = {"response_message": str(e)}
+            status_code = SC_BAD_REQUEST
+        else:
+            data["response_message"] = "Post is successfully returned. "
+            data["data"] = post.to_dict()
+            status_code = SC_SUCCESS
+    return data, status_code
+
+
+@app.route('/api/post/', methods=['POST', 'PUT'])
 def post():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1047,24 +1062,6 @@ def post():
                 data["response_message"] = "Post is successfully updated. "
                 data["data"] = {"_id": updated_post.get_id()}
                 status_code = SC_SUCCESS
-
-    elif request.method == "GET":
-        try:
-            post_id = req["post_id"]
-        except Exception:
-            data = {"response_message": "Necessary arguments are not given."}
-            status_code = SC_BAD_REQUEST
-        else:
-            try:
-                post = Post.get_post(post_id)
-            except Exception as e:
-                data = {"response_message": str(e)}
-                status_code = SC_BAD_REQUEST
-            else:
-                data["response_message"] = "Post is successfully returned. "
-                data["data"] = post.to_dict()
-                status_code = SC_SUCCESS
-
     return data, status_code
 
 
@@ -1250,9 +1247,8 @@ def post_cancel_vote():
     return data, status_code
 
 
-@app.route('/api/post_type/', methods=['GET', 'POST'])
+@app.route('/api/post_type/', methods=['PUT', 'POST'])
 def post_type():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1279,7 +1275,7 @@ def post_type():
                 data["data"] = {"_id": new_post_type.get_id()}
                 status_code = SC_SUCCESS
 
-    elif request.method == "GET":
+    elif request.method == "PUT":
         try:
             _id = req["post_type_id"]
         except Exception as e:
@@ -1299,22 +1295,6 @@ def post_type():
 
     return data, status_code
 
-
-@app.route('/api/deneme/', methods=['GET', 'POST'])
-def deneme():
-    # TODO change the GET functionality input type
-    req = request.get_json()
-    community_id = req["community_id"]
-    data = {"response_message": None}
-    status_code = None
-
-    import database.database_utilities as dbu
-
-    print(dbu.get_community_by_community_id(community_id))
-    data["response_message"] = "Bla bla"
-    status_code = SC_SUCCESS
-
-    return data, status_code
 
 
 if __name__ == '__main__':
