@@ -66,6 +66,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
+            <Button
+                android:id="@+id/buttonUpdateProfile"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Update Profile"
+                android:textAllCaps="false" />
+
 
         </LinearLayout>
 

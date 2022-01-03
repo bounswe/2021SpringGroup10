@@ -51,7 +51,18 @@
         android:id="@+id/profileFragment2"
         android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
         tools:layout="@layout/profile_fragment"
-        android:label="Profile" />
+        android:label="Profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_updateProfileFragment"
+            app:destination="@id/fragment_updateProfile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_updateProfile"
+        android:name="com.example.mvvmapp.ui.home.UpdateProfileFragment"
+        tools:layout="@layout/fragment_update_profile"
+        android:label="Update Profile" />
+
     <fragment
         android:id="@+id/communityCreationFragment"
         android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
