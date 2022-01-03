@@ -1327,6 +1327,27 @@ def comment():
 
     result, current_comment = Comment.create_comment(req['parent_discussion_id'], req['text'], req['user_id'], env)
 
+    if result == 11:
+        # there is no parent discussion
+        data['response_message'] = "There is no parent discussion with the given discussion id"
+        status_code = SC_FORBIDDEN
+    elif result == 12:
+        data['response_message'] = "Given text is empty"
+        status_code = SC_FORBIDDEN
+    elif result == 13:
+        data['response_message'] = "There is no registered user with the given user id"
+        status_code = SC_FORBIDDEN
+    elif result == 14:
+        data['response_message'] = "A new Discussion could not created"
+        status_code = SC_INTERNAL_ERROR
+    elif result == 0:
+        data['response_message'] = "Successfully a comment created"
+        data['comment'] = current_comment
+        status_code = SC_SUCCESS
+    else:
+        data['response_message'] = "Parent discussion related internal error occurred"
+        status_code = SC_INTERNAL_ERROR
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
