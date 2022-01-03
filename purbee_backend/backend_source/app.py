@@ -33,7 +33,7 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
-@app.route('/api/advanced_search', methods=['GET'])
+@app.route('/api/advanced_search', methods=['PUT'])
 def advanced_search():
     req = request.get_json()
     data = {"response_message": None}
@@ -175,7 +175,7 @@ def advanced_search():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/user_search', methods=['GET'])
+@app.route('/api/user_search', methods=['PUT'])
 def user_search():
     req = request.get_json()
     data = {"response_message": None}
@@ -196,7 +196,7 @@ def user_search():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/community_search', methods=['GET'])
+@app.route('/api/community_search', methods=['PUT'])
 def community_search():
     req = request.get_json()
     data = {"response_message": None}
@@ -217,7 +217,7 @@ def community_search():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/user_feed', methods=['GET'])
+@app.route('/api/user_feed', methods=['PUT'])
 def user_feed():
     req = request.get_json()
     data = {"response_message": None}
@@ -569,7 +569,7 @@ def change_privacy_community_page():
         return data, status_code
 
 
-@app.route('/api/community_feed', methods=['GET'])
+@app.route('/api/community_feed', methods=['PUT'])
 def community_feed():
     req = request.get_json()
     data = {"response_message": None}
