@@ -22,12 +22,56 @@ export default function ProfileInfo() {
 
     let navigate = useNavigate()
 
+    React.useEffect(() => {
+
+        const request_json = {
+            "user_name": getUser()
+        }
+        console.log(request_json)
+        const my_url = base_url + 'profile_page'
+        Axios({
+            headers: headers,
+            method: "PUT",
+            url: my_url,
+            data: request_json,
+        }).then(response => {
+            console.log("fff")
+            console.log(response)
+            console.log(response.data.data.followers)
+            set_first_name(response.data.data.first_name)
+            set_last_name(response.data.data.last_name)
+            set_birth_date(response.data.data.birth_date)
+
+            //navigate('/home')
+        }).catch(error => {
+            
+            setLoading(false)
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error)
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+            //setError(error.response.data.response_message)
+        })
+      }, []);
+
     const handle_save = () => {
         setError(null);
         setLoading(true);
         const request_json = {
-            "user_name":"foo2",
-            "profile_info": {"last_name":"demirtaş","first_name":"berkay", "birth_date":"11.1.2021"}
+            "user_name": getUser(),
+            "profile_info": {"last_name": last_name,"first_name":first_name, "birth_date":birth_date}
         };
 
         Axios({
@@ -74,6 +118,7 @@ export default function ProfileInfo() {
                         fullWidth: true
                     }}
                     type="text"
+                    value={first_name}
                     onChange={(e) => set_first_name(e.target.value)}
                 />
                 <div style={{ height: "0.8em" }}></div>
@@ -84,6 +129,7 @@ export default function ProfileInfo() {
                     formControlProps={{
                         fullWidth: true
                     }}
+                    value={last_name}
                     onChange={(e) => set_last_name(e.target.value)}
                 />
 

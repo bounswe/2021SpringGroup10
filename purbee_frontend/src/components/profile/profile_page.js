@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import { useNavigate } from "react-router-dom";
 import {base_url, headers} from "../../utils/url"
-import { getUser } from '../../utils/common';
+import { getUser, getFollowing } from '../../utils/common';
 import { List, ListItem, Divider, ListItemText, Button } from '@mui/material';
 import Header from "../homepage/header";
 import { useParams } from 'react-router-dom'
@@ -11,8 +11,11 @@ const Axios = require('axios');
 
 const Profile = () => {
 
+    let navigate = useNavigate()
+    const { user_name_ } = useParams()
+
     const [first_name, set_first_name] = useState("");
-    const [user_name, set_user_name] = useState(getUser())
+    const [user_name, set_user_name] = useState(user_name_)
     const [last_name, set_last_name] = useState("");
     const [bio, set_bio] = useState("");
     const [birth_date, set_birth_date] = useState("");
@@ -25,17 +28,15 @@ const Profile = () => {
     const [posts, set_posts] = useState([])
     const [follow_message, set_follow_message] = useState("Follow")
 
-    let navigate = useNavigate()
-    const { user_name_ } = useParams()
 
     useEffect(() => {
         console.log(user_name_)
         
         const request_json = {
-            "search_text":"ber"
+            "user_name": user_name
         }
         console.log(request_json)
-        const my_url = base_url + 'user_search'
+        const my_url = base_url + 'profile_page'
         Axios({
             headers: headers,
             method: "PUT",
@@ -43,10 +44,15 @@ const Profile = () => {
             data: request_json,
         }).then(response => {
             console.log(response)
-            console.log(response.data.followers)
+            console.log(response.data.data.followers)
             set_posts(response.data.data.post_list)
             set_followers(response.data.data.followers)
             set_following(response.data.data.following)
+            set_follow_message(prevState => {
+                const base_user_following = getFollowing()
+                if(base_user_following.includes(user_name)) return "Following"
+                else return "Follow"
+            })
 
             //navigate('/home')
         }).catch(error => {
@@ -86,16 +92,31 @@ const Profile = () => {
     }
 
     const go_user_profile = (user) => {
-        set_user_name(user)
         set_page_state("profile")
+        set_user_name(user)
+        navigate('/profile-page/' + user)
     }
 
-    const follow_user = () => {
+    const follow_user = (follower, following) => {
 
-        set_follow_message(prevState => {
-            if(prevState == "Follow") return "Request sent"
-            else return "Follow"
+        const my_url = base_url + 'follow'
+        Axios({
+            headers: headers,
+            method: "PUT",
+            url: my_url,
+            data: {"follower": follower, "following": following},
+        }).then(response => {
+            set_follow_message(prevState => {
+                if(prevState == "Follow") return "Following"
+                else return "Follow"
+            })
         })
+
+        
+    }
+
+    const update_profile = () => {
+        navigate('/profile-info')
     }
 
     if(page_state == "profile") {
@@ -130,8 +151,14 @@ const Profile = () => {
                                 variant="contained"
                                 color="primary"
                                 style={{height: "20px"}}
-                                onClick={follow_user}
-                                className="form__custom-button">{follow_message}</Button> : null}
+                                onClick={() => follow_user(getUser(), user_name)}
+                                className="form__custom-button">{follow_message}</Button> : 
+                                <Button
+                                variant="contained"
+                                color="primary"
+                                style={{height: "20px"}}
+                                onClick={update_profile}
+                                className="form__custom-button" >Update Profile</Button>}
                         </div>
                     </div>
                 </div>

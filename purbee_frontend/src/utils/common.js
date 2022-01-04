@@ -15,3 +15,13 @@ export const removeUserSession = () => {
 export const setUserSession = (user) => {
   sessionStorage.setItem('user', JSON.stringify(user));
 }
+
+export const setFollowing = (following) => {
+  sessionStorage.setItem('following', JSON.stringify(following))
+}
+
+export const getFollowing = () => {
+  const following = sessionStorage.getItem('following')
+  if(following) return JSON.parse(following)
+  else return null
+}
