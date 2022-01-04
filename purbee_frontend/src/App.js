@@ -31,7 +31,7 @@ function App() {
               <Route path="/create-post-type" element={<CreatePostType />} />
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/post" element={<Post />} />
-              <Route path="/feed" element={<Feed id_list={[1, 2, 3,4 ,5]}/>} />
+              <Route path="/feed" element={<Feed id_list={["ba86cc3d-400e-401c-8b42-63402134cf62", "ba86cc3d-400e-401c-8b42-63402134cf62"]}/>} />
               <Route path="/map" element={<Map />} />
           </Routes>
         </BrowserRouter>
