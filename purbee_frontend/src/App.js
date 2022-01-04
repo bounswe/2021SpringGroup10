@@ -16,6 +16,7 @@ import {
     useNavigate,
 } from "react-router-dom";
 import CreatePost from './components/createpost/create_post';
+import CreateCommunity from './components/createcommunity/create_community';
 
 const asd = () => (<div>HELLOOOO</div>);
 
@@ -26,6 +27,7 @@ function App() {
       <div>
         <BrowserRouter>
           <Routes>
+              <Route path="/create-community" element={<CreateCommunity />} />
               <Route path="/" element={<LoginRegister />} />
               <Route path="/home" element={<Homepage />} />
               <Route path="/profile-info" element={<ProfileInfo />} />
