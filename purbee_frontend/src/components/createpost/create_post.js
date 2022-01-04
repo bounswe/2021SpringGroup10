@@ -26,7 +26,7 @@ const CreatePost = () => {
     const [selectedPostType, setSelectedPostType] = useState();
     const [postTypes, setPostTypes] = useState([]);
     const [fields, setFields] = useState();
-
+    
 
     setUserSession("berkddd") // TODO delete
 

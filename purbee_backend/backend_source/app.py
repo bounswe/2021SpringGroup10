@@ -1,4 +1,3 @@
-import mpu
 from flask import Flask, request
 
 from community.community import Community
@@ -7,8 +6,13 @@ from database.database_utilities import (
     get_user_by_name,
     get_all_user_names,
     get_all_community_names,
-update_user_subscribed_communities
+update_user_subscribed_communities,
+update_follower_and_following_lists,
+update_follower_and_following_lists2
+
 )
+from comment.comment import Comment
+from discussion.discussion import Discussion
 
 from login.login import (
     sign_up,
@@ -20,6 +24,7 @@ from post.post import Post
 from post.post_type import PostType
 from datetime import datetime as dt
 from collections import Counter
+import mpu
 
 SC_FORBIDDEN = 403
 SC_SUCCESS = 200
@@ -905,10 +910,58 @@ def sign_in_endpoint():
 
     return data, status_code
 
+@app.route('/api/follow/', methods=['PUT'])
+def follow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
 
-@app.route('/api/profile_page/', methods=['POST', 'GET'])
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists(follower,following)
+
+    data["response_message"] = "succesfully followed."
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/unfollow/', methods=['PUT'])
+def unfollow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists2(follower,following)
+
+    data["response_message"] = "succesfully unfollowed."
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/profile_page/', methods=['POST', 'PUT'])
 def profile_page():
-    # TODO change the GET functionality input type
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -933,7 +986,7 @@ def profile_page():
 
         return data, status_code
 
-    if request.method == "GET":
+    if request.method == "PUT":
         db_return = get_profile_page(user_name)
         if db_return == 2:
             data["response_message"] = "Database error occurred."
@@ -948,9 +1001,25 @@ def profile_page():
         return data, status_code
 
 
-@app.route('/api/post/', methods=['GET', 'POST', 'PUT'])
+#@app.route("/api/post/<post_id>", methods=["GET"])
+def post_get(post_id):
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        try:
+            post = Post.get_post(post_id)
+        except Exception as e:
+            data = {"response_message": str(e)}
+            status_code = SC_BAD_REQUEST
+        else:
+            data["response_message"] = "Post is successfully returned. "
+            data["data"] = post.to_dict()
+            status_code = SC_SUCCESS
+    return data, status_code
+
+
+@app.route('/api/post/', methods=['POST', 'PUT'])
 def post():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -978,25 +1047,6 @@ def post():
 
     elif request.method == "PUT":  # Only for creating a new post.
 
-        try:
-            _id = req["post_id"]
-            post_entries_dictionary_list = req["post_entries_dictionary_list"]
-
-        except Exception as e:
-            data = {"response_message": "Necessary arguments are not given."}
-            status_code = SC_BAD_REQUEST
-        else:
-            try:
-                updated_post = Post.update_post(_id, post_entries_dictionary_list)
-            except Exception as e:
-                data = {"response_message": str(e)}
-                status_code = SC_BAD_REQUEST
-            else:
-                data["response_message"] = "Post is successfully updated. "
-                data["data"] = {"_id": updated_post.get_id()}
-                status_code = SC_SUCCESS
-
-    elif request.method == "GET":
         try:
             post_id = req["post_id"]
         except Exception:
@@ -1198,9 +1248,8 @@ def post_cancel_vote():
     return data, status_code
 
 
-@app.route('/api/post_type/', methods=['GET', 'POST'])
+@app.route('/api/post_type/', methods=['PUT', 'POST'])
 def post_type():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1227,7 +1276,7 @@ def post_type():
                 data["data"] = {"_id": new_post_type.get_id()}
                 status_code = SC_SUCCESS
 
-    elif request.method == "GET":
+    elif request.method == "PUT":
         try:
             _id = req["post_type_id"]
         except Exception as e:
@@ -1248,21 +1297,109 @@ def post_type():
     return data, status_code
 
 
-@app.route('/api/deneme/', methods=['GET', 'POST'])
-def deneme():
-    # TODO change the GET functionality input type
+@app.route("/api/comment", methods=["POST"])
+def comment_post():
     req = request.get_json()
-    community_id = req["community_id"]
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    if request.method == "POST":
+        needed_keys = ['user_id', 'parent_discussion_id', 'text']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
 
-    import database.database_utilities as dbu
+    result, current_comment = Comment.create_comment(req['parent_discussion_id'], req['text'], req['user_id'], env)
 
-    print(dbu.get_community_by_community_id(community_id))
-    data["response_message"] = "Bla bla"
-    status_code = SC_SUCCESS
-
+    if result == 11:
+        # there is no parent discussion
+        data['response_message'] = "There is no parent discussion with the given discussion id"
+        status_code = SC_FORBIDDEN
+    elif result == 12:
+        data['response_message'] = "Given text is empty"
+        status_code = SC_FORBIDDEN
+    elif result == 13:
+        data['response_message'] = "There is no registered user with the given user id"
+        status_code = SC_FORBIDDEN
+    elif result == 14:
+        data['response_message'] = "A new Discussion could not created"
+        status_code = SC_INTERNAL_ERROR
+    elif result == 0:
+        data['response_message'] = "Successfully a comment created"
+        data['comment'] = current_comment
+        status_code = SC_CREATED
+    else:
+        data['response_message'] = "Parent discussion related internal error occurred"
+        status_code = SC_INTERNAL_ERROR
     return data, status_code
+
+
+@app.route("/api/comment/<comment_id>", methods=['GET'])
+def comment_get(comment_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        current_comment = Comment.get_comment_by_comment_id(comment_id, env)
+        if current_comment:
+            data['response_message'] = "Successfully comment found"
+            data['comment'] = current_comment
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "There is no comment with the given comment id"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
+
+
+@app.route("/api/discussion/<discussion_id>", methods=["GET"])
+def discussion_get(discussion_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        result, current_discussion = Discussion.get_discussion(discussion_id, env)
+        if result == 11:
+            data['response_message'] = "There is no discussion with the given discussion id"
+            status_code = SC_FORBIDDEN
+        elif result == 0:
+            data['response_message'] = "Successfully discussion found"
+            data['discussion'] = current_discussion
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
+
+
+@app.route("/api/discussion", methods=["POST"])
+def discussion_post():
+    current_discussion = Discussion.create_new_empty_discussion()
+    data = {
+        "discussion": current_discussion
+    }
+    return data, 201
 
 
 if __name__ == '__main__':
