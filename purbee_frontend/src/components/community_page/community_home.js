@@ -30,77 +30,51 @@ export const CommunityHome2 = () => {
     
     React.useEffect(() => {
 
-        async function tempFunc() {
-            const my_url = base_url + 'community_page/' + community_name
-            Axios({
-                headers: headers,
-                method: "GET",
-                url: my_url
-            }).then(response => {
-                console.log(response)
-                set_admin_list(response.data.community_instance.admin_list)
-                set_created_at(response.data.community_instance.created_at)
-                set_community_creator_id(response.data.community_instance.community_creator_id)
-                set_description(response.data.community_instance.description)
-                set_is_private(response.data.community_instance.is_private)
-                set_subscriber_list(response.data.community_instance.subscriber_list)
-                set_post_history_id_list(response.data.community_instance.post_history_id_list)
-                set_requesters(response.data.community_instance.requesters)
-                console.log("anan")
-                var post_type_names = []
-                var temp = response.data.community_instance.post_type_id_list.map(id => {
-                    Axios({
-                        headers: headers,
-                        method: "PUT",
-                        url: base_url + 'post_type',
-                        data: {"post_type_id": id}
-                    }).then(resp => {
-                        // alert(resp.data.data.post_type_name)
-                        post_type_names.push(resp.data.data.post_type_name)
-                    }).catch(err => {
-                        alert("error")
-                    })
-                })
-                console.log(post_type_names)
-                set_post_type_id_list(post_type_names)
-                if(requesters.includes(getUser())) {
-                    set_subscribe_or_request("Request sent")
-                }
-                else if(subscriber_list.includes(getUser)) {
-                    set_subscribe_or_request("Unsubscribe")
-                }
+        const my_url = base_url + 'community_page/' + community_name
+        Axios({
+            headers: headers,
+            method: "GET",
+            url: my_url
+        }).then(response => {
+            console.log(response)
+            set_admin_list(response.data.community_instance.admin_list)
+            set_created_at(response.data.community_instance.created_at)
+            set_community_creator_id(response.data.community_instance.community_creator_id)
+            set_description(response.data.community_instance.description)
+            set_is_private(response.data.community_instance.is_private)
+            set_subscriber_list(response.data.community_instance.subscriber_list)
+            set_post_history_id_list(response.data.community_instance.post_history_id_list)
+            set_post_type_id_list(response.data.community_instance.post_type_name_list)
+            set_requesters(response.data.community_instance.requesters)
+            if(requesters.includes(getUser())) {
+                set_subscribe_or_request("Request sent")
+            }
+            else if(subscriber_list.includes(getUser)) {
+                set_subscribe_or_request("Unsubscribe")
+            }
 
-                //navigate('/home')
-            }).catch(error => {
-                
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.log(error)
-                    console.log(error.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log('Error', error.message);
-                }
-                //setError(error.response.data.response_message)
-            })
-        }
-        tempFunc()
-
-        
+            //navigate('/home')
+        }).catch(error => {
+            
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error)
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+            //setError(error.response.data.response_message)
+        })
     },[community_name])
-
-
-    // React.useEffect(() => {
-
-    // }, [post_type_id_list])
 
     const subscribe_community = (event) => {
         let my_url = ""
@@ -168,11 +142,11 @@ export const CommunityHome2 = () => {
     }
 
     const create_post = () => {
-        navigate('/create-post/' + community_name) // TODO: this will be create post
+        navigate('/create-post/' + community_name)
     }
 
     const create_post_type = () => {
-        navigate('/create-post-type/' + community_name) // TODO: this will be create post type
+        navigate('/create-post-type/' + community_name)
     }
 
     const make_advanced_search = () => {
