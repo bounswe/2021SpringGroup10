@@ -24,7 +24,7 @@ def sign_in(user_name, password):
     return check_password_for_user_name(user_name, password)
 
 
-def update_profile_page(user_name,profile_info_dict):
+def update_profile_page(user_name, profile_info_dict):
     if check_user_by_user_name(user_name):
         # no such user
         return 1

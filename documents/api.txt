@@ -1,0 +1,427 @@
+API Documentation:
+
+Postman link for all our endpoints:
+https://app.getpostman.com/join-team?invite_code=760a4f338193055fce219bf9ac507dd3&target_code=625d200645d9379b53bbe9e06d96a5d3
+
+Our all endpoints accepts json format input. Other types of input should not be given to our endpoints.
+
+Sign Up:
+http://3.134.93.99:8080/api/sign_up/ method="POST"
+
+To successfully sing up, a new user_name and a mail_adress should be provided. And password should include number, punctuation, upper letter, lower latter with at least 8 characters long. After sign up process handled, a new profile page will be created according to the given information. Other information related to profile page will be null for the first time. But when user comes to their page, they shall update their profile page. This process handled by another endpoint declared in the below. 
+
+input:
+    {
+        'user_name': <user_name>,   //string
+        'mail_address': <mail>,     //string
+        'password': <password>      //string
+    }
+
+outputs:
+    if <password> is not secure:
+        {
+            'response_message': 'Password is not secure enough.'
+        },
+        status code = 403
+    if <mail> is already in use:
+        {
+            'response_message': 'E-mail address already exists.'
+        },
+        status code = 403
+    if <user_name> is already exists:
+        {
+            'response_message': 'User name already exists.'
+        },
+        status code = 403
+    if input json is not provided in the defined way:
+        {
+            'response_message': 'Incorrect json content. (necessary fields are mail_address,user_name,password)'
+        },
+        status code = 400
+    if successful:
+        {
+            'response_message': 'User successfully signed up.'
+        },
+        status code = 201
+
+
+
+Sign In:
+http://3.134.93.99:8080/api/sign_in/   method=”POST”
+
+To successfully sign in, already existing user_name should be given. Also the given password should match with the given user_name information.
+
+input:
+    {
+        'user_name': <user_name>,   // string
+        'password': <password>      // string
+    }
+
+outputs:
+    if <user_name>, <password> pair does not exist in the database:
+        {
+            'response_message': 'Credentials are incorrect',
+            'user_name': None
+        },
+        status code = 401
+    if input json is not provided in the defined way:
+        {
+            'response_message': 'Incorrect json content. (necessary fields are mail_address,user_name,password)',
+            'user_name': None
+        },
+        status code = 400
+    if successful:
+        {
+            'response_message': 'Successfully signed in.',
+            'user_name': <user_name>
+        },
+        status code = 201
+
+Update Profile Page:
+http://3.134.93.99:8080/api/profile_page/  method="POST"
+
+To successfully update a profile page, all the necessary fields declared in the below (but if the wanted update fields less than the given template, it also handles to update given parts). Also, user name should exist before hand. But this process does not includes the user itself. Because giving the correct information handled via the front end part and users only should describe the other fields described below. 
+
+input:
+    {
+        'user_name': <user_name>,   //String
+        'profile_photo': <image>,   //String url
+        'bio': <information>,       //String
+        'first_name': <name>,       //String
+        'last_name': <surname>,     //String
+        'birth_date': <date>        //String: '13.07.1997'
+    }
+outputs:
+    if successful:
+        {
+            'response_message': 'User page updated successfully.'
+        }
+        status code = 200
+    if there is no user with <user_name>:
+        {
+            "response_message": "No such user."
+        }
+        status code = 400
+
+
+Get Profile Page Infromation
+http://3.134.93.99:8080/api/profile_page/ method="GET"
+
+This endpoint is used when a user wisits their profile page or other user's profile page. Resulting information is used to prepare a profile page corrrectly and fully in the front end. To successfully get profile page information, existing user_name should be provided.
+
+input:
+    {
+        'user_name': <user_name>    //String
+    }
+outputs:
+    if successful:
+        {
+            "data": {
+                'profile_photo': <image>,       //String (base64)
+                'followers': <follower_list>,   //List of String holding <user_name>s
+                'following': <following_list>,  //List of String holding <user_name>s
+                'user_name': <user_name>,       //String
+                'first_name': <name>,           //String
+                'last_name': <surname>,         //String
+                'birth_date': <date>,           //String: '13.07.1997'
+                'post_list': <post_list>        //List of String holding <post_id>s
+            },
+            "response_message": "Profile page successfully returned. "
+        }
+        status code = 200
+    if there is no user with <user_name>:
+        {
+            "response_message": "No such user."
+        }
+        status code = 400
+
+
+Create Post Type:
+http://3.134.93.99:8080/api/post_type/ method="POST"
+
+
+<field_name>s are "PlainText", "Photo", "DateTime", "Document", "Price", "Location", "Poll", "Participation". All field types hold information in an array and this structure should be followed by the endpoint user.  
+
+
+input:
+    {
+        "fields_dictionary": {
+            <field_name_0>: [                             //String
+                {
+                    "header": <header_name_0>               //String
+                },
+                {
+                    "header": <header_name_1>               //String
+                }
+                .
+                .
+                .
+            ],
+            <field_name_1>: [                               //String
+                {
+                    "header": <header_name_2>               //String
+                }
+                .
+                .
+                .
+                ]
+            .
+            .
+            .
+        },
+        "user_name": <user_name>,                           //String
+        "post_type_name": <post_type_name>                  //String
+        "parent_community_id": <community_id>               //integer
+    }
+output:
+    if successful:
+        {
+            "data": {
+                "post_type_id": <post_type_id>              //integer
+            },
+            "response_message": "PostType is successfully created."
+        }
+        status code = 200
+
+
+Get Post Type
+http://3.134.93.99:8080/api/post_type/ method="GET"
+
+To correctly get post type, <post_type_id> should be provided correctly. Output shows all the information about the existing post type. For instance, even if the post type does not include any "DateTime" object, we show this field with empty array. 
+
+input:
+    {
+        "post_type_id": <post_type_id>                      //integer
+    }
+output:
+    {
+        "data": {
+            "fields_dictionary": {
+                "DateTime": <date_time_array>,              //List of DateTime object
+                "Document": <document_array>,               //List of Documentation object
+                "Location": <location_array>,               //List of Location object
+                "Participation": <participation_array>,     //List of Participation object
+                "Photo": <photo_array>,                     //List of Photo object
+                "PlainText": <plain_text_array>,            //List of PlainText object
+                "Poll": <poll_array>,                       //List of Poll object
+                "Price": <price_array>                      //List of Price object
+            },
+            "parent_community_id": <community_id>,          //Integer
+            "post_type_id": <post_type_id>,                 //Integer
+            "post_type_name": <post_type_name>,             //String
+        },
+        "response_message": "PostType is successfully returned."
+    }
+    status code = 200
+
+
+Create Post
+http://3.134.93.99:8080/api/post/ method="POST"
+
+
+To successfully create a post <post_type_id> should be exist. "fields_dictionary" holds information about related type field objects. Every <field_name> holds a list which should be correctly defined. Examples for some field types:
+    "PlainText": [
+            {
+                "text": "example_text_0"
+            },
+            {
+                "text": "example_text_1"
+            }
+        ]
+
+    "Location": [
+            {
+                "text": "description_text_about_location",
+                "location": "0001.12.13..13.1.31"
+            }
+        ]
+
+input:
+    {
+        "fields_dictionary": {
+            <field_name_0>: <field_object_array_0>,             //List of related object
+            <field_name_1>: <field_object_array_1>,             //List of related object
+            .
+            .
+            .
+        }
+        "user_name": <user_name>,                               //String
+        "post_type_id": <post_type_id>                          //Integer
+    }
+output:
+    if successful:
+        {
+            "data": {
+                "post_id": <post_id>                            //Integer
+            },
+            "response_message": "Post is successfully created. "
+        }
+        status code = 200
+
+Get Post
+http://3.134.93.99:8080/api/post/ method="GET"
+
+To get correct data correct <post_id> should be provided. This get mechanism aimed for showing posts related to user with <user_name>. It will be used in profile page to show user related posts.
+
+input:
+    {
+        "post_id": <post_id>,                                   //Integer
+        "user_name": <user_name>                                //String
+    }
+
+output:
+    if successful:
+        {
+            "data": {
+                "base_post_type": {
+                    "fields_dictionary": {
+                        <field_name_0>: <field_array_0>,                //List of object
+                        <field_name_1>: <field_array_1>,                //List of object
+                        <field_name_2>: <field_array_2>,                //List of object
+                        <field_name_3>: <field_array_3>,                //List of object
+                        <field_name_4>: <field_array_4>,                //List of object
+                        .
+                        .
+                        .
+                    },
+                    "parent_community_id": <community_id>,              //Integer
+                    "post_type_id": <post_type_id>,                     //Integer
+                    "post_type_name": <post_type_name>                  //String
+                },
+                "post_id": <post_id>,                                   //Integer
+                "post_owner_user_name": <user_name>                     //String
+            },
+            "response_message": "Post is successfully created. "
+        }
+        status code = 200
+
+
+Create Community Page
+http://3.134.93.99:8080/api/community_page/ method="POST"
+
+Creation of community page needs a new <community_page_id>. <is_private> information holds the privacy of the community page and shows whether it is open to be viewed from non subscribers or not. <community_creator_id> is directly taken from the front side and there is no need to be specified from the application user. 
+
+input:
+    {
+        'id': <community_page_id>,                  //String
+        'is_private': <community_privacy_info>,     //Boolean
+        'community_creator_id': <user_name>,        //String
+    }
+output:
+    if successful:
+        {
+            'response_message': "Community Page successfully created."
+        }
+        status code = 201
+    if input json is not provided in the defined way:
+        {
+            'response_message': "Incorrect json content. (necessary fields are id, is_private, community_creator_id)"
+        },
+        status code = 400
+    if already a community exists with given <community_page_id>:
+        {
+            'response_message': "Community ID is already in use"
+        }
+        status code = 403
+    if some unexpected error occurs in the database:
+        {
+            'response_message': 'Internal Error'
+        }
+        status code = 500
+
+
+Get Community Page Information
+http://3.134.93.99:8080/api/community_page/ method="GET"
+
+Only need in this endpoint is the <community_page_id>. This information will be given by the front side when a user wants to visit a community page. 
+
+input:
+    {
+        'id': <community_page_id>           //String
+    }
+output:
+    if successful:
+        {
+            'response_message': "Community successfully found",
+            'community_instance':
+                {
+                    'id': id,                                       //String
+                    'admin_list': admin_list,                       //List of Strings
+                    'subscriber_list': subscriber_list,             //List of Strings
+                    'post_type_id_list': post_type_id_list,         //List of Strings
+                    'post_history_id_list': post_history_id_list,   //List of Strings
+                    'description': description,                     //String
+                    'photo': photo,                                 //String (base64)
+                    'community_creator_id': community_creator_id,   //String
+                    'created_at': created_at,                       //String: '13.07.1997'
+                    'banned_user_list': banned_user_list,           //List of Strings
+                    'is_private': is_private                        //Boolean
+                }
+        }
+        status code = 200
+    if input json is not provided in the defined way:
+        {
+            'response_message': "Incorrect json content. (necessary field is id)"
+        },
+        status code = 400
+    if there is no community with the specified <community_page_id>:
+        {
+            'response_message': "Specified community with the id not found"
+        },
+        status code = 403
+
+
+Update Community Page information
+http://3.134.93.99:8080/api/community_page/ method="PUT"
+
+All the necessary information is given below. Additional information or lack of information will result an error message. The system takes whole information related to a page and updates all the given fields. 
+
+input:
+    {
+        'id': id,                                       //String
+        'admin_list': admin_list,                       //List of Strings
+        'subscriber_list': subscriber_list,             //List of Strings
+        'post_type_id_list': post_type_id_list,         //List of Strings
+        'post_history_id_list': post_history_id_list,   //List of Strings
+        'description': description,                     //String
+        'photo': photo,                                 //String (base64)
+        'community_creator_id': community_creator_id,   //String
+        'created_at': created_at,                       //String: '13.07.1997'
+        'banned_user_list': banned_user_list,           //List of Strings
+        'is_private': is_private                        //Boolean
+    }
+output:
+    if successful:
+        {
+            'response_message': "Community successfully updated",
+            'community_instance':
+                {
+                    'id': id,                                       //String
+                    'admin_list': admin_list,                       //List of Strings
+                    'subscriber_list': subscriber_list,             //List of Strings
+                    'post_type_id_list': post_type_id_list,         //List of Strings
+                    'post_history_id_list': post_history_id_list,   //List of Strings
+                    'description': description,                     //String
+                    'photo': photo,                                 //String (base64)
+                    'community_creator_id': community_creator_id,   //String
+                    'created_at': created_at,                       //String: '13.07.1997'
+                    'banned_user_list': banned_user_list,           //List of Strings
+                    'is_private': is_private                        //Boolean
+                }
+        }
+        status code = 201
+    if invalid input error:
+        {
+            'response_message': "Incorrect json content. (necessary field are the community class fields)"
+        }
+        status code = 400
+    if there is no community with the specified <community_page_id>:
+        {
+            'response_message': "Specified community with the id not found"
+        },
+        status code = 403
+    if some unexpected error occurs in the database:
+        {
+            'response_message': 'Internal Error'
+        }
+        status code = 500
