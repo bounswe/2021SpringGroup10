@@ -12,20 +12,26 @@ import {
     TextField,
 } from '@material-ui/core';
 import { useEffect, useState } from "react"
-import { FakeCommunities } from '../../fakeAPI';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { useParams, useNavigate } from 'react-router-dom'
+import Axios from 'axios'
+import { base_url, headers } from "../../utils/url"
+import { getUser } from "../../utils/common"
+
 
 
 export const CreatePostType = () => {
-    const data = FakeCommunities;
 
-    const [selectedCommunity, setSelectedCommunity] = useState();
+    let navigate = useNavigate()
+    const { community_id } = useParams()
+
+    const [postTypeName, setPostTypeName] = useState("")
     const [fields, setFields] = useState([]);
     const [refresh, setRefresh] = useState(false);
     const [label, setLabel] = useState("");
     const [comments, setComments] = useState(false);
     const [like, setLike] = useState(false);
-    const postFieldsList = ["Plain Text", "Photo", "Date", "Selection", "Document", "Price", "Location"];
+    const postFieldsList = ["PlainText", "Photo", "Date", "Selection", "Document", "Price", "Location"];
     const emptyField = { type: "", label: "" };
 
 
@@ -50,7 +56,7 @@ export const CreatePostType = () => {
         const words = label.split(" ");
         const index = words[words.length - 1];
         let arr = fields;
-        if(arr[index]) {
+        if (arr[index]) {
             arr[index].label = lab.replace(index, "").trim();
             setFields(arr);
         }
@@ -59,71 +65,71 @@ export const CreatePostType = () => {
     const handleSubmit = () => {
         let x = false
         fields.map(field => {
-            if(!field.type || !field.label){
+            if (!field.type || !field.label) {
                 x = true;
             }
         })
-        if(selectedCommunity && !x){
-            alert("Post Type Created!");     
-        } else {
-            alert("Smthng wrong!")
+        const postType = {
+            "post_type_name": postTypeName,
+            "parent_community_id": community_id,
+            "post_field_info_dictionaries_list": []
         }
+        fields.map(x => {
+            postType.post_field_info_dictionaries_list.push({header: x.label, field_type: x.type})
+        })
+        console.log(postType)
+
+
+
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'post_type/',
+            data: postType
+        }).then(() => {
+            alert("Post Type Created")
+            navigate('/community/' + community_id)
+        }).catch(error => {
+            console.log(error)
+            alert(error)
+        })
+
     }
 
     useEffect(() => {
         handleChangeLabel()
         setRefresh(!refresh);
-     }, [label]);
+    }, [label]);
+
+    const handleChangePostTypeName = (newPostTypeName) => {
+        setPostTypeName(newPostTypeName)
+    }
 
 
 
     return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "60px", paddingBottom: "100px" }}>
             <form style={{ backgroundColor: "#fff", width: "36%", padding: "20px", borderRadius: "4%" }} onSubmit={handleSubmit} >
+                <h5 style={{ alignSelf: "baseline" }}>Post Type Name:</h5>
+                <TextField onChange={(e) => { handleChangePostTypeName(e.target.value) }} variant="outlined" fullWidth />
+                <div style={{ height: "0.8em" }}></div>
                 <Grid
                     container
                     spacing={3}
                 >
                     <Grid
                         item
-                        xs={12}
-                        sm={12}
-                    >
-                        <Typography
-                            color="textPrimary"
-                            sx={{ mb: 1 }}
-                            variant="subtitle2"
-                            align='left'
-                        >
-                            Community
-                        </Typography>
-                        <Select
-                            fullWidth
-                            name="title"
-                            variant="outlined"
-                            value={selectedCommunity}
-                            align="left"
-                        >
-                            {data.map((community) => (
-                                <MenuItem value={community} onClick={() => { setSelectedCommunity(community); setFields([]) }}>{community.name}</MenuItem>
-                            ))}
-                        </Select>
-                    </Grid>
-
-                    <Grid
-                        item
                         xs={4}
                         sm={4}
                     >
                         <Typography
                             color="textPrimary"
                             sx={{ mb: 1 }}
-                            disabled={!selectedCommunity}
                             variant="subtitle1"
                         >
                             Likeable
                         </Typography>
-                        <Switch checked={like} onChange={(e) => {setLike(e.target.checked)}} color="primary" />
+                        <Switch checked={like} onChange={(e) => { setLike(e.target.checked) }} color="primary" />
                     </Grid>
 
                     <Grid
@@ -135,11 +141,10 @@ export const CreatePostType = () => {
                             color="textPrimary"
                             sx={{ mb: 1 }}
                             variant="subtitle1"
-                            disabled={!selectedCommunity}
                         >
                             Comments
                         </Typography>
-                        <Switch checked={comments} onChange={(e) => {setComments(e.target.checked)}} color="primary" />
+                        <Switch checked={comments} onChange={(e) => { setComments(e.target.checked) }} color="primary" />
                     </Grid>
 
                     <Grid
@@ -168,10 +173,10 @@ export const CreatePostType = () => {
                                 >
                                     Type
                                 </Typography>
-                                <Select fullWidth error={!fields[index].type} color="primary" variant='outlined' defaultValue={"Select"} labelId={"as" + index} disabled={!selectedCommunity} >
+                                <Select fullWidth error={!fields[index].type} color="primary" variant='outlined' defaultValue={"Select"} labelId={"as" + index} >
                                     <MenuItem value="Select" disabled>Select</MenuItem>
                                     {postFieldsList.map(postField => (
-                                        <MenuItem  value={postField} onClick={() => { handleTypeSelect(postField, index); setRefresh(!refresh) }}>{postField}</MenuItem>
+                                        <MenuItem value={postField} onClick={() => { handleTypeSelect(postField, index); setRefresh(!refresh) }}>{postField}</MenuItem>
                                     ))}
                                 </Select>
                             </Grid>
@@ -206,7 +211,7 @@ export const CreatePostType = () => {
                         size="large"
                         variant="contained"
                         onClick={handleSubmit}
-                        disabled={!selectedCommunity || !fields.length}
+                        disabled={!fields.length}
                     >
                         Create Post Type!
                     </Button>

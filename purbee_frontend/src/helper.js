@@ -16,6 +16,10 @@ export function apiCall(api_name, request_json){
             url_part = "profile_page";
             call_type = "POST";
             break;
+        case "get post":
+            url_part = "post/";
+            call_type = "PUT";
+            break;
     }
 
     let headers = {
