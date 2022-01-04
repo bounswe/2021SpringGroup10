@@ -149,6 +149,10 @@ export const CommunityHome2 = () => {
         navigate('/home') // TODO: this will be create post type
     }
 
+    const make_advanced_search = () => {
+        navigate('/advanced-search/' + community_name)
+    }
+
     return (
         <div className="App">
             <Header />
@@ -219,6 +223,11 @@ export const CommunityHome2 = () => {
                             </div> :
                             null
                         }
+                        <div className="col-6 col-lg-2">
+                            <div className="count-data text-center">
+                                <button type="button" className="btn btn-primary" onClick={make_advanced_search}> Make Advanced Search </button>
+                            </div>
+                        </div>
                             
                         </div>
                     </div>

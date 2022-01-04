@@ -6,6 +6,7 @@ import Post from './components/post/post';
 import CommunityHome from './components/community_page/community_home'
 import CreatePostType from './components/createposttype/create_post_type'
 import ProfilePage from './components/profile/profile_page'
+import AdvancedSearch from './components/search/advanced_search';
 
 import {
     BrowserRouter,
@@ -34,6 +35,7 @@ function App() {
               <Route path="/post" element={<Post />} />
               <Route path ="/profile-page/:user_name_" element = {<ProfilePage />} />
               <Route path ="/search-page/:search_item" element = {<Search />} />
+              <Route path ="/advanced-search/:community_id" element = {<AdvancedSearch />} />
           </Routes>
         </BrowserRouter> 
       </div>
