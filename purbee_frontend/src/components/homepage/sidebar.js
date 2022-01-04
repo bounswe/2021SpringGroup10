@@ -8,10 +8,13 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import { makeStyles } from '@mui/styles';
 import { Link } from 'react-router-dom';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { purple } from '@mui/material/colors';
 import { getUser } from '../../utils/common';
 import PeopleIcon from '@mui/icons-material/People';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Logout from '@mui/icons-material/Logout';
+import { removeUserSession } from '../../utils/common';
+import { useParams, useNavigate } from 'react-router-dom'
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -26,6 +29,13 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const SideBar = (props) => {
+
+    
+    let navigate = useNavigate()
+    const logout = () => {
+        removeUserSession();
+        navigate('/')
+    }
 
     const classes = useStyles();
 
@@ -68,6 +78,14 @@ export const SideBar = (props) => {
                         <ListItemText primary={"Create Community"} />
                     </ListItem>
                 </Link>
+                <Divider />
+                
+                    <ListItem button onClick={logout}>
+                        <ListItemIcon>
+                            <Logout />
+                        </ListItemIcon>
+                        <ListItemText primary={"Logout"} />
+                    </ListItem>
             </List>
         </Drawer>
     );
