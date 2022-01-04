@@ -91,3 +91,12 @@ class PostType:
         except ValueError:
             raise Exception("No post_type with given id exists.")
         Community.update_on_database(community_dictionary)
+
+    @staticmethod
+    def post_type_id_list_to_post_type_name_list(post_type_id_list):
+        post_type_name_list = []
+        for post_type_id in post_type_id_list:
+            postType = PostType.get_post_type(post_type_id)
+            post_type_name_list.append(postType.post_type_name)
+        return post_type_name_list
+
