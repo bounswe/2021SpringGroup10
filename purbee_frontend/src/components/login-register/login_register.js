@@ -3,18 +3,22 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import './styles.css'
 import Link from '@mui/material/Link';
-import { Link as RouterLink } from "react-router-dom";
-import { apiCall } from "../../helper"
+import { setUserSession } from '../../utils/common';
+import { useNavigate } from "react-router-dom";
+
+import {base_url, headers} from "../../utils/url"
 
 const Axios = require('axios');
 
-export default function LoginPage() {
+ const LoginPage = (props) => {
     const [user_name, set_username] = React.useState("");
     const [password, set_password] = React.useState("");
     const [password_repeat, set_password_repeat] = React.useState("");
     const [mail_address, set_mail_address] = React.useState("");
     const [login_or_register, set_login_or_register] = React.useState("login");
     const [password_match, set_password_match] = React.useState(true)
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(null);
 
     const handle_username_change = (event) => set_username(event.target.value);
     const handle_password_change = (event) => set_password(event.target.value);
@@ -22,21 +26,58 @@ export default function LoginPage() {
     const handle_mail_address_change = (event) => set_mail_address(event.target.value);
     const handle_login_or_register_change = (value) => set_login_or_register(value);
 
+
+    let navigate = useNavigate()
+
     const signin = () => {
+        setError(null);
+        setLoading(true);
         let request_json= {
             "user_name": user_name,
             "password": password
         };
-        apiCall("sign in", request_json);
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'sign_in/',
+            data: request_json,
+        }).then(response => {
+            
+            setLoading(false)
+            setUserSession(response.data.data.user_name)
+            navigate('/home')
+        }).catch(error => {
+            
+            setLoading(false)
+            setError(error.response.data.response_message)
+        })
     }
 
     const signup = () => {
+        setError(null)
+        setLoading(true)
         let request_json= {
             "user_name": user_name,
             "mail_address": mail_address,
             "password": password
         };
-        apiCall("sign up", request_json);
+        
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'sign_up/',
+            data: request_json,
+        }).then(response => {
+            console.log(response)
+            setUserSession(request_json.user_name)
+            setLoading(false)
+            navigate('/profile-info')
+        }).catch(error => {
+            console.log(error)
+            console.log(error.response)
+            setLoading(false)
+            setError(error.response.data.response_message)
+        })
 
     }
 
@@ -76,8 +117,9 @@ export default function LoginPage() {
                         color="primary"
                         className="form__custom-button"
                         onClick={signin}>
-                        <RouterLink to="/home"> Log in </RouterLink>
+                        {loading ? "Loading..." : "Sign In"}
                     </Button>
+                    {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center" }}>
                         New to Purbee?
@@ -143,8 +185,9 @@ export default function LoginPage() {
                     />
 
                     <Button variant="contained" color="primary" className="form__custom-button" onClick={signup}>
-                        <RouterLink to="/profile-info"> Sign up </RouterLink>
+                        Sign Up
                     </Button>
+                    {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
                     <div style={{ height: "1em" }}></div>
                     <div style={{ backgroundColor: "#fff", alignSelf: "center", display: "flex", justifyContent: "space-between" }}>
                         Already have an account?
@@ -160,3 +203,5 @@ export default function LoginPage() {
             </div>
         )
 }
+
+export default LoginPage
