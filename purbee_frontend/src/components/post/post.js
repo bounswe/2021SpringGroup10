@@ -9,7 +9,7 @@ import {apiCall} from '../../helper';
 import {Map} from './googlemap';
 import {ListItem, ListItemText} from "@material-ui/core";
 import {ListItemButton} from "@mui/material";
-
+import {getUser} from '../../utils/common';
 
 //                {fields["PlainText"].map(header => (<div className="postcard__preview-txt">{header + ": " + text(header)}</div>))}
 
@@ -38,6 +38,7 @@ export const Post = (props) => { // data shall contain post id, post types and p
     const [discussion_values, set_discussion_values] = React.useState({});
     const [display_discussions, set_display_discussions] = React.useState(false);
     const [comment, set_comment] = React.useState("");
+    const [user_id, set_user_id] = React.useState(getUser)
     useEffect(() => {//do initial api calls fetch post;
         //const post_id = "fa8da556-68b5-4d4b-9ff8-040a07e93a7a" //give through props
 
@@ -101,12 +102,10 @@ export const Post = (props) => { // data shall contain post id, post types and p
         set_discussion_id(post["post_discussion_id"]);
     }, [post_type_fields])
     useEffect(() => {
-        console.log("bak");
-        console.log(post);
-        console.log(fields);
+        if(post_likers !== [] && post_likers !== undefined) {
+            set_post_like(post_likers.includes(user_id))
+        }
         if(post_owner !== "" && post_owner !== undefined){
-            console.log("aq")
-            console.log(post_owner)
             set_calls_done(true);
         }
         try {
@@ -133,6 +132,21 @@ export const Post = (props) => { // data shall contain post id, post types and p
     }, [discussion_id, display_discussions])
 
     const likeClick = () => {
+        const req_json = {
+            "post_id": props.post_id,
+            "user_name": user_id
+        }
+        const end = post_like ? "unlike/" : "like/";
+        const endp = endpoint + "post/" + end;
+        console.log(discussion_id)
+        console.log("discv")
+        console.log(discussion_values);
+        Axios({
+            headers: headers,
+            method: "PUT",
+            url: (endp),
+            data: req_json,
+        }).catch(error=> console.log(error));
         set_post_like(!post_like);
     }
     const post_liker_display = () => {
@@ -208,11 +222,30 @@ export const Post = (props) => { // data shall contain post id, post types and p
             "text": "example text"
         }
     ]
-    const add_comment = (user_id, parent_discussion_id, text) => {
-
+    const add_comment = () => {
+        const req_json = {
+            "user_id": user_id,
+            "parent_discussion_id": discussion_id,
+            "text": comment
+        }
+        console.log("reqq")
+        console.log(req_json)
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: (endpoint+"comment"),
+            data: req_json,
+        }).catch(error=> console.log(error));
+        set_post_like(!post_like);
         //add commetn cal
     }
     const discussion = () => { // obsolete
+        const coments = discussion_values.discussion.comment_object_list.map(dv => {
+                return {
+                    "textual": dv.creator_id + ": " + dv.text,
+                    "discussion_id": dv.discussion_id
+                }
+        });
 
         console.log(comment_objects);
         console.log("com list");
@@ -220,9 +253,9 @@ export const Post = (props) => { // data shall contain post id, post types and p
         <div>
             {display_discussions ?
                 <div>
-                    {comment_objects.map(c =>
+                    {coments.map(c =>
                         <div>
-                            <p className="fas fa-calendar-alt mr-2">{c["creator_id"]}: {c["text"]}</p>
+                            <p className="fas fa-calendar-alt mr-2">{c["textual"]}</p>
                             <button onClick={() => set_discussion_id(c["discussion_id"])}>See Discussion</button>
                             <br/>
                         </div>
@@ -241,8 +274,6 @@ export const Post = (props) => { // data shall contain post id, post types and p
             }
         </div>)
     }
-    const dis = () => <div> ananın </div>
-
     //const image = (header) => post_fields.find(pf => pf["header"] === header)["image"]
 
     /* IMAGE PART
@@ -311,40 +342,59 @@ export const Post = (props) => { // data shall contain post id, post types and p
                             </li>}
                         modal>
                         <div style={{backgroundColor:"gainsboro"}}>
-                            NANANANA
+                            {
+                                post_likers === undefined ? <div>loading</div>
+                                    :
+                                    <div>
+                                    {
+                                        post_likers.length === 0 ? <div> No likes yet</div> :
+                                            <div>
+                                                {
+                                                    post_likers.map(u =>
+                                                        <li className="tag__item play red">
+                                                            <a><i/>{u}</a>
+                                                        </li>)
+                                                }
+                                            </div>
+                                    }
+                                    </div>
+                            }
                         </div>
                     </Popup>
                     <button className="tag__item play red" onClick={likeClick}>
                         {post_like? <MdFavorite/> : <MdFavoriteBorder/>}
                     </button>
+                    <br/>
                 </ul>
                 <div>
-                    {display_discussions ?
-                        <div>
-                            {comment_objects.map(c =>
-                                <div>
-                                    <button style={{fontSize: "xx-small"}}
-                                            onClick={() => set_discussion_id(c["discussion_id"])}>See Discussion
-                                    </button>
-                                    <p className="fas-onur fa-calendar-alt mr-2">{c["creator_id"]}: {c["text"]}</p>
-                                    <br/>
-                                </div>
-                            )}
-                            <form onSubmit={add_comment}>
-                                <label>
-                                    Comment:
-                                    <input
-                                        type="text"
-                                        value={comment}
-                                        onChange={e => set_comment(e.target.value)}
-                                    />
-                                </label>
-                                <input type="submit" value="Submit" />
-                            </form>
-                        </div>
-                        :
-                        <div/>
-                    }
+                    <div>
+                        {display_discussions ?
+                            <div>
+                                {discussion_values.discussion.comment_object_list.map(c =>
+                                    <div>
+                                        <button className="tag__item play red" style={{backgroundColor: "brown", fontSize: "xx-small"}}
+                                                onClick={() => set_discussion_id(c["discussion_id"])}><i/>See Discussion
+                                        </button>
+                                        <p className="fas-onur fa-calendar-alt mr-2">{c["creator_id"]}: {c["text"]}</p>
+                                        <br/>
+                                    </div>
+                                )}
+                                <form onClick={add_comment}>
+                                    <label>
+                                        Comment:
+                                        <input
+                                            type="text"
+                                            value={comment}
+                                            onChange={e => set_comment(e.target.value)}
+                                        />
+                                    </label>
+                                    <input type="submit" value="Submit" />
+                                </form>
+                            </div>
+                            :
+                            <div/>
+                        }
+                    </div>
                 </div>
             </div>
         </article>
