@@ -133,3 +133,193 @@ export const post_types = {
     },
     "asd": "HAAA"
 }
+
+export const post_api_result = {
+    "data": {
+        "_id": "480c6d00-96f9-477a-b2f7-94bf01632756",
+        "post_creation_time": "2022-01-03 11:17:39.673158",
+        "post_discussion_id": "e7465567-876c-4db3-9563-76457ac3153a",
+        "post_entries_dictionary_list": [
+            {
+                "header": "Event Description",
+                "text": "The torunament will host The top 100 ATP players."
+            },
+            {
+                "header": "post_image",
+                "link": "https://i.imgur.com/8WRRCb.png"
+            },
+            {
+                "header": "post_image2",
+                "link": "https://i.imgur.com/OHkUsb.png"
+            },
+            {
+                "amount": 17,
+                "currency": "tl",
+                "header": "Event Cost"
+            },
+            {
+                "header": "Event Location",
+                "latitude": 38.8951,
+                "longitude": -77.0364,
+                "text": "Court number 4."
+            },
+            {
+                "header": "Event Participation",
+                "list_of_participants": []
+            },
+            {
+                "can_vote_for_n_many_options": 2,
+                "header": "Event Poll",
+                "options": {
+                    "Option A": [],
+                    "Option B": [],
+                    "Option C": [],
+                    "Option D": []
+                }
+            }
+        ],
+        "post_liked_user_list": ["gkberk", "onuradam", "suzan üsküdarlı", "egemen"],
+        "post_owner_user_name": "eking",
+        "post_title": "Example Post Title",
+        "post_type_id": "3f3d1f12-3ba9-420b-b0ce-92e105a5db0b"
+    },
+    "response_message": "Post is successfully returned. "
+}
+
+export const post_ex = {
+    "data": {
+        "_id": "2608fa97-9b37-4725-8c1b-eb678ac8c9e4",
+        "post_creation_time": "2022-01-04 00:31:39.257887",
+        "post_discussion_id": "4d8f1cb0-b57b-4ea5-aaf9-17c2f7e2ae26",
+        "post_entries_dictionary_list": [
+            {
+                "header": "Event Description",
+                "text": "The torunament will host The top 100 ATP players."
+            },
+            {
+                "amount": 19,
+                "currency": "tl",
+                "header": "Event Cost"
+            },
+            {
+                "header": "Event Location",
+                "latitude": 38.8951,
+                "longitude": -77.0364,
+                "text": "Court number 4."
+            },
+            {
+                "header": "Event Participation",
+                "list_of_participants": []
+            },
+            {
+                "can_vote_for_n_many_options": 2,
+                "header": "Event Poll",
+                "options": {
+                    "Option A": [],
+                    "Option B": [],
+                    "Option C": [],
+                    "Option D": []
+                }
+            },
+            {
+                "header": "Event Document",
+                "url": "some_url"
+            },
+            {
+                "date": "23/03/2021",
+                "header": "Event DateTime",
+                "time": "12:33"
+            },
+            {
+                "header": "Event Photo",
+                "image": "https://i.imgur.com/OHkUsb.png"
+            }
+        ],
+        "post_liked_user_list": ["asd", "bcd"],
+        "post_owner_user_name": "eking",
+        "post_title": "Example Post Title",
+        "post_type_id": "ed537666-024f-4045-b004-6c7c1c0b8038"
+    },
+    "response_message": "Post is successfully returned. "
+}
+export const post_type_ex = {
+    "data": {
+        "_id": "ed537666-024f-4045-b004-6c7c1c0b8038",
+        "parent_community_id": "10",
+        "post_field_info_dictionaries_list": [
+            {
+                "field_type": "PlainText",
+                "header": "Event Description"
+            },
+            {
+                "field_type": "Price",
+                "header": "Event Cost"
+            },
+            {
+                "field_type": "Location",
+                "header": "Event Location"
+            },
+            {
+                "field_type": "Participation",
+                "header": "Event Participation"
+            },
+            {
+                "field_type": "Poll",
+                "header": "Event Poll"
+            },
+            {
+                "field_type": "Document",
+                "header": "Event Document"
+            },
+            {
+                "field_type": "DateTime",
+                "header": "Event DateTime"
+            },
+            {
+                "field_type": "Photo",
+                "header": "Event Photo"
+            }
+        ],
+        "post_type_name": "Example Post Type"
+    },
+    "response_message": "PostType is successfully retrieved."
+}
+
+export const post_type_api_result = {
+    "data": {
+        "_id": "3f3d1f12-3ba9-420b-b0ce-92e105a5db0b",
+        "parent_community_id": "10",
+        "post_field_info_dictionaries_list": [
+            {
+                "field_type": "PlainText",
+                "header": "Event Description"
+            },
+            {
+                "field_type": "Images",
+                "header": "post_image"
+            },
+            {
+                "field_type": "Images",
+                "header": "post_image2"
+            },
+            {
+                "field_type": "Price",
+                "header": "Event Cost"
+            },
+            {
+                "field_type": "Location",
+                "header": "Event Location"
+            },
+            {
+                "field_type": "Participation",
+                "header": "Event Participation"
+            },
+            {
+                "field_type": "Poll",
+                "header": "Event Poll"
+            }
+        ],
+        "post_type_name": "Example Post Type"
+    },
+    "response_message": "PostType is successfully retrieved."
+}
