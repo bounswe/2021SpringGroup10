@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import './styles.css'
 import Link from '@mui/material/Link';
-import { setUserSession } from '../../utils/common';
+import { setUserSession, setFollowing } from '../../utils/common';
 import { useNavigate } from "react-router-dom";
 
 import {base_url, headers} from "../../utils/url"
@@ -45,7 +45,21 @@ const Axios = require('axios');
             
             setLoading(false)
             setUserSession(response.data.data.user_name)
-            navigate('/home')
+            Axios({
+                headers: headers,
+                method: "PUT",
+                url: base_url + 'profile_page',
+                data: {"user_name": response.data.data.user_name}
+            }).then(resp => {
+                setFollowing(resp.data.data.following)
+                navigate('/home')
+            }).catch(error => {
+                console.log("PUT profile_page raised error")
+            })
+
+
+            
+            
         }).catch(error => {
             
             setLoading(false)

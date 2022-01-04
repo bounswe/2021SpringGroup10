@@ -4,9 +4,13 @@ import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
 
 export default function SearchBar() {
     const [searchString, setSearchString] = useState("");
+
+    let navigate = useNavigate()
 
     const handleSearchStringChange = (newSearchString) => {
         setSearchString(newSearchString)
@@ -14,6 +18,7 @@ export default function SearchBar() {
 
     const submit = () => {
         //TODO: search happens this point
+        navigate('/search-page/' + searchString)
     }
 
     return (

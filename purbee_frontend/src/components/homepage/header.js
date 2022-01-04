@@ -38,7 +38,7 @@ export default function Header() {
                         sm={4}
                         align="left"
                     >
-                        <Link to="" style={{ textDecoration: 'none', color: "#101010" }} >
+                        <Link to="/home" style={{ textDecoration: 'none', color: "#101010" }} >
                             <p style={{ color: "#fff", fontWeight: "bolder", fontSize: "1.2vw" }}>
                                 Purbee
                             </p>
