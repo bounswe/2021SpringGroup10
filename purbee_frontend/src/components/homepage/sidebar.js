@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { purple } from '@mui/material/colors';
 import { getUser } from '../../utils/common';
+import PeopleIcon from '@mui/icons-material/People';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -59,12 +60,12 @@ export const SideBar = (props) => {
                 </Link>
 
                 <Divider />
-                <Link to="/about" style={{ textDecoration: 'none', color: "#101010" }} >
+                <Link to="/create-community" style={{ textDecoration: 'none', color: "#101010" }} >
                     <ListItem button>
                         <ListItemIcon>
-                            <NotificationsIcon />
+                            <PeopleIcon />
                         </ListItemIcon>
-                        <ListItemText primary={"Notifications"} />
+                        <ListItemText primary={"Create Community"} />
                     </ListItem>
                 </Link>
             </List>

@@ -17,7 +17,7 @@ export const Homepage = () => {
     useEffect(() => {
         
         const request_json = {
-            "user_name": "berkdddd"
+            "user_name": getUser()
         }
         console.log(request_json)
         const my_url = base_url + 'user_feed'

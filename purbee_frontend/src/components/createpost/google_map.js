@@ -5,7 +5,7 @@ import Map from './map';
 export const GoogleMap = (props) => {
   const MapLoader = withScriptjs(Map);
 
-  const key = process.env.GOOGLE_MAPS_KEY;
+  const key = "AIzaSyDqatrPkZebWGnKiLybd4nNFzERwmQCSCI";
 
   const googleMapUrl = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
 

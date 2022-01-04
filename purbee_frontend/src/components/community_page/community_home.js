@@ -168,11 +168,11 @@ export const CommunityHome2 = () => {
     }
 
     const create_post = () => {
-        navigate('/home') // TODO: this will be create post
+        navigate('/create-post/' + community_name) // TODO: this will be create post
     }
 
     const create_post_type = () => {
-        navigate('/home') // TODO: this will be create post type
+        navigate('/create-post-type/' + community_name) // TODO: this will be create post type
     }
 
     const make_advanced_search = () => {
