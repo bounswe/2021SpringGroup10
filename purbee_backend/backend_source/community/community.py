@@ -16,7 +16,6 @@ class Community:
         self.subscriber_list = []
         self.requesters = []
         self.post_type_id_list = []
-        self.post_type_name_list = []
         self.post_history_id_list = []
         self.requesters = []
         self.description = ""
@@ -43,7 +42,6 @@ class Community:
             'admin_list': self.admin_list,
             'subscriber_list': self.subscriber_list,
             'post_type_id_list': self.post_type_id_list,
-            'post_type_name_list': self.PostType.post_type_id_list_to_post_type_name_list(self.post_type_id_list),
             'post_history_id_list': self.post_history_id_list,
             'description': self.description,
             'photo': self.photo,
