@@ -14,9 +14,14 @@ import {
 import { useEffect, useState } from "react"
 import { FakeCommunities } from '../../fakeAPI';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { useParams, useNavigate } from 'react-router-dom'
 
 
 export const CreatePostType = () => {
+
+    let navigate = useNavigate()
+    const { community_id } = useParams()
+
     const data = FakeCommunities;
 
     const [selectedCommunity, setSelectedCommunity] = useState();

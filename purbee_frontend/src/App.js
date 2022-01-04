@@ -28,8 +28,8 @@ function App() {
               <Route path="/home" element={<Homepage />} />
               <Route path="/profile-info" element={<ProfileInfo />} />
               <Route path="/community-home" element={<CommunityHome />} />
-              <Route path="/create-post-type" element={<CreatePostType />} />
-              <Route path="/create-post" element={<CreatePost />} />
+              <Route path="/create-post-type/:community_id" element={<CreatePostType />} />
+              <Route path="/create-post/:community_id" element={<CreatePost />} />
               <Route path="/post" element={<Post />} />
               <Route path ="/profile-page" element = {<ProfilePage />} />
           </Routes>

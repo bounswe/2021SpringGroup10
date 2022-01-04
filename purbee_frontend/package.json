@@ -59,6 +59,6 @@
   "devDependencies": {
     "@mui/material": "^5.0.6",
     "react-router-dom": "^6.2.1",
-    "sass": "^1.45.0"
+    "sass": "^1.45.2"
   }
 }
