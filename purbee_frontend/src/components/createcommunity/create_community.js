@@ -7,6 +7,11 @@ import {
     TextField,
 } from '@material-ui/core';
 import { useEffect, useState } from "react"
+import Axios from 'axios'
+import { getUser, setUserSession } from '../../utils/common'
+import { base_url, headers} from '../../utils/url'
+import { useNavigate } from 'react-router-dom'
+
 
 export const CreateCommunity = () => {
     const [communityId, setCommunityId] = useState("");
@@ -14,8 +19,50 @@ export const CreateCommunity = () => {
     const [description, setDescription] = useState("");
     const [photo, setPhoto] = useState("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
 
-    const handleSubmit = () => {
+    let navigate = useNavigate()
 
+
+    setUserSession('berkddd')
+
+    const handleSubmit = () => {
+        let request_json = {
+            "id": communityId,
+            "is_private": isPrivate,
+            "community_creator_id": getUser()
+        }
+        console.log(request_json)
+
+        Axios({
+            headers: headers,
+            method: "POST",
+            url: base_url + 'community_page',
+            data: request_json
+        }).then(async response => {
+            request_json["description"] = description;
+            request_json["photo"] = photo;
+            request_json["admin_list"] = [getUser()];
+            request_json["subscriber_list"] = [getUser()];
+            request_json["post_type_id_list"] = [];
+            request_json["post_history_id_list"] = [];
+            request_json["community_creator_id"] = getUser();
+            request_json["created_at"] = new Date().toISOString();
+            request_json["banned_user_list"] = [];
+            Axios({
+                headers: headers,
+                method: "PUT",
+                url: base_url + 'community_page',
+                data: request_json
+            }).then(response => {
+                alert("Success")
+                navigate('/community/' + communityId)
+            })
+        }).catch(response => {
+            if(response.message.includes("403"))
+            alert("Community ID is already in use")
+            else
+            alert(response)
+
+        })
     }
 
     const handleCommunityIdChange = (newId) => {
@@ -35,7 +82,7 @@ export const CreateCommunity = () => {
             <form style={{ backgroundColor: "#fff", width: "36%", padding: "20px", borderRadius: "4%" }} onSubmit={handleSubmit} >
                 <Grid container>
                     <Grid container>
-                        
+
                         <Grid
                             item
                             xs={6}
