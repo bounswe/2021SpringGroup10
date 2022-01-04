@@ -10,6 +10,7 @@ import { makeStyles } from '@mui/styles';
 import { Link } from 'react-router-dom';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { purple } from '@mui/material/colors';
+import { getUser } from '../../utils/common';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -48,7 +49,7 @@ export const SideBar = (props) => {
                 </Link>
                 <Divider />
 
-                <Link to="/profile-page" style={{ textDecoration: 'none', color: "#101010" }} >
+                <Link to={"/profile-page/" + getUser()} style={{ textDecoration: 'none', color: "#101010" }} >
                     <ListItem button>
                         <ListItemIcon >
                             <PersonIcon />

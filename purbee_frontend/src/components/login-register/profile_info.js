@@ -26,18 +26,14 @@ export default function ProfileInfo() {
         setError(null);
         setLoading(true);
         const request_json = {
-            "user_name": "Aayysy123"
-            // 'profile_photo': photo,
-            // 'bio': bio,
-            // 'first_name': first_name,
-            // 'last_name': last_name,
-            // 'birth_date': birth_date
+            "user_name":"foo2",
+            "profile_info": {"last_name":"demirtaş","first_name":"berkay", "birth_date":"11.1.2021"}
         };
 
         Axios({
             headers: headers,
             method: "POST",
-            url: base_url + 'profile_page/',
+            url: base_url + 'profile_page',
             data: request_json,
         }).then(response => {
             

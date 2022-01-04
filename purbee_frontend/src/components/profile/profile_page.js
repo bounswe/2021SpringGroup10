@@ -32,19 +32,21 @@ const Profile = () => {
         console.log(user_name_)
         
         const request_json = {
-            "user_name": user_name
+            "search_text":"ber"
         }
         console.log(request_json)
+        const my_url = base_url + 'user_search'
         Axios({
             headers: headers,
-            method: "GET",
-            url: base_url + 'profile_page/',
+            method: "PUT",
+            url: my_url,
             data: request_json,
         }).then(response => {
             console.log(response)
-            // set_posts(response.data.posts)
-            // set_followers(response.data.followers)
-            // set_following(response.data.following)
+            console.log(response.data.followers)
+            set_posts(response.data.data.post_list)
+            set_followers(response.data.data.followers)
+            set_following(response.data.data.following)
 
             //navigate('/home')
         }).catch(error => {
@@ -60,6 +62,7 @@ const Profile = () => {
                 // The request was made but no response was received
                 // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                 // http.ClientRequest in node.js
+                console.log(error)
                 console.log(error.request);
             } else {
                 // Something happened in setting up the request that triggered an Error
