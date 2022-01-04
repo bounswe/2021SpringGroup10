@@ -4,6 +4,9 @@ import './community_home.css'
 import { useParams } from 'react-router-dom'
 import {base_url, headers} from "../../utils/url"
 import Header from "../homepage/header";
+import { getUser, getFollowing } from '../../utils/common';
+import { useNavigate } from "react-router-dom";
+// import Feed from '../feed/feed'
 
 const Axios = require('axios');
 
@@ -19,6 +22,10 @@ export const CommunityHome2 = () => {
     const [post_type_id_list, set_post_type_id_list] = React.useState([])
     const { community_name_ } = useParams()
     const [community_name, set_community_name] = React.useState(community_name_)
+    const [subscribe_or_request, set_subscribe_or_request] = React.useState("Subscribe")
+    const [requesters, set_requesters] = React.useState([])
+
+    let navigate = useNavigate()
 
     
     React.useEffect(() => {
@@ -38,6 +45,13 @@ export const CommunityHome2 = () => {
             set_subscriber_list(response.data.community_instance.subscriber_list)
             set_post_history_id_list(response.data.community_instance.post_history_id_list)
             set_post_type_id_list(response.data.community_instance.post_type_id_list)
+            set_requesters(response.data.community_instance.requesters)
+            if(requesters.includes(getUser())) {
+                set_subscribe_or_request("Request sent")
+            }
+            else if(subscriber_list.includes(getUser)) {
+                set_subscribe_or_request("Unsubscribe")
+            }
 
             //navigate('/home')
         }).catch(error => {
@@ -62,8 +76,77 @@ export const CommunityHome2 = () => {
         })
     },[community_name])
 
-    const join_community = (event) => {
-        
+    const subscribe_community = (event) => {
+        let my_url = ""
+        if(subscribe_or_request == "Subscribe") {
+            my_url = base_url + 'community_page/subscribe'
+        }
+        else {
+            my_url = base_url + 'community_page/unsubscribe'
+        }
+
+        Axios({
+            headers: headers,
+            method: "PUT",
+            url: my_url,
+            data: {"user_id": getUser(), "community_id": community_name}
+        }).then(response => {
+            console.log(response)
+            if(subscribe_or_request == "Subscribe") {
+                if(is_private) {
+                    set_subscribe_or_request("Request sent")
+                }
+                else {
+                    Axios({
+                        headers: headers,
+                        method: "PUT",
+                        url: base_url + 'community_page/request',
+                        data: {"admin_id": admin_list[0],
+                        "community_id": community_name,
+                        "user_id": getUser(),
+                        "action": "accept"}
+                    }).then(resp => {
+                        set_community_name(community_name_)
+                        navigate('/community-home/' + community_name_)
+                    })
+                }
+            }
+            else {
+                set_subscribe_or_request("Subscribe")
+                set_community_name(community_name_)
+                navigate('/community-home/' + community_name_)
+            }
+            
+
+            //navigate('/home')
+        }).catch(error => {
+            
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error)
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+            //setError(error.response.data.response_message)
+        })
+    }
+
+    const create_post = () => {
+        navigate('/home') // TODO: this will be create post
+    }
+
+    const create_post_type = () => {
+        navigate('/home') // TODO: this will be create post type
     }
 
     return (
@@ -102,26 +185,45 @@ export const CommunityHome2 = () => {
                     </div>
                     <div className="counter">
                         <div className="row">
-                            <div className="col-6 col-lg-3">
+                            <div className="col-6 col-lg-2">
                                 <div className="count-data text-center">
                                     <h6 className="count h2">{subscriber_list.length}</h6>
                                     <p className="m-0px font-w-600">Member Count</p>
                                 </div>
                             </div>
-                            <div className="col-6 col-lg-3">
+                            <div className="col-6 col-lg-2">
                                 <div className="count-data text-center">
                                     <h6 className="count h2" data-to={post_history_id_list.length} data-speed={post_history_id_list.length}>{post_history_id_list.length}</h6>
                                     <p className="m-0px font-w-600">Post Count</p>
                                 </div>
                             </div>
-                            <div className="col-6 col-lg-3">
+                            <div className="col-6 col-lg-2">
                                 <div className="count-data text-center">
-                                    <button type="button" className="btn btn-primary" onClick={join_community}> Join! </button>
+                                    <button type="button" className="btn btn-primary" onClick={subscribe_community}> {subscribe_or_request} </button>
                                 </div>
-                            </div>
+                            </div> 
+                            {(subscriber_list.includes(getUser()) || admin_list.includes(getUser())) ? 
+                            <div className="col-6 col-lg-2">
+                                <div className="count-data text-center">
+                                    <button type="button" className="btn btn-primary" onClick={create_post}> Create Post </button>
+                                </div>
+                            </div> :
+                            null
+                        }
+                            
+                            {admin_list.includes(getUser()) ? 
+                            <div className="col-6 col-lg-2">
+                                <div className="count-data text-center">
+                                    <button type="button" className="btn btn-primary" onClick={create_post_type}> Create Post Type </button>
+                                </div>
+                            </div> :
+                            null
+                        }
+                            
                         </div>
                     </div>
                 </div>
+                {/* <Feed id_list = {post_history_id_list} /> */}
             </section>
         </div>
         
