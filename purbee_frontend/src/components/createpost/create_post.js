@@ -6,6 +6,7 @@ import {
     MenuItem,
     Select,
     Typography,
+    TextField,
     Divider,
 } from '@material-ui/core';
 import { useEffect, useState } from "react"
@@ -26,9 +27,9 @@ const CreatePost = () => {
     const [selectedPostType, setSelectedPostType] = useState();
     const [postTypes, setPostTypes] = useState([]);
     const [fields, setFields] = useState();
+    const [postTitle, setPostTitle] = useState();
     
 
-    setUserSession("berkddd") // TODO delete
 
     useEffect(() => {
         async function funct() {
@@ -75,7 +76,7 @@ const CreatePost = () => {
                         postType.post_field_info_dictionaries_list.map(postField => {
                             if (postField.field_type == 'PlainText') { newPostType.fields.plainTextList.push({ header: postField.header, text: "" }) }
                             else if (postField.field_type == 'Photo') { newPostType.fields.photoList.push({ header: postField.header, image: "", description: "" }) }
-                            else if (postField.field_type == 'Poll') { newPostType.fields.pollsList.push({ header: postField.header, text: "" }) }
+                            // else if (postField.field_type == 'Selection') { newPostType.fields.pollsList.push({ header: postField.header, text: "" }) }
                             else if (postField.field_type == 'Document') { newPostType.fields.documentList.push({ header: postField.header, url: "", name: "" }) }
                             else if (postField.field_type == 'DateTime') { newPostType.fields.dateList.push({ header: postField.header, date: "", time: "" }) }
                             else if (postField.field_type == 'Location') { newPostType.fields.locationList.push({ header: postField.header, location: "", description: "" }) }
@@ -97,42 +98,47 @@ const CreatePost = () => {
         funct();
     }, [])
 
+    const handleChangeOnPostTitle = (newPostTitle) => {
+        setPostTitle(newPostTitle)
+    }
+
     const handleSubmit = () => {
+        console.log(selectedPostType.fields)
         const post = {
             post_type_id: selectedPostType.id,
             post_owner_user_name: getUser(),
-            post_field_info_dictionaries_list: []
+            post_entries_dictionary_list: []
         }
 
         selectedPostType.fields.dateList.map((x, index) => {
-            post.post_field_info_dictionaries_list.push({ header: x.header, date: fields.dates[index] })
+            post.post_entries_dictionary_list.push({ header: x.header, date: fields.dates[index].toISOString().substring(0,10), time: fields.dates[index].toISOString().substring(11,19) })
         })
 
         selectedPostType.fields.documentList.map((docUrl, index) => {
-            post.post_field_info_dictionaries_list.push({ header: fields.docNames[index], url: fields.docUrls[index] })
+            post.post_entries_dictionary_list.push({ header: fields.docNames[index], url: fields.docUrls[index] })
         })
 
         if (fields.location) {
             let loc = selectedPostType.fields.locationList[0]
-            post.post_field_info_dictionaries_list.push({ header: loc.header, latitude: fields.location.lat, longtitude: fields.location.lng })
+            post.post_entries_dictionary_list.push({ header: loc.header, latitude: fields.location.lat, longitude: fields.location.lng, text: "" })
         }
 
         selectedPostType.fields.photoList.map((x, index) => {
-            post.post_field_info_dictionaries_list.push({ header: fields.photoDescs[index], image: fields.photoUrls[index] })
+            post.post_entries_dictionary_list.push({ header: fields.photoDescs[index], image: fields.photoUrls[index] })
         })
 
         selectedPostType.fields.plainTextList.map((x, index) => {
-            post.post_field_info_dictionaries_list.push({ header: x.header, text: fields.plainTexts[index] })
+            post.post_entries_dictionary_list.push({ header: x.header, text: fields.plainTexts[index] })
         })
-        selectedPostType.fields.pollsList.map((x, index) => {
-            post.post_field_info_dictionaries_list.push({ header: x.header, options: fields.pollOptions })
-        })
+        // selectedPostType.fields.pollsList.map((x, index) => {
+        //     post.post_entries_dictionary_list.push({ header: x.header, options: fields.pollOptions })
+        // })
 
         selectedPostType.fields.pricesList.map((x, index) => {
-            post.post_field_info_dictionaries_list.push({ header: x.header, amount: fields.prices[index], currency: 'usd' })
+            post.post_entries_dictionary_list.push({ header: x.header, amount: fields.prices[index], currency: 'usd' })
         });
 
-
+        post.post_title = postTitle
         let request_json = post;
         Axios({
             headers: headers,
@@ -141,7 +147,7 @@ const CreatePost = () => {
             data: request_json
         }).then(() => {
             alert("Post Created")
-            navigate('/community')
+            navigate('/community-home/' + community_id)
         }).catch(error => {
             console.log(error)
             alert(error)
@@ -156,7 +162,17 @@ const CreatePost = () => {
 
         return (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "60px", paddingBottom: "100px" }}>
+                
                 <form style={{ backgroundColor: "#fff", width: "36%", padding: "20px", borderRadius: "4%" }} onSubmit={handleSubmit}>
+                <Typography
+                                color="textPrimary"
+                                sx={{ mb: 1 }}
+                                variant="subtitle2"
+                                align='left'
+                            >
+                                Post Title
+                            </Typography>
+                    <TextField onChange={(e) => { handleChangeOnPostTitle(e.target.value) }} variant="outlined" fullWidth />
                     <Grid
                         container
                         spacing={3}

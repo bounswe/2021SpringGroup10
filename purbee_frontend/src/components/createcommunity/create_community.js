@@ -22,8 +22,6 @@ export const CreateCommunity = () => {
     let navigate = useNavigate()
 
 
-    setUserSession('berkddd')
-
     const handleSubmit = () => {
         let request_json = {
             "id": communityId,
@@ -54,7 +52,7 @@ export const CreateCommunity = () => {
                 data: request_json
             }).then(response => {
                 alert("Success")
-                navigate('/community/' + communityId)
+                navigate('/community-home/' + communityId)
             })
         }).catch(response => {
             if(response.message.includes("403"))

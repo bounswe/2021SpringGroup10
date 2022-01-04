@@ -10,8 +10,8 @@ import {base_url, headers} from "../../utils/url"
 import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom'
 import Header from "../homepage/header";
-// import GoogleMapField from './google_map';
-// import Feed from '../feed/feed'
+import GoogleMapField from '../createpost/google_map'
+import Feed from '../feed/feed'
 import {
     Grid,
     TextField,
@@ -21,6 +21,7 @@ import {
     OutlinedInput
 } from '@material-ui/core';
 const Axios = require('axios');
+
 
 const AdvancedSearch = () => {
     const [search_text, set_search_text] = React.useState("");
@@ -34,6 +35,7 @@ const AdvancedSearch = () => {
     const [min_participation, set_min_participation] = React.useState(0);
     const [max_participation, set_max_participation] = React.useState(0);
     const [post_ids, set_post_ids] = React.useState([])
+    const [location, setLocation] = React.useState();
 
     const [longitude, set_longitude] = React.useState(0)
     const [latitude, set_latitude] = React.useState(0)
@@ -51,7 +53,7 @@ const AdvancedSearch = () => {
             "search_dictionary": {
                 "PlainText": {"search_text":search_text},
                 "Price" : {"min_price" : min_price, "max_price":max_price, "currency":currency},
-                "Location" : {"longitude":-77.0364, "latitude":30, "radius":1000}, 
+                "Location" : {"longitude":location.lng, "latitude":location.lat, "radius":100}, 
                 "DateTime" : {"starting_date": starting_date , "ending_date":ending_date, "starting_time": starting_time , "ending_time":ending_time},
                 "Participation" : {"min_participation" : min_participation, "max_participation" : max_participation}
             }
@@ -89,6 +91,10 @@ const AdvancedSearch = () => {
             //setError(error.response.data.response_message)
         })
     }
+
+    React.useEffect(() => {
+        console.log(location)
+    }, [location])
 
     return (
         <div className="App">
@@ -210,21 +216,15 @@ const AdvancedSearch = () => {
                     onChange={(e) => set_max_participation(e.target.value)}
                 />
 
-                {/* <Grid
+                <Grid
                     item
                     xs={12}
                     sm={12}
                 >
-                    <Typography
-                        color="textPrimary"
-                        sx={{ mb: 1 }}
-                        variant="subtitle1"
-                        align="left"
-                    >
-                        {mapListField.header}
-                    </Typography>
-                    <GoogleMapField setLocation={setLocation} location={location} />
-                </Grid> */}
+                    <h4 style={{ alignSelf: "baseline" }}>Max Participation:</h4>
+
+                    <GoogleMapField setLocation={setLocation} location={location}  />
+                </Grid>
                 
                 <Button
                     variant="contained"
@@ -235,8 +235,12 @@ const AdvancedSearch = () => {
                 </Button>
                 
             </form>
+            {
+                post_ids.length > 0 ?
+                <Feed id_list = {post_ids} /> :
+                <div>Result is empty </div>
+            }
             
-            {/* <Feed id_list = {post_ids} /> */}
 
         </div >
     )

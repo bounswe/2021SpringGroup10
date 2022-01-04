@@ -31,7 +31,7 @@ export const CreatePostType = () => {
     const [label, setLabel] = useState("");
     const [comments, setComments] = useState(false);
     const [like, setLike] = useState(false);
-    const postFieldsList = ["PlainText", "Photo", "Date", "Selection", "Document", "Price", "Location"];
+    const postFieldsList = ["PlainText", "Photo", "DateTime", "Document", "Price", "Location"];
     const emptyField = { type: "", label: "" };
 
 
@@ -88,7 +88,7 @@ export const CreatePostType = () => {
             data: postType
         }).then(() => {
             alert("Post Type Created")
-            navigate('/community/' + community_id)
+            navigate('/community-home/' + community_id)
         }).catch(error => {
             console.log(error)
             alert(error)

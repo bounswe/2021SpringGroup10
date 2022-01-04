@@ -5,7 +5,7 @@ import { getUser, getFollowing } from '../../utils/common';
 import { List, ListItem, Divider, ListItemText, Button } from '@mui/material';
 import Header from "../homepage/header";
 import { useParams } from 'react-router-dom'
-// import Feed from '../feed/feed'
+import Feed from '../feed/feed'
 
 const Axios = require('axios');
 
@@ -162,7 +162,7 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-                {/* <Feed id_list = {posts} /> */}
+                <Feed id_list = {posts} />
             </div>
         )
     }
