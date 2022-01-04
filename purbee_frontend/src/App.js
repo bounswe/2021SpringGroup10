@@ -6,7 +6,7 @@ import Post from './components/post/post';
 import CommunityHome from './components/community_page/community_home'
 import CreatePostType from './components/createposttype/create_post_type'
 import Feed from './components/feed/feed';
-
+import Map from './components/post/googlemap';
 import {
     BrowserRouter,
     Routes,
@@ -31,7 +31,8 @@ function App() {
               <Route path="/create-post-type" element={<CreatePostType />} />
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/post" element={<Post />} />
-              <Route path="/feed" element={<Feed />} />
+              <Route path="/feed" element={<Feed id_list={[1, 2, 3,4 ,5]}/>} />
+              <Route path="/map" element={<Map />} />
           </Routes>
         </BrowserRouter>
       </div>
