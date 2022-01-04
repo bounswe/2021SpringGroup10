@@ -18,14 +18,13 @@ const CreatePost = () => {
         alert(`Created!`)
     };
 
-
     const data = FakeCommunities;
 
 
     const [selectedCommunity, setSelectedCommunity] = useState();
     const [selectedPostType, setSelectedPostType] = useState();
     const [fields, setFields] = useState();
-
+    
 
 
     return (
