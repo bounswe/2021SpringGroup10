@@ -6,8 +6,13 @@ from database.database_utilities import (
     get_user_by_name,
     get_all_user_names,
     get_all_community_names,
-update_user_subscribed_communities
+update_user_subscribed_communities,
+update_follower_and_following_lists,
+update_follower_and_following_lists2
+
 )
+from comment.comment import Comment
+from discussion.discussion import Discussion
 
 from login.login import (
     sign_up,
@@ -17,6 +22,9 @@ from login.login import (
 )
 from post.post import Post
 from post.post_type import PostType
+from datetime import datetime as dt
+from collections import Counter
+import mpu
 
 SC_FORBIDDEN = 403
 SC_SUCCESS = 200
@@ -30,8 +38,149 @@ USER_PASSWORD = ""
 app = Flask(__name__)
 
 
+@app.route('/api/advanced_search', methods=['PUT'])
+def advanced_search():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        user_name = req["user_name"]
+        search_dictionary = req["search_dictionary"]
+        community_id = req["community_id"]
+    except:
+        data[
+            'response_message'] = "Incorrect json content. (necessary field is search_dictionary,user_name,community_id)"
+        status_code = SC_BAD_REQUEST
+        return data, status_code
 
-@app.route('/api/user_search', methods=['GET'])
+    if check_user_by_user_name(user_name):
+        data['response_message'] = "there is no such user."
+        status_code = SC_FORBIDDEN
+        return data, status_code
+
+    community = Community.get_community_from_id(community_id)
+
+    if community.is_private:
+        if user_name not in community.subscriber_list:
+            data[
+                'response_message'] = "this is a private community and this user is not a subscriber of this community"
+            status_code = SC_FORBIDDEN
+            return data, status_code
+
+    # defaultCurrency is TL
+    # default radius = 10 km
+    # search dictionary = {"PlainText": {"search_text":"abcd"}, "Location" : {"longitude":"coordinates" , "latitude": "coordinates" , "radius":kms} ,
+    # "DateTime" : {"starting_date": "date1" , "ending_date":"date2", "starting_time": "time1" , "ending_time":"time2"}, "Price" : {"min_price" : "price1", "max_price": "price2", "currency":"currency"},
+    # "Participation" : {"min_participation" : min_participation , "max_participation" : max_participation}
+    # }
+
+    community_post_list = [Post.get_post(id) for id in community.post_history_id_list]
+    print(community_post_list)
+    eligableList = []
+    for filter in search_dictionary.keys():
+        for post in community_post_list:
+            for field in post.post_fields_list:
+                if filter == "PlainText":
+                    if type(field).__name__ == "PlainText":
+                        print("fdsfsdfsdds")
+                        search_text = search_dictionary["PlainText"]["search_text"]
+                        if search_text in field.text:
+                            eligableList.append(post._id)
+                if filter == "DateTime":
+                    if type(field).__name__ == "DateTime":
+                        try:
+                            starting_date = search_dictionary["DateTime"]["starting_date"]
+                        except:
+                            starting_date = "01/01/1000"
+
+                        try:
+                            ending_date = search_dictionary["DateTime"]["ending_date"]
+                        except:
+                            ending_date = "01/01/9999"
+
+                        try:
+                            starting_time = search_dictionary["DateTime"]["starting_time"]
+                        except:
+                            starting_time = "00:00"
+
+                        try:
+                            ending_time = search_dictionary["DateTime"]["ending_time"]
+                        except:
+                            ending_time = "23:59"
+
+                        starting_date_converted = dt.strptime(starting_date, "%d/%m/%Y")
+                        ending_date_converted = dt.strptime(ending_date, "%d/%m/%Y")
+                        starting_time_converted = dt.strptime(starting_time, '%H:%M')
+                        ending_time_converted = dt.strptime(ending_time, '%H:%M')
+
+                        print(field.date)
+
+
+                        if ending_date_converted >= dt.strptime(field.date, "%d/%m/%Y") >= starting_date_converted:
+                            if ending_time_converted >= dt.strptime(field.time, '%H:%M') >= starting_time_converted:
+                                eligableList.append(post._id)
+                if filter == "Price":
+                    if type(field).__name__ == "Price":
+                        try:
+                            min_price = float(search_dictionary["Price"]["min_price"])
+                        except:
+                            min_price = 0
+
+                        try:
+                            max_price = float(search_dictionary["Price"]["max_price"])
+                        except:
+                            max_price = 999999999
+
+                        try:
+                            currency = search_dictionary["Price"]["currency"]
+                        except:
+                            currency = "TL"
+                        if max_price >= field.amount >= min_price:
+                            if field.currency.lower() == currency.lower():
+                                eligableList.append(post._id)
+
+                if filter == "Participation":
+                    if type(field).__name__ == "Participation":
+                        try:
+                            min_participation = int(search_dictionary["Participation"]["min_participation"])
+                        except:
+                            min_participation = 0
+
+                        try:
+                            max_participation = search_dictionary["Participation"]["max_participation"]
+                        except:
+                            max_participation = 999999999
+
+                        if max_participation >= len(field.list_of_participants)  >= min_participation:
+                            eligableList.append(post._id)
+
+                if filter == "Location":
+                    if type(field).__name__ == "Location":
+                        lat1 = search_dictionary["Location"]["latitude"]
+                        lon1 = search_dictionary["Location"]["longitude"]
+                        lat2 = field.latitude
+                        lon2 = field.longitude
+
+                        try:
+                            radius = search_dictionary["Location"]["radius"]
+                        except:
+                            data['response_message'] = "radius value needed for location filter"
+                            status_code = SC_BAD_REQUEST
+                            return data, status_code
+
+                        dist = mpu.haversine_distance((lat1, lon1), (lat2, lon2))
+
+                        if dist <= float(radius):
+                            eligableList.append(post._id)
+
+    occurences = Counter(eligableList)
+    results = [el for el in occurences.keys() if occurences[el] >= len(search_dictionary.keys())]
+    data['response_message'] = "search result successfully returned"
+    data['post_ids'] = results
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/user_search', methods=['PUT'])
 def user_search():
     req = request.get_json()
     data = {"response_message": None}
@@ -52,7 +201,7 @@ def user_search():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/community_search', methods=['GET'])
+@app.route('/api/community_search', methods=['PUT'])
 def community_search():
     req = request.get_json()
     data = {"response_message": None}
@@ -73,7 +222,7 @@ def community_search():
     status_code = SC_SUCCESS
     return data, status_code
 
-@app.route('/api/user_feed', methods=['GET'])
+@app.route('/api/user_feed', methods=['PUT'])
 def user_feed():
     req = request.get_json()
     data = {"response_message": None}
@@ -90,7 +239,7 @@ def user_feed():
         status_code = SC_FORBIDDEN
         return data, status_code
 
-    post_list = []
+    post_list = {}
 
     user = get_user_by_name(user_name)
     following_list = user["following"]
@@ -105,18 +254,19 @@ def user_feed():
                 if community.is_private:
                     continue
 
-            post_list.append(postId)
+            post_list[postId]= post.post_creation_time
 
     for communityId in user["subscribed_communities"]:
         community = Community.get_community_from_id(communityId)
         for postId in community.post_history_id_list:
             post = Post.get_post(postId)
-            post_list.append(postId)
+            post_list[postId] = dt.strptime(post.post_creation_time, '%Y-%m-%d %H:%M:%S.%f')
 
-    post_list.reverse()
-
+    dict(sorted(post_list.items(), key=lambda item: item[1]))
+    posts = list(post_list.keys())
+    posts.reverse()
     data['response_message'] = "user feed post list successfully returned"
-    data['user_feed_post_list'] = post_list
+    data['user_feed_post_list'] = posts
     status_code = SC_SUCCESS
     return data, status_code
 
@@ -424,7 +574,7 @@ def change_privacy_community_page():
         return data, status_code
 
 
-@app.route('/api/community_feed', methods=['GET'])
+@app.route('/api/community_feed', methods=['PUT'])
 def community_feed():
     # TODO change the input style of the endpoint
     req = request.get_json()
@@ -760,10 +910,58 @@ def sign_in_endpoint():
 
     return data, status_code
 
+@app.route('/api/follow/', methods=['PUT'])
+def follow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
 
-@app.route('/api/profile_page/', methods=['POST', 'GET'])
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists(follower,following)
+
+    data["response_message"] = "succesfully followed."
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/unfollow/', methods=['PUT'])
+def unfollow():
+    req = request.get_json()
+    data = {"response_message": None}
+    status_code = None
+    try:
+        follower = req["follower"]
+    except:
+        data["response_message"] = "follower is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    try:
+        following = req["following"]
+    except:
+        data["response_message"] = "following is not specified."
+        status_code = SC_BAD_REQUEST
+        return data, status_code
+
+    update_follower_and_following_lists2(follower,following)
+
+    data["response_message"] = "succesfully unfollowed."
+    status_code = SC_SUCCESS
+    return data, status_code
+
+@app.route('/api/profile_page/', methods=['POST', 'PUT'])
 def profile_page():
-    # TODO change the GET functionality input type
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -788,7 +986,7 @@ def profile_page():
 
         return data, status_code
 
-    if request.method == "GET":
+    if request.method == "PUT":
         db_return = get_profile_page(user_name)
         if db_return == 2:
             data["response_message"] = "Database error occurred."
@@ -803,9 +1001,25 @@ def profile_page():
         return data, status_code
 
 
-@app.route('/api/post/', methods=['GET', 'POST', 'PUT'])
+#@app.route("/api/post/<post_id>", methods=["GET"])
+def post_get(post_id):
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        try:
+            post = Post.get_post(post_id)
+        except Exception as e:
+            data = {"response_message": str(e)}
+            status_code = SC_BAD_REQUEST
+        else:
+            data["response_message"] = "Post is successfully returned. "
+            data["data"] = post.to_dict()
+            status_code = SC_SUCCESS
+    return data, status_code
+
+
+@app.route('/api/post/', methods=['POST', 'PUT'])
 def post():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -833,25 +1047,6 @@ def post():
 
     elif request.method == "PUT":  # Only for creating a new post.
 
-        try:
-            _id = req["post_id"]
-            post_entries_dictionary_list = req["post_entries_dictionary_list"]
-
-        except Exception as e:
-            data = {"response_message": "Necessary arguments are not given."}
-            status_code = SC_BAD_REQUEST
-        else:
-            try:
-                updated_post = Post.update_post(_id, post_entries_dictionary_list)
-            except Exception as e:
-                data = {"response_message": str(e)}
-                status_code = SC_BAD_REQUEST
-            else:
-                data["response_message"] = "Post is successfully updated. "
-                data["data"] = {"_id": updated_post.get_id()}
-                status_code = SC_SUCCESS
-
-    elif request.method == "GET":
         try:
             post_id = req["post_id"]
         except Exception:
@@ -1053,9 +1248,8 @@ def post_cancel_vote():
     return data, status_code
 
 
-@app.route('/api/post_type/', methods=['GET', 'POST'])
+@app.route('/api/post_type/', methods=['PUT', 'POST'])
 def post_type():
-    # TODO change the input type of the GET functionality
     req = request.get_json()
     data = {"response_message": None}
     status_code = None
@@ -1082,7 +1276,7 @@ def post_type():
                 data["data"] = {"_id": new_post_type.get_id()}
                 status_code = SC_SUCCESS
 
-    elif request.method == "GET":
+    elif request.method == "PUT":
         try:
             _id = req["post_type_id"]
         except Exception as e:
@@ -1103,21 +1297,109 @@ def post_type():
     return data, status_code
 
 
-@app.route('/api/deneme/', methods=['GET', 'POST'])
-def deneme():
-    # TODO change the GET functionality input type
+@app.route("/api/comment", methods=["POST"])
+def comment_post():
     req = request.get_json()
-    community_id = req["community_id"]
     data = {"response_message": None}
     status_code = None
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    if request.method == "POST":
+        needed_keys = ['user_id', 'parent_discussion_id', 'text']
+        if len(needed_keys) != len(req):
+            # return invalid input error
+            data[
+                'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+            status_code = SC_BAD_REQUEST
+            return data, status_code
+        for r_keys in req:
+            if r_keys in needed_keys:
+                pass
+            else:
+                # return invalid input error
+                data[
+                    'response_message'] = "Incorrect json content. (necessary fields are user_id, parent_discussion_id, text)"
+                status_code = SC_BAD_REQUEST
+                return data, status_code
 
-    import database.database_utilities as dbu
+    result, current_comment = Comment.create_comment(req['parent_discussion_id'], req['text'], req['user_id'], env)
 
-    print(dbu.get_community_by_community_id(community_id))
-    data["response_message"] = "Bla bla"
-    status_code = SC_SUCCESS
-
+    if result == 11:
+        # there is no parent discussion
+        data['response_message'] = "There is no parent discussion with the given discussion id"
+        status_code = SC_FORBIDDEN
+    elif result == 12:
+        data['response_message'] = "Given text is empty"
+        status_code = SC_FORBIDDEN
+    elif result == 13:
+        data['response_message'] = "There is no registered user with the given user id"
+        status_code = SC_FORBIDDEN
+    elif result == 14:
+        data['response_message'] = "A new Discussion could not created"
+        status_code = SC_INTERNAL_ERROR
+    elif result == 0:
+        data['response_message'] = "Successfully a comment created"
+        data['comment'] = current_comment
+        status_code = SC_CREATED
+    else:
+        data['response_message'] = "Parent discussion related internal error occurred"
+        status_code = SC_INTERNAL_ERROR
     return data, status_code
+
+
+@app.route("/api/comment/<comment_id>", methods=['GET'])
+def comment_get(comment_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        current_comment = Comment.get_comment_by_comment_id(comment_id, env)
+        if current_comment:
+            data['response_message'] = "Successfully comment found"
+            data['comment'] = current_comment
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "There is no comment with the given comment id"
+            status_code = SC_FORBIDDEN
+
+        return data, status_code
+
+
+@app.route("/api/discussion/<discussion_id>", methods=["GET"])
+def discussion_get(discussion_id):
+    try:
+        env = request.headers['env']
+    except KeyError:
+        env = None
+    data = {"response_message": None}
+    status_code = None
+    if request.method == "GET":
+        result, current_discussion = Discussion.get_discussion(discussion_id, env)
+        if result == 11:
+            data['response_message'] = "There is no discussion with the given discussion id"
+            status_code = SC_FORBIDDEN
+        elif result == 0:
+            data['response_message'] = "Successfully discussion found"
+            data['discussion'] = current_discussion
+            status_code = SC_SUCCESS
+        else:
+            data['response_message'] = "Some internal error occurred"
+            status_code = SC_INTERNAL_ERROR
+        return data, status_code
+
+
+@app.route("/api/discussion", methods=["POST"])
+def discussion_post():
+    current_discussion = Discussion.create_new_empty_discussion()
+    data = {
+        "discussion": current_discussion
+    }
+    return data, 201
 
 
 if __name__ == '__main__':

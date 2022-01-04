@@ -20,16 +20,20 @@
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.24.0",
     "bootstrap": "^4.6.1",
+    "bootstrap-icons": "^1.7.2",
     "date-fns": "^2.25.0",
     "font-awesome": "^4.7.0",
+    "google-map-react": "^2.1.10",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.3",
     "react-dom": "^17.0.2",
     "react-file-base64": "^1.0.3",
     "react-google-maps": "^9.4.5",
+    "react-icons": "^4.3.1",
     "react-navigation": "^4.4.4",
     "react-places-autocomplete": "^7.3.0",
     "react-scripts": "4.0.3",
+    "reactjs-popup": "^2.0.5",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
@@ -59,6 +63,6 @@
   "devDependencies": {
     "@mui/material": "^5.0.6",
     "react-router-dom": "^6.2.1",
-    "sass": "^1.45.0"
+    "sass": "^1.45.2"
   }
 }

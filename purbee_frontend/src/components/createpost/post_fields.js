@@ -43,7 +43,7 @@ export const PostFields = (props) => {
     }
 
     const handleChangeDates = (newDate, index) => {
-        setCurrentDate(newDate)       
+        setCurrentDate(newDate)
         setDateIndex(index)
     }
 

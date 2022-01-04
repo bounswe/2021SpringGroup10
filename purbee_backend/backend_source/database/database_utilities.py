@@ -44,14 +44,19 @@ def update_community(community_dictionary, env=None):
     db_return = community_database.update({"_id": community_dictionary['id']}, {
         "$set": community_dictionary})
 
+
     if db_return["ok"] != 1.0:
         return 1
     else:
         return 0
 
 
-def create_new_comment(comment_dict):
-    if get_comment_dict_by_comment_id(comment_dict["id"]):
+def create_new_comment(comment_dict, env=None):
+    if env == "test":
+        comment_db = test_comments
+    else:
+        comment_db = comments
+    if get_comment_dict_by_comment_id(comment_dict["id"], env):
         return 1
     try:
         neu_comment = {}
@@ -61,19 +66,32 @@ def create_new_comment(comment_dict):
             else:
                 neu_comment[key] = comment_dict[key]
 
-        comments.insert_one(neu_comment)
+        comment_db.insert_one(neu_comment)
         return 0
     except:
         return 2
 
 
-def get_comment_dict_by_comment_id(comment_id):
-    return comments.find_one({"_id": comment_id})
+def get_comment_dict_by_comment_id(comment_id, env=None):
+    if env == 'test':
+        comment_db = test_comments
+    else:
+        comment_db = comments
+    result = comment_db.find_one({"_id": comment_id})
+    if result is None:
+        return None
+    result.pop("_id")
+    result["id"] = comment_id
+    return result
 
 
-def update_comment(comment_dictionary):
+def update_comment(comment_dictionary, env=None):
+    if env == 'test':
+        comment_db = test_comments
+    else:
+        comment_db = comments
     id_value = comment_dictionary.pop('id')
-    db_return = comments.update({"_id": id_value}, {
+    db_return = comment_db.update({"_id": id_value}, {
         "$set": comment_dictionary
     })
 
@@ -83,9 +101,13 @@ def update_comment(comment_dictionary):
         return 0
 
 
-def update_discussion(discussion_dictionary):
+def update_discussion(discussion_dictionary, env=None):
+    if env == 'test':
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
     id_value = discussion_dictionary.pop('id')
-    db_return = discussions.update({"_id": id_value}, {
+    db_return = discussion_db.update({"_id": id_value}, {
         "$set": discussion_dictionary
     })
 
@@ -95,8 +117,12 @@ def update_discussion(discussion_dictionary):
         return 0
 
 
-def create_new_discussion(discussion_dictionary):
-    if get_discussion_dict_by_discussion_id(discussion_dictionary["id"]):
+def create_new_discussion(discussion_dictionary, env=None):
+    if env == 'test':
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
+    if get_discussion_dict_by_discussion_id(discussion_dictionary["id"], env):
         return 1
     try:
         neu_discussion = {}
@@ -106,14 +132,23 @@ def create_new_discussion(discussion_dictionary):
             else:
                 neu_discussion[key] = discussion_dictionary[key]
 
-        discussions.insert_one(neu_discussion)
+        discussion_db.insert_one(neu_discussion)
         return 0
     except:
         return 2
 
 
-def get_discussion_dict_by_discussion_id(discussion_id):
-    return discussions.find_one({"_id": discussion_id})
+def get_discussion_dict_by_discussion_id(discussion_id, env=None):
+    if env == "test":
+        discussion_db = test_discussions
+    else:
+        discussion_db = discussions
+    result = discussion_db.find_one({"_id": discussion_id})
+    if result:
+        result.pop("_id")
+        result['id'] = discussion_id
+        return result
+    return None
 
 
 def save_new_community(community_dictionary, env=None):
@@ -297,10 +332,26 @@ def update_profile_info_by_user_name(user_name, profile_info_dict):
 def update_follower_and_following_lists(user_name1, user_name2):
     try:
         following = get_user_by_name(user_name1)["following"]
-        following.append(user_name2)
+        if user_name2 not in following:
+            following.append(user_name2)
         registered_users.update({"user_name": user_name1}, {"$set": {"following": following}})
         followers = get_user_by_name(user_name2)["followers"]
-        followers.append(user_name1)
+        if user_name1 not in followers:
+            followers.append(user_name1)
+        registered_users.update({"user_name": user_name2}, {"$set": {"followers": followers}})
+        return 0
+    except:
+        return 1
+
+def update_follower_and_following_lists2(user_name1, user_name2):
+    try:
+        following = get_user_by_name(user_name1)["following"]
+        if user_name2 not in following:
+            following.remove(user_name2)
+        registered_users.update({"user_name": user_name1}, {"$set": {"following": following}})
+        followers = get_user_by_name(user_name2)["followers"]
+        if user_name1 not in followers:
+            followers.remove(user_name1)
         registered_users.update({"user_name": user_name2}, {"$set": {"followers": followers}})
         return 0
     except:
@@ -317,5 +368,5 @@ def get_profile_page_by_user_name(user_name):
         return 1
     else:
         profile_info_fields = ['profile_photo', "following", "followers", "first_name", "last_name", "birth_date",
-                               "post_list", "user_name"]
+                               "post_list", "user_name","subscribed_communities"]
         return {key: value for key, value in user.items() if (key in profile_info_fields)}
