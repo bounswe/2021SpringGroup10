@@ -82,7 +82,7 @@ const Search = () => {
     }
 
     const go_community_profile = (community) => {
-        navigate('/community-page/' + community)
+        navigate('/community-home/' + community)
     }
 
     var list_items = []
