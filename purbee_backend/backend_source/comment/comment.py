@@ -52,7 +52,7 @@ class Comment:
             # new discussion could not created
             return 14, None
         neu_discussion_id = created_discussion['id']
-        neu_comment_id = uuid.uuid4()
+        neu_comment_id = str(uuid.uuid4())
         current_comment_dict = {
             "id": neu_comment_id,
             "discussion_id": neu_discussion_id,
