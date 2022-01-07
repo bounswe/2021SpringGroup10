@@ -44,7 +44,7 @@ export const CommunityHome2 = () => {
             set_is_private(response.data.community_instance.is_private)
             set_subscriber_list(response.data.community_instance.subscriber_list)
             set_post_history_id_list(response.data.community_instance.post_history_id_list)
-            set_post_type_id_list(response.data.community_instance.post_type_name_list)
+            set_post_type_id_list(response.data.community_instance.post_type_id_list)
             set_requesters(response.data.community_instance.requesters)
             if(requesters.includes(getUser())) {
                 set_subscribe_or_request("Request sent")
