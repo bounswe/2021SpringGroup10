@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/homeFragment2">
+
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="com.example.mvvmapp.ui.home.HomeFragment"
+        tools:layout="@layout/fragment_home"
+        android:label="Home" >
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/communityFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityFragment"
+        tools:layout="@layout/fragment_community"
+        android:label="Community" >
+        <action
+            android:id="@+id/action_communityFragment_to_communityCreationFragment"
+            app:destination="@id/communityCreationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createBasicPostFragment"
+        android:name="com.example.mvvmapp.ui.home.CreateBasicPostFragment"
+        tools:layout="@layout/fragment_basic_post_creation"
+        android:label="Create Basic Post" />
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.example.mvvmapp.ui.home.CreatePostFragment"
+        tools:layout="@layout/fragment_create_post"
+        android:label="Create Post" >
+        <action
+        android:id="@+id/action_createPostFragment_to_createBasicPostFragment"
+        app:destination="@id/createBasicPostFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.mvvmapp.ui.home.SearchFragment"
+        tools:layout="@layout/fragment_search"
+        android:label="Search" />
+    <fragment
+        android:id="@+id/profileFragment2"
+        android:name="com.example.mvvmapp.ui.home.profile.ProfileFragment"
+        tools:layout="@layout/profile_fragment"
+        android:label="Profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_updateProfileFragment"
+            app:destination="@id/fragment_updateProfile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_updateProfile"
+        android:name="com.example.mvvmapp.ui.home.UpdateProfileFragment"
+        tools:layout="@layout/fragment_update_profile"
+        android:label="Update Profile" />
+
+    <fragment
+        android:id="@+id/communityCreationFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityCreationFragment"
+        tools:layout="@layout/fragment_community_creation"
+        android:label="Community Creation">
+        <action
+            android:id="@+id/action_communityCreationFragment_to_communityPageFragment"
+            app:destination="@id/communityPageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPageFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPageFragment"
+        android:label="Community Page"
+        tools:layout="@layout/fragment_community_page">
+        <action
+            android:id="@+id/action_communityPageFragment_to_communityPostTypesFragment"
+            app:destination="@id/communityPostTypesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPostTypesFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPostTypesFragment"
+        android:label="Community Post Types"
+        tools:layout="@layout/fragment_community_post_types" >
+        <action
+            android:id="@+id/action_communityPostTypesFragment_to_communityPostTypeCreationFragment"
+            app:destination="@id/communityPostTypeCreationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/communityPostTypeCreationFragment"
+        android:name="com.example.mvvmapp.ui.community.CommunityPostTypeCreationFragment"
+        android:label="Community Post Type Creation"
+        tools:layout="@layout/fragment_community_post_type_creation" />
+</navigation>

@@ -1,0 +1,51 @@
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/remove_member method="PUT"
+		http://3.134.93.99:8080/api/community_page/remove_member method='PUT'
+	input:
+		{
+			'community_name',
+			'user_id'
+		}
+	output:
+		{
+			response message,
+			updated community
+		}
+		status code
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/community_page/ban_member method="PUT"
+		http://3.134.93.99:8080/api/community_page/ban_member method='PUT'
+	input:
+		{
+			'community_name',
+			'user_id'
+		}
+	output:
+		{
+			response message,
+			updated community
+		}
+		status code
+
+
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/post method="POST"
+		http://3.134.93.99:8080/api/post/ method='POST'
+	input:
+		{
+			post_information
+		}
+	output:
+		{
+			post_id
+		}
+
+https://cz2qlmf16e.execute-api.us-east-2.amazonaws.com/dev/api/post method="GET"
+		http://3.134.93.99:8080/api/post/ method='GET'
+	input:
+		{
+			post_id
+		}
+	output:
+		{
+			post_information
+		}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="Home"
+        android:id="@+id/homeFragment2" />
+    <item
+        android:title="Community"
+        android:id="@+id/communityFragment" />
+
+    <item
+        android:title="Profile"
+        android:id="@+id/profileFragment2" />
+
+
+</menu>

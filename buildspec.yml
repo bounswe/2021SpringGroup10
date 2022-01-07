@@ -1,0 +1,9 @@
+version: 0.1
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  pre_build:
+    commands:
+      - pip install -r /purbee_backend/requirements.txt
+      - python /purbee_backend/backend_tests/app_test.py

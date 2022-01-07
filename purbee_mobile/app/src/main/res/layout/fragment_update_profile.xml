@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250dp"
+        android:background="@drawable/shape"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:text="Update Profile Information"
+            android:textAllCaps="false"
+            android:layout_marginBottom="20dp"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
+            android:typeface="monospace" />
+
+        <EditText
+            android:id="@+id/editTextProfileInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/edit_text_round_gray_background"
+            android:drawablePadding="16dp"
+            android:hint="Update Biography"
+            android:inputType="textPersonName"
+            android:padding="12dp" />
+
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:datePickerMode="spinner"
+            android:visibility="gone"
+            android:calendarViewShown="false"/>
+
+
+        <Button
+            android:id="@+id/buttonUpdateProfileSave"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Save"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+
+</layout>
